@@ -7,7 +7,8 @@
             (respo.comp.text :refer (comp-text))
             (respo.comp.space :refer (comp-space))
             (app.comp.def :refer (comp-def))
-            (app.util.detect :refer (def-order))))
+            (app.util.detect :refer (def-order))
+            (app.style.widget :as widget)))
 
 (def style-body {:flex 1, :overflow :auto})
 
@@ -19,14 +20,23 @@
 
 (def style-column {:min-width 80, :overflow :auto, :padding "16px 16px", :flex-shrink 0})
 
+(defn on-files [e dispatch!] (dispatch! :router/route {:name :file-tree, :data nil}))
+
+(defn render-toolbar []
+  (div
+   {:style style-toolbar}
+   (div
+    {}
+    (button {:inner-text "Expand", :style widget/button, :event {:click on-load}})
+    (comp-space 8 nil)
+    (button {:inner-text "Files", :style widget/button, :event {:click on-files}}))))
+
 (defcomp
  comp-graph
  (store)
  (div
   {:style (merge ui/fullscreen ui/column style-graph)}
-  (div
-   {:style style-toolbar}
-   (div {} (button {:inner-text "Generate!", :style ui/button, :event {:click on-load}})))
+  (render-toolbar)
   (let [tree (get-in store [:graph :tree]), view-path (get-in store [:graph :path])]
     (div
      {:style (merge ui/row style-body)}

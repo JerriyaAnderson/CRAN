@@ -10,7 +10,7 @@
 (defn on-switch [router writer]
   (fn [e dispatch!]
     (if (= (:name router) :workspace)
-      (dispatch! :router/route {:name :analyzer, :data :definitions})
+      (dispatch! :router/route {:name :graph, :data nil})
       (if (not (empty? (:stack writer)))
         (dispatch! :router/route {:name :workspace, :data nil})))))
 

@@ -825,6 +825,26 @@
                                        ["[]" ":collection" ":files" [":ns" "info"] ":defs" [":extra" "info"]]
                                        ["[]" ":collection" ":files" [":ns" "info"] "kind"]]]],
                         "view-focused" ["defn" "view-focused" ["store"] ["get-in" "store" ["make-focus-path" "store"]]],
+                        "segments->tree" ["defn"
+                                          "segments->tree"
+                                          ["segments"]
+                                          ["if"
+                                           ["empty?" "segments"]
+                                           ":file"
+                                           ["->>"
+                                            "segments"
+                                            ["group-by" "first"]
+                                            ["map"
+                                             ["fn"
+                                              ["entry"]
+                                              ["[]"
+                                               ["key" "entry"]
+                                               ["->>"
+                                                ["val" "entry"]
+                                                ["map" "rest"]
+                                                ["filter" ["fn" ["x"] ["not" ["empty?" "x"]]]]
+                                                ["segments->tree"]]]]]
+                                            ["into" ["{}"]]]]],
                         "make-short-path" ["defn"
                                            "make-short-path"
                                            ["info"]
@@ -1040,7 +1060,8 @@
                              ["respo.comp.text" ":refer" ["comp-text"]]
                              ["respo.comp.space" ":refer" ["comp-space"]]
                              ["app.comp.def" ":refer" ["comp-def"]]
-                             ["app.util.detect" ":refer" ["def-order"]]]],
+                             ["app.util.detect" ":refer" ["def-order"]]
+                             ["app.style.widget" ":as" "widget"]]],
                        :defs {"style-body" ["def" "style-body" ["{}" [":flex" "1"] [":overflow" ":auto"]]],
                               "style-graph" ["def"
                                              "style-graph"
@@ -1059,15 +1080,7 @@
                                             ["store"]
                                             ["div"
                                              ["{}" [":style" ["merge" "ui/fullscreen" "ui/column" "style-graph"]]]
-                                             ["div"
-                                              ["{}" [":style" "style-toolbar"]]
-                                              ["div"
-                                               ["{}"]
-                                               ["button"
-                                                ["{}"
-                                                 [":inner-text" "|Generate!"]
-                                                 [":style" "ui/button"]
-                                                 [":event" ["{}" [":click" "on-load"]]]]]]]
+                                             ["render-toolbar"]
                                              ["let"
                                               [["tree" ["get-in" "store" ["[]" ":graph" ":tree"]]]
                                                ["view-path" ["get-in" "store" ["[]" ":graph" ":path"]]]]
@@ -1100,7 +1113,29 @@
                                                           ["[]"
                                                            "idx"
                                                            ["comp-def" "child-node" "next-path" "next-cursor"]]]]]]]]]]
-                                                  ["recur" "next-children" "rest-path"]]]]]]]]},
+                                                  ["recur" "next-children" "rest-path"]]]]]]]],
+                              "render-toolbar" ["defn"
+                                                "render-toolbar"
+                                                []
+                                                ["div"
+                                                 ["{}" [":style" "style-toolbar"]]
+                                                 ["div"
+                                                  ["{}"]
+                                                  ["button"
+                                                   ["{}"
+                                                    [":inner-text" "|Expand"]
+                                                    [":style" "widget/button"]
+                                                    [":event" ["{}" [":click" "on-load"]]]]]
+                                                  ["comp-space" "8" "nil"]
+                                                  ["button"
+                                                   ["{}"
+                                                    [":inner-text" "|Files"]
+                                                    [":style" "widget/button"]
+                                                    [":event" ["{}" [":click" "on-files"]]]]]]]],
+                              "on-files" ["defn"
+                                          "on-files"
+                                          ["e" "dispatch!"]
+                                          ["dispatch!" ":router/route" ["{}" [":name" ":file-tree"] [":data" "nil"]]]]},
                        :procs []},
          "updater.graph" {:ns ["ns"
                                "app.updater.graph"
@@ -1153,7 +1188,8 @@
                                     [":router"
                                      ["{}" [":name" ":loading"] [":data" ":definitions"] [":show-palette?" "false"]]]
                                     [":collection" ["{}" [":package" "nil"] [":root" "nil"] [":files" ["{}"]]]]
-                                    [":graph" ["{}" [":tree" "nil"] [":orphans" "nil"] [":path" ["[]"]]]]
+                                    [":graph"
+                                     ["{}" [":tree" "nil"] [":orphans" "nil"] [":path" ["[]"]] [":ns-path" ["[]"]]]]
                                     [":writer" ["{}" [":stack" ["[]"]] [":pointer" "0"] [":clipboard" ["[]"]]]]
                                     [":notifications" ["[]"]]
                                     [":modal-stack" ["[]"]]
@@ -1178,7 +1214,8 @@
                                  ["app.comp.graph" ":refer" ["comp-graph"]]
                                  ["[]" "app.util.keycode" ":as" "keycode"]
                                  ["[]" "app.util.dom" ":as" "dom"]
-                                 ["[]" "app.style.widget" ":as" "widget"]]],
+                                 ["[]" "app.style.widget" ":as" "widget"]
+                                 ["app.comp.file-tree" ":refer" ["comp-file-tree"]]]],
                            :defs {"comp-container" ["defcomp"
                                                     "comp-container"
                                                     ["store"]
@@ -1201,6 +1238,7 @@
                                                         ["comp-definitions" "states" [":collection" "store"]]]
                                                        [":workspace" ["comp-workspace" "store"]]
                                                        [":graph" ["comp-graph" "store"]]
+                                                       [":file-tree" ["comp-file-tree" "store"]]
                                                        ["comp-text" "router" "nil"]]
                                                       ["comp-notifications" [":notifications" "store"]]
                                                       ["--"
@@ -1248,12 +1286,22 @@
                                        ["path" "child-node"]
                                        ["fn"
                                         ["e" "dispatch!"]
-                                        ["dispatch!" ":graph/view-path" ["conj" "path" "child-node"]]]],
+                                        ["if"
+                                         [".-metaKey" [":original-event" "e"]]
+                                         ["dispatch!"
+                                          ":collection/edit"
+                                          ["{}"
+                                           [":kind" ":defs"]
+                                           [":ns" [":ns" "child-node"]]
+                                           [":extra" [":def" "child-node"]]
+                                           [":focus" ["[]"]]]]
+                                         ["dispatch!" ":graph/view-path" ["conj" "path" "child-node"]]]]],
                             "style-circular" ["def" "style-circular" ["{}" [":text-decoration" ":underline"]]],
                             "style-def" ["def"
                                          "style-def"
                                          ["{}"
                                           [":color" ["hsl" "0" "0" "70" "0.6"]]
+                                          [":font-size" "14"]
                                           [":cursor" ":pointer"]
                                           [":white-space" ":nowrap"]]],
                             "style-external" ["def"
@@ -2507,6 +2555,49 @@
                                                   ":notification/add-one"
                                                   ["str" "|Checking failed: " ["pr-str" "text"]]]]]]]},
                          :procs []},
+         "comp.file-tree" {:ns ["ns"
+                                "app.comp.file-tree"
+                                [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
+                                [":require"
+                                 ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                                 ["[]" "respo.alias" ":refer" ["[]" "div"]]
+                                 ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
+                                 ["[]" "respo-ui.style" ":as" "ui"]
+                                 ["clojure.string" ":as" "string"]
+                                 ["app.util" ":refer" ["segments->tree"]]]],
+                           :defs {"comp-file-tree" ["defcomp"
+                                                    "comp-file-tree"
+                                                    ["store"]
+                                                    ["div"
+                                                     ["{}" [":style" ["merge" "ui/fullscreen" "style-file-tree"]]]
+                                                     ["render-toolbar"]
+                                                     ["div"
+                                                      ["{}"]
+                                                      ["let"
+                                                       [["ns-names"
+                                                         ["keys" ["get-in" "store" ["[]" ":collection" ":files"]]]]
+                                                        ["segments"
+                                                         ["->>"
+                                                          "ns-names"
+                                                          ["map" ["fn" ["x"] ["string/split" "x" "|."]]]]]
+                                                        ["file-tree" ["segments->tree" "segments"]]
+                                                        ["ns-path" ["get-in" "store" ["[]" ":graph" ":ns-path"]]]]
+                                                       ["loop"
+                                                        ["[]" "children" ["[]"] "path" "ns-path"]
+                                                        ["let"
+                                                         [["next-children" "[]"]]
+                                                         ["if"
+                                                          ["empty?" "path"]
+                                                          "next-children"
+                                                          ["recur" "next-children" ["rest" "path"]]]]]]]]],
+                                  "style-file-tree" ["def"
+                                                     "style-file-tree"
+                                                     ["{}" [":background-color" ["hsl" "0" "0" "0"]]]],
+                                  "render-toolbar" ["defn"
+                                                    "render-toolbar"
+                                                    []
+                                                    ["div" ["{}"] ["comp-text" "|Tools" "nil"]]]},
+                           :procs []},
          "updater.collection" {:ns ["ns"
                                     "app.updater.collection"
                                     [":require"
@@ -2899,7 +2990,7 @@
                                                   ["=" [":name" "router"] ":workspace"]
                                                   ["dispatch!"
                                                    ":router/route"
-                                                   ["{}" [":name" ":analyzer"] [":data" ":definitions"]]]
+                                                   ["{}" [":name" ":graph"] [":data" "nil"]]]
                                                   ["if"
                                                    ["not" ["empty?" [":stack" "writer"]]]
                                                    ["dispatch!"

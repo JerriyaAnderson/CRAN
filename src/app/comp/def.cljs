@@ -8,11 +8,17 @@
             (respo.comp.space :refer (comp-space))))
 
 (defn on-view [path child-node]
-  (fn [e dispatch!] (dispatch! :graph/view-path (conj path child-node))))
+  (fn [e dispatch!]
+    (if (.-metaKey (:original-event e))
+      (dispatch!
+       :collection/edit
+       {:kind :defs, :ns (:ns child-node), :extra (:def child-node), :focus []})
+      (dispatch! :graph/view-path (conj path child-node)))))
 
 (def style-circular {:text-decoration :underline})
 
-(def style-def {:color (hsl 0 0 70 0.6), :cursor :pointer, :white-space :nowrap})
+(def style-def
+  {:color (hsl 0 0 70 0.6), :font-size 14, :cursor :pointer, :white-space :nowrap})
 
 (def style-external {:color (hsl 300 40 30), :font-size 12, :cursor :default})
 

@@ -16,7 +16,8 @@
             (app.comp.graph :refer (comp-graph))
             [app.util.keycode :as keycode]
             [app.util.dom :as dom]
-            [app.style.widget :as widget]))
+            [app.style.widget :as widget]
+            (app.comp.file-tree :refer (comp-file-tree))))
 
 (defn on-keydown [e dispatch!] )
 
@@ -33,6 +34,7 @@
       :analyzer (comp-definitions states (:collection store))
       :workspace (comp-workspace store)
       :graph (comp-graph store)
+      :file-tree (comp-file-tree store)
       (comp-text router nil))
     (comp-notifications (:notifications store))
     (comment comp-debug (:stack (:writer store)) {:bottom 0})

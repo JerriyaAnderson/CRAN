@@ -57,6 +57,20 @@
 
 (defn view-focused [store] (get-in store (make-focus-path store)))
 
+(defn segments->tree [segments]
+  (if (empty? segments)
+    :file
+    (->> segments
+         (group-by first)
+         (map
+          (fn [entry]
+            [(key entry)
+             (->> (val entry)
+                  (map rest)
+                  (filter (fn [x] (not (empty? x))))
+                  (segments->tree))]))
+         (into {}))))
+
 (defn make-short-path [info]
   (let [kind (:kind info)]
     (if (= kind :defs) [(:ns info) :defs (:extra info)] [(:ns info) kind])))
