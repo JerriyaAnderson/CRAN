@@ -1,15 +1,18 @@
 
 (ns app.util.analyze
-  (:require [clojure.string :as string] [app.util.detect :refer [contains-def?]]))
+  (:require [clojure.string :as string] [app.util.detect :refer [contains-def? use-vector?]]))
 
 (defn pick-rule [ns-block ns-name pkg]
   (let [full-ns (str pkg "." ns-name), rules (subvec (get ns-block 2) 1)]
     (loop [left-rules rules]
       (if (empty? left-rules)
         nil
-        (let [cursor (first left-rules)]
+        (let [cursor (first left-rules)
+              import-rule (if (use-vector? cursor) (subvec cursor 1) cursor)]
           (comment println "Picking" cursor full-ns)
-          (if (= full-ns (get cursor 1)) cursor (recur (rest left-rules))))))))
+          (if (= full-ns (first import-rule))
+            (if (use-vector? cursor) (subvec cursor 1) cursor)
+            (recur (rest left-rules))))))))
 
 (defn parse-rule [dict rule]
   (let [clean-rule (if (= "[]" (first rule)) (subvec rule 1) rule)
@@ -117,14 +120,17 @@
             (into #{}))))))
 
 (defn list-dependent-ns [ns-name files pkg]
-  (let [full-ns (str pkg "." ns-name)]
+  (let [full-ns (str pkg "." ns-name)
+        pick-ns (fn [xs] (if (use-vector? xs) (get xs 1) (first xs)))]
     (->> files
          (filter
           (fn [entry]
             (let [[ns-part file] entry
-                  ns-rules (->> (get-in file [:ns 2])
-                                rest
-                                (map (fn [xs] (get xs 1)))
+                  ns-expr (:ns file)
+                  ns-rules (->> (subvec ns-expr 2)
+                                (map rest)
+                                (apply concat)
+                                (map pick-ns)
                                 (into #{}))]
               (comment println "Search:" ns-name ns-rules)
               (contains? ns-rules full-ns))))

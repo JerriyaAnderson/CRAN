@@ -10,8 +10,8 @@
               helper-create-def
               helper-put-path
               make-path
-              drop-pkg
-              has-ns?]]))
+              has-ns?
+              helper-put-list]]))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -33,8 +33,7 @@
 (defn dependents [store op-data op-id]
   (println "Dependents:" op-data)
   (let [writer (:writer store)
-        stack (:stack writer)
-        pointer (:pointer writer)
+        {stack :stack, pointer :pointer} writer
         code-path (get stack pointer)
         {ns-part :ns, kind :kind, extra-name :extra} code-path
         sepal-ir (:collection store)
@@ -96,25 +95,12 @@
                              (filter (fn [xs] (not (empty? xs))))
                              (apply concat))]
           (println "Got new paths:" new-paths)
-          (update
-           store
-           :writer
-           (fn [writer]
-             (-> writer
-                 (assoc :stack (into [] (concat former-stack new-paths)))
-                 (assoc :pointer (if (empty? new-paths) pointer (inc pointer)))))))
+          (update store :writer (helper-put-list new-paths)))
       :ns
-        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) (:package sepal-ir))
+        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) pkg)
               new-paths (map (fn [x] [x :ns]) ns-list)]
-          (comment println former-stack new-paths pointer)
-          (update
-           store
-           :writer
-           (fn [writer]
-             (-> writer
-                 (assoc :stack (into [] (concat former-stack new-paths)))
-                 (assoc :pointer (if (empty? ns-list) pointer (inc pointer)))
-                 (assoc :focus [])))))
+          (comment println former-stack pointer new-paths)
+          (update store :writer (helper-put-list new-paths)))
       store)))
 
 (defn point-to [store op-data op-id]

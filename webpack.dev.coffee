@@ -12,7 +12,6 @@ module.exports =
     contentBase: resolve(__dirname, 'target')
     publicPath: '/'
     host: '0.0.0.0'
-  # devtool: 'source-map',
   output:
     filename: '[name].js'
   module:
@@ -25,10 +24,6 @@ module.exports =
       query:
         limit: 100
         name: 'fonts/[name].[ext]'
-    ,
-      # test: /\.js$/
-      # loader: 'source-map-loader'
-      # options: { enforce: 'pre' }
     ]
   plugins: [
     new webpack.HotModuleReplacementPlugin(),

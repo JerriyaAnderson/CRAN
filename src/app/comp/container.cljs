@@ -32,7 +32,7 @@
       :file-tree (with-cursor :file-tree (comp-file-tree (:file-tree states) store))
       (comp-text router nil))
     (comp-notifications (:notifications store))
-    (comp-debug (:writer store) {:bottom 0})
+    (comment comp-debug (:writer store) {:bottom 0})
     (if (:show-palette? router)
       (with-cursor :palette (comp-palette (:palette states) (:files (:collection store)))))
     (comp-modal-stack states (:modal-stack store)))))

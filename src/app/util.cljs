@@ -45,7 +45,15 @@
                      stack
                      (conj (into [] (subvec stack 0 next-pointer)) code-path)))))))))))
 
-(defn drop-pkg [x pkg] (if (string? x) (string/replace x (str pkg ".") "") x))
+(defn helper-put-list [new-paths]
+  (fn [writer]
+    (let [stack (:stack writer), pointer (:pointer writer)]
+      (if (empty? new-paths)
+        writer
+        (-> writer
+            (assoc :stack (into [] (concat stack new-paths)))
+            (assoc :pointer (count stack))
+            (assoc :focus [1]))))))
 
 (defn has-ns? [x] (string/includes? x "/"))
 
