@@ -20,8 +20,6 @@ Current status of Stack Editor is mainly for learning and research. If you want 
 
 ### Usage
 
-[Server part](https://github.com/Cirru/stack-server):
-
 ```bash
 npm install -g stack-editor
 ```
@@ -40,20 +38,18 @@ Run editor:
 stack-editor stack.cirru
 ```
 
+![Files](https://user-images.githubusercontent.com/449224/77821627-af2ed780-7126-11ea-8f85-a6e84603a840.png)
 ![Workspace](https://user-images.githubusercontent.com/449224/77821629-b2c25e80-7126-11ea-8931-69aae531fb8d.png)
 ![Dependency tree](https://user-images.githubusercontent.com/449224/77821631-b524b880-7126-11ea-8a00-b8f1e1576938.png)
-![Files](https://user-images.githubusercontent.com/449224/77821627-af2ed780-7126-11ea-8f85-a6e84603a840.png)
 
 ### Options
 
-For the UI part of the editor, it's based on the address:
-
-<http://repo.cirru.org/stack-editor/?host=localhost&port=7010>
+For the UI, it's served at http://repo.cirru.org/stack-editor/?host=localhost&port=7010 with options:
 
 * `port`, defaults to `7010`, server port
 * `host`, defaults to `"localhost"`, server domain
 
-For the [server part](https://github.com/Cirru/stack-server), is an npm command line:
+The CLI support options:
 
 ```bash
 op=watch port=7010 extension=.cljs out=src/ stack-editor stack.cirru
