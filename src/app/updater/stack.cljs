@@ -97,7 +97,9 @@
      (fn [writer]
        (-> writer
            (update :stack (fn [stack] (remove-idx stack pointer)))
-           (update :pointer (fn [pointer] (if (pos? pointer) (dec pointer) pointer))))))))
+           (update
+            :pointer
+            (fn [p] (if (= p pointer) (if (pos? p) (dec p) p) (if (< p pointer) p (dec p))))))))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data

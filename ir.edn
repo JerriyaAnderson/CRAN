@@ -380,8 +380,11 @@
                                                   ["update"
                                                    ":pointer"
                                                    ["fn"
-                                                    ["pointer"]
-                                                    ["if" ["pos?" "pointer"] ["dec" "pointer"] "pointer"]]]]]]]],
+                                                    ["p"]
+                                                    ["if"
+                                                     ["=" "p" "pointer"]
+                                                     ["if" ["pos?" "p"] ["dec" "p"] "p"]
+                                                     ["if" ["<" "p" "pointer"] "p" ["dec" "p"]]]]]]]]]],
                                  "goto-definition" ["defn"
                                                     "goto-definition"
                                                     ["store" "op-data" "op-id"]
