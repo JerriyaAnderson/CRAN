@@ -7,7 +7,8 @@
       writer
       (let [stack (:stack writer), pointer (:pointer writer)]
         (cond
-          (empty? stack) {:stack new-paths, :pointer 0, :focus (:focus (first new-paths))}
+          (empty? stack)
+            {:stack (into [] new-paths), :pointer 0, :focus (:focus (first new-paths))}
           (= (inc pointer) (count stack))
             (-> writer
                 (assoc :stack (into [] (concat stack new-paths)))

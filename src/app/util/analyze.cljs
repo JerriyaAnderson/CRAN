@@ -2,18 +2,6 @@
 (ns app.util.analyze
   (:require [clojure.string :as string] [app.util.detect :refer [contains-def? use-vector?]]))
 
-(defn pick-rule [ns-block ns-name pkg]
-  (let [full-ns (str pkg "." ns-name), rules (subvec (get ns-block 2) 1)]
-    (loop [left-rules rules]
-      (if (empty? left-rules)
-        nil
-        (let [cursor (first left-rules)
-              import-rule (if (use-vector? cursor) (subvec cursor 1) cursor)]
-          (comment println "Picking" cursor full-ns)
-          (if (= full-ns (first import-rule))
-            (if (use-vector? cursor) (subvec cursor 1) cursor)
-            (recur (rest left-rules))))))))
-
 (defn parse-rule [dict rule]
   (let [clean-rule (if (= "[]" (first rule)) (subvec rule 1) rule)
         ns-text (first clean-rule)
@@ -60,10 +48,10 @@
   (let [branches (->> (subvec expression 2) (filter (fn [expr] (= ":require" (first expr)))))]
     (if (empty? branches) {} (doall (reduce parse-rule {} (rest (first branches)))))))
 
-(defn pick-def-deps [expression internal-ns file pkg]
+(defn extract-deps [expression internal-ns file pkg]
   (let [external? (fn [ns-text] (not (string/starts-with? ns-text (str pkg "."))))
         ns-deps (parse-ns-deps (:ns file))]
-    (->> (subvec expression 2)
+    (->> expression
          (flatten)
          (map pick-dep)
          (filter some?)
@@ -98,7 +86,7 @@
 (defn expand-deps-tree [internal-ns def-text files pkg parents]
   (let [this-file (get files internal-ns)
         def-expr (get-in this-file [:defs def-text])
-        def-deps (pick-def-deps def-expr internal-ns this-file pkg)
+        def-deps (extract-deps (subvec def-expr 2) internal-ns this-file pkg)
         stamp {:ns internal-ns, :def def-text}
         base-dep {:ns internal-ns, :def def-text, :external? false, :circular? false}]
     (if (contains? parents stamp)
@@ -135,4 +123,5 @@
                                 (into #{}))]
               (comment println "Search:" ns-name ns-rules)
               (contains? ns-rules full-ns))))
-         (map first))))
+         (map first)
+         (into #{}))))

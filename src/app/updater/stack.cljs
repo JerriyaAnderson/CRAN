@@ -1,10 +1,11 @@
 
 (ns app.updater.stack
   (:require [clojure.string :as string]
-            [app.util.analyze :refer [list-dependent-ns pick-rule parse-ns-deps]]
-            [app.util.detect :refer [strip-atom tree-contains? contains-def?]]
+            [app.util.analyze :refer [list-dependent-ns parse-ns-deps extract-deps]]
+            [app.util.detect :refer [strip-atom contains-def? =path?]]
             [app.util :refer [remove-idx helper-notify helper-create-def make-path has-ns?]]
-            (app.util.stack :refer (push-path push-paths))))
+            (app.util.stack :refer (push-path push-paths))
+            (clojure.set :refer (union))))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -24,79 +25,55 @@
            writer)))))
 
 (defn dependents [store op-data op-id]
-  (println "Dependents:" op-data)
   (let [writer (:writer store)
         {stack :stack, pointer :pointer} writer
         code-path (get stack pointer)
         {ns-part :ns, kind :kind, extra-name :extra} code-path
-        sepal-ir (:collection store)
-        former-stack (subvec stack 0 (inc pointer))
-        pkg (:package sepal-ir)]
+        pkg (get-in store [:collection :package])
+        def-as-dep {:ns (str pkg "." ns-part), :def extra-name, :external? false}
+        files (get-in store [:collection :files])
+        ns-list (list-dependent-ns ns-part files pkg)]
     (case kind
       :defs
-        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) pkg)
-              ns-list-more (cons ns-part ns-list)
-              new-paths (->> ns-list-more
+        (let [new-paths (->> (conj ns-list ns-part)
                              (map
-                              (fn [ns-name]
-                                (let [file (get-in sepal-ir [:files ns-name])
-                                      the-ns-rule (pick-rule (:ns file) ns-part pkg)
-                                      method (get the-ns-rule 2)
-                                      some-defs (:defs file)]
-                                  (comment println "Trying ns:" ns-name method the-ns-rule)
-                                  (if (and (= method ":refer")
-                                           (let [referred-defs (into
-                                                                #{}
-                                                                (subvec
-                                                                 (get the-ns-rule 3)
-                                                                 1))]
-                                             (println
-                                              "Trying refer:"
-                                              referred-defs
-                                              extra-name)
-                                             (not (contains? referred-defs extra-name))))
-                                    (list)
-                                    (let [target-name (if (= method ":refer")
-                                                        extra-name
-                                                        (str (get the-ns-rule 3) extra-name))
-                                          matched-defs (->> some-defs
-                                                            (filter
-                                                             (fn [entry]
-                                                               (let [[def-text tree] entry]
-                                                                 (println
-                                                                  "Detecting def:"
-                                                                  ns-name
-                                                                  def-text)
-                                                                 (and (not=
-                                                                       extra-name
-                                                                       def-text)
-                                                                      (tree-contains?
-                                                                       (subvec tree 2)
-                                                                       extra-name)))))
-                                                            (map
-                                                             (fn [entry]
-                                                               {:ns ns-name,
-                                                                :kind :defs,
-                                                                :extra (first entry),
-                                                                :focus []})))
-                                          proc-matching? (tree-contains?
-                                                          (:procs file)
-                                                          extra-name)]
-                                      (if proc-matching?
-                                        (cons
-                                         {:ns ns-name, :kind :procs, :extra nil}
-                                         matched-defs)
-                                        matched-defs))))))
-                             (filter (fn [xs] (not (empty? xs))))
-                             (apply concat))]
-          (println "Got new paths:" new-paths)
+                              (fn [ns-text]
+                                (let [file (get files ns-text)]
+                                  (into
+                                   #{}
+                                   (concat
+                                    (->> (:defs file)
+                                         (filter
+                                          (fn [entry]
+                                            (let [def-deps (extract-deps
+                                                            (subvec (val entry) 2)
+                                                            ns-part
+                                                            file
+                                                            pkg)]
+                                              (contains? def-deps def-as-dep))))
+                                         (map
+                                          (fn [entry]
+                                            {:kind :defs,
+                                             :ns ns-text,
+                                             :extra (first entry),
+                                             :focus [2]})))
+                                    (let [proc-deps (extract-deps
+                                                     (:procs file)
+                                                     ns-part
+                                                     file
+                                                     pkg)]
+                                      (if (contains? proc-deps def-as-dep)
+                                        (list
+                                         {:kind :procs, :ns ns-text, :extra nil, :focus [0]})
+                                        (list))))))))
+                             (apply concat)
+                             (filter (fn [x] (not (=path? x code-path)))))]
           (if (empty? new-paths)
             (update store :notifications (helper-notify op-id "Nothing found."))
             (update store :writer (push-paths new-paths))))
       :ns
-        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) pkg)
-              new-paths (map (fn [x] [x :ns]) ns-list)]
-          (comment println former-stack pointer new-paths)
+        (let [new-paths (map (fn [x] [x :ns]) ns-list)]
+          (comment println pointer new-paths)
           (update store :writer (push-paths new-paths)))
       store)))
 

@@ -177,13 +177,14 @@
                                 ["[]"
                                  "app.util.analyze"
                                  ":refer"
-                                 ["[]" "list-dependent-ns" "pick-rule" "parse-ns-deps"]]
-                                ["[]" "app.util.detect" ":refer" ["[]" "strip-atom" "tree-contains?" "contains-def?"]]
+                                 ["[]" "list-dependent-ns" "parse-ns-deps" "extract-deps"]]
+                                ["[]" "app.util.detect" ":refer" ["[]" "strip-atom" "contains-def?" "=path?"]]
                                 ["[]"
                                  "app.util"
                                  ":refer"
                                  ["[]" "remove-idx" "helper-notify" "helper-create-def" "make-path" "has-ns?"]]
-                                ["app.util.stack" ":refer" ["push-path" "push-paths"]]]],
+                                ["app.util.stack" ":refer" ["push-path" "push-paths"]]
+                                ["clojure.set" ":refer" ["union"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
                                              ["store" "op-data" "op-id"]
@@ -214,84 +215,70 @@
                                  "dependents" ["defn"
                                                "dependents"
                                                ["store" "op-data" "op-id"]
-                                               ["println" "|Dependents:" "op-data"]
                                                ["let"
                                                 [["writer" [":writer" "store"]]
                                                  [["{}" ["stack" ":stack"] ["pointer" ":pointer"]] "writer"]
                                                  ["code-path" ["get" "stack" "pointer"]]
                                                  [["{}" ["ns-part" ":ns"] ["kind" ":kind"] ["extra-name" ":extra"]]
                                                   "code-path"]
-                                                 ["sepal-ir" [":collection" "store"]]
-                                                 ["former-stack" ["subvec" "stack" "0" ["inc" "pointer"]]]
-                                                 ["pkg" [":package" "sepal-ir"]]]
+                                                 ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]
+                                                 ["def-as-dep"
+                                                  ["{}"
+                                                   [":ns" ["str" "pkg" "|." "ns-part"]]
+                                                   [":def" "extra-name"]
+                                                   [":external?" "false"]]]
+                                                 ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]
+                                                 ["ns-list" ["list-dependent-ns" "ns-part" "files" "pkg"]]]
                                                 ["case"
                                                  "kind"
                                                  [":defs"
                                                   ["let"
-                                                   [["ns-list"
-                                                     ["list-dependent-ns" "ns-part" [":files" "sepal-ir"] "pkg"]]
-                                                    ["ns-list-more" ["cons" "ns-part" "ns-list"]]
-                                                    ["new-paths"
+                                                   [["new-paths"
                                                      ["->>"
-                                                      "ns-list-more"
+                                                      ["conj" "ns-list" "ns-part"]
                                                       ["map"
                                                        ["fn"
-                                                        ["ns-name"]
+                                                        ["ns-text"]
                                                         ["let"
-                                                         [["file" ["get-in" "sepal-ir" ["[]" ":files" "ns-name"]]]
-                                                          ["the-ns-rule" ["pick-rule" [":ns" "file"] "ns-part" "pkg"]]
-                                                          ["method" ["get" "the-ns-rule" "2"]]
-                                                          ["some-defs" [":defs" "file"]]]
-                                                         ["--" "println" "|Trying ns:" "ns-name" "method" "the-ns-rule"]
-                                                         ["if"
-                                                          ["and"
-                                                           ["=" "method" "|:refer"]
+                                                         [["file" ["get" "files" "ns-text"]]]
+                                                         ["into"
+                                                          ["#{}"]
+                                                          ["concat"
+                                                           ["->>"
+                                                            [":defs" "file"]
+                                                            ["filter"
+                                                             ["fn"
+                                                              ["entry"]
+                                                              ["let"
+                                                               [["def-deps"
+                                                                 ["extract-deps"
+                                                                  ["subvec" ["val" "entry"] "2"]
+                                                                  "ns-part"
+                                                                  "file"
+                                                                  "pkg"]]]
+                                                               ["contains?" "def-deps" "def-as-dep"]]]]
+                                                            ["map"
+                                                             ["fn"
+                                                              ["entry"]
+                                                              ["{}"
+                                                               [":kind" ":defs"]
+                                                               [":ns" "ns-text"]
+                                                               [":extra" ["first" "entry"]]
+                                                               [":focus" ["[]" "2"]]]]]]
                                                            ["let"
-                                                            [["referred-defs"
-                                                              ["into" ["#{}"] ["subvec" ["get" "the-ns-rule" "3"] "1"]]]]
-                                                            ["println" "|Trying refer:" "referred-defs" "extra-name"]
-                                                            ["not" ["contains?" "referred-defs" "extra-name"]]]]
-                                                          ["list"]
-                                                          ["let"
-                                                           [["target-name"
-                                                             ["if"
-                                                              ["=" "method" "|:refer"]
-                                                              "extra-name"
-                                                              ["str" ["get" "the-ns-rule" "3"] "extra-name"]]]
-                                                            ["matched-defs"
-                                                             ["->>"
-                                                              "some-defs"
-                                                              ["filter"
-                                                               ["fn"
-                                                                ["entry"]
-                                                                ["let"
-                                                                 [[["[]" "def-text" "tree"] "entry"]]
-                                                                 ["println" "|Detecting def:" "ns-name" "def-text"]
-                                                                 ["and"
-                                                                  ["not=" "extra-name" "def-text"]
-                                                                  ["tree-contains?" ["subvec" "tree" "2"] "extra-name"]]]]]
-                                                              ["map"
-                                                               ["fn"
-                                                                ["entry"]
-                                                                ["{}"
-                                                                 [":ns" "ns-name"]
-                                                                 [":kind" ":defs"]
-                                                                 [":extra" ["first" "entry"]]
-                                                                 [":focus" ["[]"]]]]]]]
-                                                            ["proc-matching?"
-                                                             ["tree-contains?" [":procs" "file"] "extra-name"]]]
-                                                           ["if"
-                                                            "proc-matching?"
-                                                            ["cons"
-                                                             ["{}"
-                                                              [":ns" "ns-name"]
-                                                              [":kind" ":procs"]
-                                                              [":extra" "nil"]]
-                                                             "matched-defs"]
-                                                            "matched-defs"]]]]]]
-                                                      ["filter" ["fn" ["xs"] ["not" ["empty?" "xs"]]]]
-                                                      ["apply" "concat"]]]]
-                                                   ["println" "|Got new paths:" "new-paths"]
+                                                            [["proc-deps"
+                                                              ["extract-deps" [":procs" "file"] "ns-part" "file" "pkg"]]]
+                                                            ["if"
+                                                             ["contains?" "proc-deps" "def-as-dep"]
+                                                             ["list"
+                                                              ["{}"
+                                                               [":kind" ":procs"]
+                                                               [":ns" "ns-text"]
+                                                               [":extra" "nil"]
+                                                               [":focus" ["[]" "0"]]]]
+                                                             ["list"]]]]]]]]
+                                                      ["apply" "concat"]
+                                                      ["filter" ["fn" ["x"] ["not" ["=path?" "x" "code-path"]]]]]]]
                                                    ["if"
                                                     ["empty?" "new-paths"]
                                                     ["update"
@@ -301,10 +288,8 @@
                                                     ["update" "store" ":writer" ["push-paths" "new-paths"]]]]]
                                                  [":ns"
                                                   ["let"
-                                                   [["ns-list"
-                                                     ["list-dependent-ns" "ns-part" [":files" "sepal-ir"] "pkg"]]
-                                                    ["new-paths" ["map" ["fn" ["x"] ["[]" "x" ":ns"]] "ns-list"]]]
-                                                   ["--" "println" "former-stack" "pointer" "new-paths"]
+                                                   [["new-paths" ["map" ["fn" ["x"] ["[]" "x" ":ns"]] "ns-list"]]]
+                                                   ["--" "println" "pointer" "new-paths"]
                                                    ["update" "store" ":writer" ["push-paths" "new-paths"]]]]
                                                  "store"]]],
                                  "point-to" ["defn"
@@ -451,95 +436,18 @@
                               [":require"
                                ["[]" "clojure.string" ":as" "string"]
                                ["[]" "app.util.detect" ":refer" ["[]" "contains-def?" "use-vector?"]]]],
-                         :defs {"pick-rule" ["defn"
-                                             "pick-rule"
-                                             ["ns-block" "ns-name" "pkg"]
-                                             ["let"
-                                              [["full-ns" ["str" "pkg" "|." "ns-name"]]
-                                               ["rules" ["subvec" ["get" "ns-block" "2"] "1"]]]
-                                              ["loop"
-                                               ["[]" "left-rules" "rules"]
-                                               ["if"
-                                                ["empty?" "left-rules"]
-                                                "nil"
-                                                ["let"
-                                                 [["cursor" ["first" "left-rules"]]
-                                                  ["import-rule"
-                                                   ["if" ["use-vector?" "cursor"] ["subvec" "cursor" "1"] "cursor"]]]
-                                                 ["--" "println" "|Picking" "cursor" "full-ns"]
-                                                 ["if"
-                                                  ["=" "full-ns" ["first" "import-rule"]]
-                                                  ["if" ["use-vector?" "cursor"] ["subvec" "cursor" "1"] "cursor"]
-                                                  ["recur" ["rest" "left-rules"]]]]]]]],
-                                "pick-def-deps" ["defn"
-                                                 "pick-def-deps"
-                                                 ["expression" "internal-ns" "file" "pkg"]
-                                                 ["let"
-                                                  [["external?"
-                                                    ["fn"
-                                                     ["ns-text"]
-                                                     ["not" ["string/starts-with?" "ns-text" ["str" "pkg" "|."]]]]]
-                                                   ["ns-deps" ["parse-ns-deps" [":ns" "file"]]]]
-                                                  ["->>"
-                                                   ["subvec" "expression" "2"]
-                                                   ["flatten"]
-                                                   ["map" "pick-dep"]
-                                                   ["filter" "some?"]
-                                                   ["map"
-                                                    ["fn"
-                                                     ["info"]
-                                                     ["case"
-                                                      [":kind" "info"]
-                                                      [":def"
-                                                       ["let"
-                                                        [["def-text" [":data" "info"]] ["defs" [":defs" "file"]]]
-                                                        ["cond"
-                                                         [["contains?" "ns-deps" "def-text"]
-                                                          ["let"
-                                                           [["using-mapping" ["get" "ns-deps" "def-text"]]]
-                                                           ["if"
-                                                            ["=" ":refer" [":kind" "using-mapping"]]
-                                                            ["let"
-                                                             [["ns-text" [":ns" "using-mapping"]]]
-                                                             ["{}"
-                                                              [":ns" "ns-text"]
-                                                              [":def" "def-text"]
-                                                              [":external?" ["external?" "ns-text"]]]]
-                                                            "nil"]]]
-                                                         [["contains?" "defs" "def-text"]
-                                                          ["{}"
-                                                           [":ns" ["str" "pkg" "|." "internal-ns"]]
-                                                           [":def" "def-text"]
-                                                           [":external?" "false"]]]
-                                                         [":else" "nil"]]]]
-                                                      [":ns"
-                                                       ["let"
-                                                        [[["{}" ["ns-text" ":data"] ["def-text" ":extra"]] "info"]]
-                                                        ["if"
-                                                         ["contains?" "ns-deps" "ns-text"]
-                                                         ["let"
-                                                          [["using-mapping" ["get" "ns-deps" "ns-text"]]]
-                                                          ["if"
-                                                           ["=" ":as" [":kind" "using-mapping"]]
-                                                           ["let"
-                                                            [["ns-text" [":ns" "using-mapping"]]]
-                                                            ["{}"
-                                                             [":ns" "ns-text"]
-                                                             [":def" "def-text"]
-                                                             [":external?" ["external?" "ns-text"]]]]
-                                                           "nil"]]
-                                                         "nil"]]]
-                                                      "nil"]]]
-                                                   ["filter" "some?"]
-                                                   ["into" ["#{}"]]]]],
-                                "expand-deps-tree" ["defn"
+                         :defs {"expand-deps-tree" ["defn"
                                                     "expand-deps-tree"
                                                     ["internal-ns" "def-text" "files" "pkg" "parents"]
                                                     ["let"
                                                      [["this-file" ["get" "files" "internal-ns"]]
                                                       ["def-expr" ["get-in" "this-file" ["[]" ":defs" "def-text"]]]
                                                       ["def-deps"
-                                                       ["pick-def-deps" "def-expr" "internal-ns" "this-file" "pkg"]]
+                                                       ["extract-deps"
+                                                        ["subvec" "def-expr" "2"]
+                                                        "internal-ns"
+                                                        "this-file"
+                                                        "pkg"]]
                                                       ["stamp" ["{}" [":ns" "internal-ns"] [":def" "def-text"]]]
                                                       ["base-dep"
                                                        ["{}"
@@ -640,7 +548,8 @@
                                                              ["into" ["#{}"]]]]]
                                                           ["--" "println" "|Search:" "ns-name" "ns-rules"]
                                                           ["contains?" "ns-rules" "full-ns"]]]]
-                                                       ["map" "first"]]]],
+                                                       ["map" "first"]
+                                                       ["into" ["#{}"]]]]],
                                 "pick-dep" ["defn"
                                             "pick-dep"
                                             ["token"]
@@ -679,7 +588,68 @@
                                                    ["empty?" "branches"]
                                                    ["{}"]
                                                    ["doall"
-                                                    ["reduce" "parse-rule" ["{}"] ["rest" ["first" "branches"]]]]]]]},
+                                                    ["reduce" "parse-rule" ["{}"] ["rest" ["first" "branches"]]]]]]],
+                                "extract-deps" ["defn"
+                                                "extract-deps"
+                                                ["expression" "internal-ns" "file" "pkg"]
+                                                ["let"
+                                                 [["external?"
+                                                   ["fn"
+                                                    ["ns-text"]
+                                                    ["not" ["string/starts-with?" "ns-text" ["str" "pkg" "|."]]]]]
+                                                  ["ns-deps" ["parse-ns-deps" [":ns" "file"]]]]
+                                                 ["->>"
+                                                  "expression"
+                                                  ["flatten"]
+                                                  ["map" "pick-dep"]
+                                                  ["filter" "some?"]
+                                                  ["map"
+                                                   ["fn"
+                                                    ["info"]
+                                                    ["case"
+                                                     [":kind" "info"]
+                                                     [":def"
+                                                      ["let"
+                                                       [["def-text" [":data" "info"]] ["defs" [":defs" "file"]]]
+                                                       ["cond"
+                                                        [["contains?" "ns-deps" "def-text"]
+                                                         ["let"
+                                                          [["using-mapping" ["get" "ns-deps" "def-text"]]]
+                                                          ["if"
+                                                           ["=" ":refer" [":kind" "using-mapping"]]
+                                                           ["let"
+                                                            [["ns-text" [":ns" "using-mapping"]]]
+                                                            ["{}"
+                                                             [":ns" "ns-text"]
+                                                             [":def" "def-text"]
+                                                             [":external?" ["external?" "ns-text"]]]]
+                                                           "nil"]]]
+                                                        [["contains?" "defs" "def-text"]
+                                                         ["{}"
+                                                          [":ns" ["str" "pkg" "|." "internal-ns"]]
+                                                          [":def" "def-text"]
+                                                          [":external?" "false"]]]
+                                                        [":else" "nil"]]]]
+                                                     [":ns"
+                                                      ["let"
+                                                       [[["{}" ["ns-text" ":data"] ["def-text" ":extra"]] "info"]]
+                                                       ["if"
+                                                        ["contains?" "ns-deps" "ns-text"]
+                                                        ["let"
+                                                         [["using-mapping" ["get" "ns-deps" "ns-text"]]]
+                                                         ["if"
+                                                          ["=" ":as" [":kind" "using-mapping"]]
+                                                          ["let"
+                                                           [["ns-text" [":ns" "using-mapping"]]]
+                                                           ["{}"
+                                                            [":ns" "ns-text"]
+                                                            [":def" "def-text"]
+                                                            [":external?" ["external?" "ns-text"]]]]
+                                                          "nil"]]
+                                                        "nil"]]]
+                                                     "nil"]]]
+                                                  ["filter" "some?"]
+                                                  ["into" ["#{}"]]]]]},
                          :procs []},
          "util" {:ns ["ns"
                       "app.util"
@@ -1079,9 +1049,7 @@
          "updater.graph" {:ns ["ns"
                                "app.updater.graph"
                                [":require"
-                                ["app.util.analyze"
-                                 ":refer"
-                                 ["parse-ns-deps" "pick-dep" "pick-def-deps" "expand-deps-tree"]]
+                                ["app.util.analyze" ":refer" ["parse-ns-deps" "pick-dep" "expand-deps-tree"]]
                                 ["app.util.stack" ":refer" ["push-path"]]
                                 ["clojure.set" ":refer" ["union" "difference"]]
                                 ["app.util" ":refer" ["collect-defs"]]
@@ -1108,9 +1076,6 @@
                                                    "files"
                                                    "pkg"
                                                    ["#{}"]]]]
-                                                ["--"
-                                                 "println"
-                                                 ["pick-def-deps" "def-expr" "internal-ns" "this-file" "pkg"]]
                                                 ["--" "println" "ns-deps"]
                                                 ["println"]
                                                 ["->" "store" ["assoc-in" ["[]" ":graph" ":tree"] "deps-tree"]]]],
@@ -2044,8 +2009,8 @@
                                                              [":transition" "|320ms"]
                                                              [":line-height" "|32px"]
                                                              [":white-space" "|nowrap"]
-                                                             [":color" ["hsl" "0" "0" "100"]]
-                                                             [":background-color" ["hsl" "300" "30" "70" "0.3"]]
+                                                             [":color" ["hsl" "0" "0" "100" "0.5"]]
+                                                             [":background-color" ["hsl" "300" "30" "70" "0.2"]]
                                                              [":z-index" "999"]
                                                              [":min-width" "|160px"]
                                                              [":padding" "|0 16px"]
@@ -2172,19 +2137,6 @@
                                                   [["dict" ["get-in" "files" ["[]" "ns-part" ":defs"]]]]
                                                   ["contains?" "dict" "name-part"]]
                                                  "false"]],
-                               "tree-contains?" ["defn"
-                                                 "tree-contains?"
-                                                 ["tree" "x"]
-                                                 ["if"
-                                                  ["string?" "tree"]
-                                                  ["=" "tree" "x"]
-                                                  ["if"
-                                                   ["empty?" "tree"]
-                                                   "false"
-                                                   ["let"
-                                                    [["cursor" ["first" "tree"]]
-                                                     ["at-head?" ["tree-contains?" "cursor" "x"]]]
-                                                    ["if" "at-head?" "true" ["recur" ["rest" "tree"] "x"]]]]]],
                                "cirru-vec?" ["defn"
                                              "cirru-vec?"
                                              ["x"]
@@ -2217,17 +2169,6 @@
                                               ["string/replace" ["re-pattern" "|^@"] "|"]
                                               ["string/replace" ["re-pattern" "|\\.$"] "|"]
                                               ["string/replace" ["re-pattern" "|/@"] "|/"]]],
-                               "find-by" ["defn"
-                                          "find-by"
-                                          ["f" "xs0"]
-                                          ["loop"
-                                           ["[]" "i" "0" "xs" "xs0"]
-                                           ["if"
-                                            ["empty?" "xs"]
-                                            "-1"
-                                            ["let"
-                                             [["x" ["first" "xs"]]]
-                                             ["if" ["f" "x"] "i" ["recur" ["inc" "i"] ["rest" "xs"]]]]]]],
                                "=path?" ["defn"
                                          "=path?"
                                          ["x" "y"]
@@ -2759,7 +2700,7 @@
                                                ["cond"
                                                 [["empty?" "stack"]
                                                  ["{}"
-                                                  [":stack" "new-paths"]
+                                                  [":stack" ["into" ["[]"] "new-paths"]]
                                                   [":pointer" "0"]
                                                   [":focus" [":focus" ["first" "new-paths"]]]]]
                                                 [["=" ["inc" "pointer"] ["count" "stack"]]

@@ -1,6 +1,6 @@
 
 (ns app.updater.graph
-  (:require (app.util.analyze :refer (parse-ns-deps pick-dep pick-def-deps expand-deps-tree))
+  (:require (app.util.analyze :refer (parse-ns-deps pick-dep expand-deps-tree))
             (app.util.stack :refer (push-path))
             (clojure.set :refer (union difference))
             (app.util :refer (collect-defs))
@@ -15,7 +15,6 @@
         pkg (get-in store [:collection :package])
         this-file (get files internal-ns)
         deps-tree (expand-deps-tree internal-ns (:def root-info) files pkg #{})]
-    (comment println (pick-def-deps def-expr internal-ns this-file pkg))
     (comment println ns-deps)
     (println)
     (-> store (assoc-in [:graph :tree] deps-tree))))
