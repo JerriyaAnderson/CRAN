@@ -53,6 +53,7 @@
          (if (= keycode/key-enter (:key-code e))
            (if (not (string/blank? state))
              (do (d! :collection/add-definition [ns-text state]) (d! cursor "")))))}))
+    (=< nil 8)
     (list->
      {}
      (->> (:defs file)
@@ -62,7 +63,7 @@
              (let [def-text (key entry)]
                [def-text
                 (div
-                 {:inner-text (str def-text "↗"),
+                 {:inner-text def-text,
                   :style style-link,
                   :on-click (on-edit-def ns-text def-text)})]))))))))
 

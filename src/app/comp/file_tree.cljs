@@ -4,7 +4,6 @@
             [respo.core :refer [defcomp div list-> >> <> span input button]]
             [respo-ui.core :as ui]
             [clojure.string :as string]
-            [app.util :refer [segments->tree]]
             [respo.comp.space :refer [=<]]
             [app.comp.brief-file :refer [comp-brief-file]]
             [app.style.widget :as widget]
@@ -14,23 +13,20 @@
 
 (defn on-graph [e dispatch!] (dispatch! :router/route {:name :graph, :data nil}))
 
-(defn on-keydown [state cursor]
+(defn on-keydown [draft cursor]
   (fn [e dispatch!]
     (if (= keycode/key-enter (.-keyCode (:original-event e)))
       (do
-       (if (string/includes? state "/")
-         (dispatch! :collection/add-definition (string/split state "/"))
-         (dispatch! :collection/add-namespace state))
-       (dispatch! :states [cursor ""])))))
+       (if (string/includes? draft "/")
+         (dispatch! :collection/add-definition (string/split draft "/"))
+         (dispatch! :collection/add-namespace draft))
+       (dispatch! cursor {:draft ""})))))
 
 (defn on-stack [e d! m!] (d! :router/route {:name :workspace, :data nil}))
 
-(defn on-view [path ns-piece]
-  (fn [e dispatch!] (dispatch! :graph/view-ns (conj path ns-piece))))
-
 (def style-toolbar {:padding "16px 16px"})
 
-(defn render-toolbar [state cursor]
+(defn render-toolbar [draft cursor]
   (div
    {:style style-toolbar}
    (button {:inner-text "Graph", :style widget/button, :on-click on-graph})
@@ -38,71 +34,40 @@
    (button {:inner-text "Stack", :style widget/button, :on-click on-stack})
    (=< 8 nil)
    (input
-    {:value state,
+    {:value draft,
      :placeholder "ns/def or ns",
      :style widget/input,
      :on-input (on-change cursor),
-     :on-keydown (on-keydown state cursor)})))
+     :on-keydown (on-keydown draft cursor)})))
 
 (def style-body {:flex 1, :overflow :auto})
 
-(def style-column {:padding "16px 16px", :min-width 80, :line-height 1.6, :overflow :auto})
-
-(def style-file
-  {:cursor :pointer, :color (hsl 0 0 100 0.5), :white-space :nowrap, :font-size 16})
-
-(def style-file-tree {:background-color (hsl 0 0 0)})
-
-(def style-highlight {:color (hsl 0 0 100 0.9)})
+(def style-file-tree {:background-color (hsl 0 0 0), :padding "0 16px"})
 
 (defcomp
  comp-file-tree
  (states store)
  (let [cursor (:cursor states)
-       state (:data states)
-       ns-path (get-in store [:graph :ns-path])
-       ns-text (string/join "." ns-path)
-       files (get-in store [:collection :files])]
+       state (or (:data states) {:draft "", :selected-ns nil})
+       files (get-in store [:collection :files])
+       selected-ns (:selected-ns state)]
    (div
     {:style (merge ui/fullscreen ui/column style-file-tree)}
-    (render-toolbar state cursor)
+    (render-toolbar (:draft state) cursor)
     (div
      {:style (merge ui/row style-body)}
      (list->
-      {:style ui/row}
-      (let [ns-names (keys files)
-            segments (->> ns-names (map (fn [x] (string/split x "."))))
-            file-tree (segments->tree segments)]
-        (loop [children [], path []]
-          (let [next-piece (get ns-path (count path))
-                dict (get-in file-tree path)
-                next-children (conj
-                               children
-                               [(string/join "/" path)
-                                (if (map? dict)
-                                  (list->
-                                   {:style style-column}
-                                   (->> dict
-                                        (sort compare)
-                                        (map
-                                         (fn [entry]
-                                           (let [ns-piece (key entry)]
-                                             [ns-piece
-                                              (div
-                                               {:style (merge
-                                                        style-file
-                                                        (if (= ns-piece next-piece)
-                                                          style-highlight)),
-                                                :on-click (on-view path ns-piece)}
-                                               (<> span ns-piece nil)
-                                               (=< 8 nil)
-                                               (let [info (get dict ns-piece)]
-                                                 (cond
-                                                   (map? info) (<> span (count info) nil)
-                                                   (= :file info) (<> span "." nil)
-                                                   :else nil)))])))))
-                                  (span {}))])]
-            (if (= path ns-path) next-children (recur next-children (conj path next-piece)))))))
-     (=< 64 nil)
-     (if (contains? files ns-text)
-       (comp-brief-file (>> states ns-text) ns-text (get files ns-text)))))))
+      {:style {:overflow :auto, :padding "16px 16px 200px 16px"}}
+      (->> (keys files)
+           (sort)
+           (map
+            (fn [ns-name]
+              [ns-name
+               (div
+                {:on-click (fn [e d!] (d! cursor (assoc state :selected-ns ns-name))),
+                 :style (merge
+                         {:color (hsl 0 0 50), :cursor :pointer}
+                         (if (= ns-name selected-ns) {:color (hsl 0 0 100)}))}
+                (<> ns-name))]))))
+     (if (contains? files selected-ns)
+       (comp-brief-file (>> states selected-ns) selected-ns (get files selected-ns)))))))
