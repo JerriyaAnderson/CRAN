@@ -1,6 +1,6 @@
 {
   "name": "stack-editor",
-  "version": "0.1.0",
+  "version": "0.4.0-a1",
   "description": "Stack editor",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "page": "yarn shadow-cljs compile page && env=dev node target/page.js",
     "del": "rm -rf dist/*",
     "serve": "serve dist",
-    "build": "yarn del && yarn release && yarn webpack && yarn html && yarn serve"
+    "html": "shadow-cljs compile page && node target/page.js",
+    "build": "yarn del && shadow-cljs release client && yarn html"
   },
   "bin": {
     "stack-editor": "./dist/server.js",

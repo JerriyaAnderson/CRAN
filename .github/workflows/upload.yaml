@@ -1,0 +1,51 @@
+name: Upload Assets
+
+on:
+  push: {}
+
+jobs:
+  upload-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://timbru31/java-node:latest
+
+      - name: Get yarn cache
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        name: Cache node modules of yarn
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache Clojars
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-clojars
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('shadow-cljs.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-clojars
+
+      - run: yarn && yarn build
+        name: Build web assets
+
+      - name: Deploy to server
+        id: deploy
+        uses: Pendect/action-rsyncer@v1.1.0
+        env:
+          DEPLOY_KEY: ${{secrets.rsync_private_key}}
+        with:
+          flags: '-avzr --progress'
+          options: ''
+          ssh_options: ''
+          src: 'dist/*'
+          dest: 'rsync-user@fe.jimu.io:/web-assets/repo/${{ github.repository }}'
+
+      - name: Display status from deploy
+        run: echo "${{ steps.deploy.outputs.status }}"

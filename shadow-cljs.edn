@@ -10,6 +10,7 @@
     [cljs-ajax "0.8.0"]
     [cumulo/shallow-diff "0.1.3"]
     [fipp "0.6.22"]
+    [cirru/edn "0.0.8"]
     [cirru/sepal "0.2.7"]
     [mvc-works/polyfill "0.1.1"]
   ]
@@ -21,6 +22,7 @@
   :builds {
     :client {
       :output-dir "target", :target :browser, :asset-path "./"
+      :compiler-options {:infer-externs :auto}
       :modules {
         :client {:init-fn app.main/main!}
       }
@@ -36,6 +38,7 @@
     }
     :server {
       :target :node-script, :main app.server/main!, :output-to "target/server.js"
+      :compiler-options {:infer-externs :auto}
       :release {:output-to "dist/server.js"}
       :devtools {:after-load app.server/reload!}
     }
