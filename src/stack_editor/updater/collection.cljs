@@ -1,7 +1,9 @@
 
 (ns stack-editor.updater.collection
   (:require [clojure.string :as string]
-            [stack-editor.util :refer [helper-notify helper-put-ns make-path view-focused]]
+            [stack-editor.util
+             :refer
+             [helper-notify helper-put-ns make-path view-focused make-focus-path]]
             [stack-editor.util.detect :refer [=path?]]))
 
 (defn rename [store op-data op-id]
@@ -71,20 +73,18 @@
 (defn expand-ns [store op-data op-id]
   (let [writer (:writer store)
         file-path (get (:stack writer) (:pointer writer))
-        base-path [:collection :files]
-        files (get-in store base-path)
-        ns-name (first file-path)
-        focus (:focus writer)
-        buffer (get-in files (concat file-path focus))]
+        ns-name (:ns file-path)
+        buffer (view-focused store)
+        focused-path (make-focus-path store)]
     (if (and (string? buffer) (string/includes? buffer "/"))
       (let [[ns-x def-x] (string/split buffer "/")
-            ns-ast (get-in files [ns-name :ns])
+            ns-ast (get-in store [:collection :files ns-name :ns])
             maybe-rule (first
                         (filter (fn [rule] (= ns-x (get rule 1))) (rest (get ns-ast 2))))]
         (cond
           (nil? maybe-rule)
             (-> store
-                (assoc-in (concat base-path file-path focus) def-x)
+                (assoc-in focused-path def-x)
                 (update-in
                  [:collection :files ns-name :ns 2]
                  (fn [require-rules]
@@ -92,7 +92,7 @@
                 (update :writer (helper-put-ns ns-name)))
           (= ":refer" (get maybe-rule 2))
             (-> store
-                (assoc-in (concat base-path file-path focus) def-x)
+                (assoc-in focused-path def-x)
                 (update-in
                  [:collection :files ns-name :ns 2]
                  (fn [require-rules]
@@ -113,7 +113,7 @@
                 (update :writer (helper-put-ns ns-name)))
           (= ":as" (get maybe-rule 2))
             (let [new-ns (last maybe-rule)]
-              (-> store (assoc-in (concat base-path file-path focus) (str new-ns "/" def-x))))
+              (-> store (assoc-in focused-path (str new-ns "/" def-x))))
           :else (println "Unkown rule:" maybe-rule)))
       (update store :notifications (helper-notify op-id "Not valid ns/def form!")))))
 

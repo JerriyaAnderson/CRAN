@@ -1,5 +1,7 @@
 
-(ns stack-editor.util (:require [stack-editor.util.detect :refer [contains-def? =path?]]))
+(ns stack-editor.util
+  (:require [stack-editor.util.detect :refer [contains-def? =path?]]
+            (clojure.string :as string)))
 
 (defn remove-idx [xs idx]
   (let [xs-size (count xs)]
@@ -9,6 +11,19 @@
       (zero? idx) (subvec xs 1)
       (= idx (dec xs-size)) (subvec xs 0 idx)
       :else (into [] (concat (subvec xs 0 idx) (subvec xs (inc idx)))))))
+
+(defn make-path [info]
+  (let [kind (:kind info)]
+    (if (= kind :defs)
+      [:collection :files (:ns info) :defs (:extra info)]
+      [:collection :files (:ns info) kind])))
+
+(defn make-focus-path [store]
+  (let [writer (:writer store)
+        pointer (:pointer writer)
+        stack (:stack writer)
+        code-path (get stack pointer)]
+    (concat (make-path code-path) (:focus code-path))))
 
 (defn helper-put-ns [ns-name]
   (fn [writer]
@@ -36,21 +51,12 @@
                  (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
         (update :pointer inc))))
 
+(defn drop-pkg [x pkg] (if (string? x) (string/replace x (str pkg ".") "") x))
+
 (defn helper-notify [op-id data]
   (fn [notifications] (into [] (cons [op-id data] notifications))))
 
-(defn make-path [info]
-  (let [kind (:kind info)]
-    (if (= kind :defs)
-      [:collection :files (:ns info) :defs (:extra info)]
-      [:collection :files (:ns info) kind])))
-
-(defn view-focused [store]
-  (let [writer (:writer store)
-        pointer (:pointer writer)
-        stack (:stack writer)
-        code-path (get stack pointer)]
-    (get-in store (concat (make-path code-path) (:focus code-path)))))
+(defn view-focused [store] (get-in store (make-focus-path store)))
 
 (defn make-short-path [info]
   (let [kind (:kind info)]

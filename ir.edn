@@ -107,7 +107,13 @@
                                 ["[]"
                                  "stack-editor.util"
                                  ":refer"
-                                 ["[]" "remove-idx" "helper-notify" "helper-create-def" "helper-put-path" "make-path"]]]],
+                                 ["[]"
+                                  "remove-idx"
+                                  "helper-notify"
+                                  "helper-create-def"
+                                  "helper-put-path"
+                                  "make-path"
+                                  "drop-pkg"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
                                              ["store" "op-data" "op-id"]
@@ -139,14 +145,7 @@
                                                         ["current-ns" ":ns"]
                                                         ["kind" ":kind"]
                                                         ["extra-name" ":extra"]]
-                                                       "code-path"]
-                                                      ["drop-pkg"
-                                                       ["fn"
-                                                        ["x"]
-                                                        ["if"
-                                                         ["string?" "x"]
-                                                         ["string/replace" "x" ["str" "pkg" "|."] "|"]
-                                                         "x"]]]]
+                                                       "code-path"]]
                                                      ["let"
                                                       [["target"
                                                         ["get-in" "store" ["concat" ["make-path" "code-path"] "focus"]]]]
@@ -162,7 +161,9 @@
                                                            [[["[]" "ns-part" "var-part"]
                                                              ["string/split" "stripped-target" "|/"]]
                                                             ["that-ns"
-                                                             ["drop-pkg" ["locate-ns" "ns-part" "current-ns" "files"]]]]
+                                                             ["drop-pkg"
+                                                              ["locate-ns" "ns-part" "current-ns" "files"]
+                                                              "pkg"]]]
                                                            ["if"
                                                             ["contains?" "files" "that-ns"]
                                                             ["if"
@@ -196,7 +197,7 @@
                                                             ["that-ns"
                                                              ["if"
                                                               ["some?" "ns-part"]
-                                                              ["drop-pkg" "ns-part"]
+                                                              ["drop-pkg" "ns-part" "pkg"]
                                                               "current-ns"]]]
                                                            ["println" "|forced piece:" "that-ns" "stripped-target"]
                                                            ["if"
@@ -223,7 +224,8 @@
                                                          ["let"
                                                           [["that-ns"
                                                             ["drop-pkg"
-                                                             ["compute-ns" "stripped-target" "current-ns" "files"]]]
+                                                             ["compute-ns" "stripped-target" "current-ns" "files"]
+                                                             "pkg"]]
                                                            ["var-part" ["last" ["string/split" "stripped-target" "|/"]]]]
                                                           ["println"
                                                            "|Search result:"
@@ -561,7 +563,9 @@
                          :procs []},
          "util" {:ns ["ns"
                       "stack-editor.util"
-                      [":require" ["[]" "stack-editor.util.detect" ":refer" ["[]" "contains-def?" "=path?"]]]],
+                      [":require"
+                       ["[]" "stack-editor.util.detect" ":refer" ["[]" "contains-def?" "=path?"]]
+                       ["clojure.string" ":as" "string"]]],
                  :defs {"remove-idx" ["defn"
                                       "remove-idx"
                                       ["xs" "idx"]
@@ -576,6 +580,15 @@
                                          ["into"
                                           ["[]"]
                                           ["concat" ["subvec" "xs" "0" "idx"] ["subvec" "xs" ["inc" "idx"]]]]]]]],
+                        "make-focus-path" ["defn"
+                                           "make-focus-path"
+                                           ["store"]
+                                           ["let"
+                                            [["writer" [":writer" "store"]]
+                                             ["pointer" [":pointer" "writer"]]
+                                             ["stack" [":stack" "writer"]]
+                                             ["code-path" ["get" "stack" "pointer"]]]
+                                            ["concat" ["make-path" "code-path"] [":focus" "code-path"]]]],
                         "helper-put-ns" ["defn"
                                          "helper-put-ns"
                                          ["ns-name"]
@@ -624,6 +637,10 @@
                                                    ["into" ["[]"] ["subvec" "stack" "0" "next-pointer"]]
                                                    "code-path"]]]]]]
                                              ["update" ":pointer" "inc"]]]],
+                        "drop-pkg" ["defn"
+                                    "drop-pkg"
+                                    ["x" "pkg"]
+                                    ["if" ["string?" "x"] ["string/replace" "x" ["str" "pkg" "|."] "|"] "x"]],
                         "helper-notify" ["defn"
                                          "helper-notify"
                                          ["op-id" "data"]
@@ -639,15 +656,7 @@
                                        ["=" "kind" ":defs"]
                                        ["[]" ":collection" ":files" [":ns" "info"] ":defs" [":extra" "info"]]
                                        ["[]" ":collection" ":files" [":ns" "info"] "kind"]]]],
-                        "view-focused" ["defn"
-                                        "view-focused"
-                                        ["store"]
-                                        ["let"
-                                         [["writer" [":writer" "store"]]
-                                          ["pointer" [":pointer" "writer"]]
-                                          ["stack" [":stack" "writer"]]
-                                          ["code-path" ["get" "stack" "pointer"]]]
-                                         ["get-in" "store" ["concat" ["make-path" "code-path"] [":focus" "code-path"]]]]],
+                        "view-focused" ["defn" "view-focused" ["store"] ["get-in" "store" ["make-focus-path" "store"]]],
                         "make-short-path" ["defn"
                                            "make-short-path"
                                            ["info"]
@@ -2158,7 +2167,12 @@
                                      ["[]"
                                       "stack-editor.util"
                                       ":refer"
-                                      ["[]" "helper-notify" "helper-put-ns" "make-path" "view-focused"]]
+                                      ["[]"
+                                       "helper-notify"
+                                       "helper-put-ns"
+                                       "make-path"
+                                       "view-focused"
+                                       "make-focus-path"]]
                                      ["[]" "stack-editor.util.detect" ":refer" ["[]" "=path?"]]]],
                                :defs {"rename" ["defn"
                                                 "rename"
@@ -2285,16 +2299,15 @@
                                                    ["let"
                                                     [["writer" [":writer" "store"]]
                                                      ["file-path" ["get" [":stack" "writer"] [":pointer" "writer"]]]
-                                                     ["base-path" ["[]" ":collection" ":files"]]
-                                                     ["files" ["get-in" "store" "base-path"]]
-                                                     ["ns-name" ["first" "file-path"]]
-                                                     ["focus" [":focus" "writer"]]
-                                                     ["buffer" ["get-in" "files" ["concat" "file-path" "focus"]]]]
+                                                     ["ns-name" [":ns" "file-path"]]
+                                                     ["buffer" ["view-focused" "store"]]
+                                                     ["focused-path" ["make-focus-path" "store"]]]
                                                     ["if"
                                                      ["and" ["string?" "buffer"] ["string/includes?" "buffer" "|/"]]
                                                      ["let"
                                                       [[["[]" "ns-x" "def-x"] ["string/split" "buffer" "|/"]]
-                                                       ["ns-ast" ["get-in" "files" ["[]" "ns-name" ":ns"]]]
+                                                       ["ns-ast"
+                                                        ["get-in" "store" ["[]" ":collection" ":files" "ns-name" ":ns"]]]
                                                        ["maybe-rule"
                                                         ["first"
                                                          ["filter"
@@ -2304,7 +2317,7 @@
                                                        [["nil?" "maybe-rule"]
                                                         ["->"
                                                          "store"
-                                                         ["assoc-in" ["concat" "base-path" "file-path" "focus"] "def-x"]
+                                                         ["assoc-in" "focused-path" "def-x"]
                                                          ["update-in"
                                                           ["[]" ":collection" ":files" "ns-name" ":ns" "2"]
                                                           ["fn"
@@ -2316,7 +2329,7 @@
                                                        [["=" "|:refer" ["get" "maybe-rule" "2"]]
                                                         ["->"
                                                          "store"
-                                                         ["assoc-in" ["concat" "base-path" "file-path" "focus"] "def-x"]
+                                                         ["assoc-in" "focused-path" "def-x"]
                                                          ["update-in"
                                                           ["[]" ":collection" ":files" "ns-name" ":ns" "2"]
                                                           ["fn"
@@ -2347,9 +2360,7 @@
                                                          [["new-ns" ["last" "maybe-rule"]]]
                                                          ["->"
                                                           "store"
-                                                          ["assoc-in"
-                                                           ["concat" "base-path" "file-path" "focus"]
-                                                           ["str" "new-ns" "|/" "def-x"]]]]]
+                                                          ["assoc-in" "focused-path" ["str" "new-ns" "|/" "def-x"]]]]]
                                                        [":else" ["println" "|Unkown rule:" "maybe-rule"] "store"]]]
                                                      ["update"
                                                       "store"
@@ -2449,7 +2460,7 @@
                                                    ["pointer" [":pointer" "writer"]]
                                                    ["code-path" ["get" "stack" "pointer"]]
                                                    ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]]
-                                                  ["println" "|Edit ns:" "code-path"]
+                                                  ["--" "println" "|Edit ns:" "code-path"]
                                                   ["if"
                                                    ["=" [":kind" "code-path"] ":ns"]
                                                    ["let"

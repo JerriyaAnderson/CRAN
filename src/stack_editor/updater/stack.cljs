@@ -7,7 +7,7 @@
             [stack-editor.util.detect :refer [strip-atom tree-contains? contains-def?]]
             [stack-editor.util
              :refer
-             [remove-idx helper-notify helper-create-def helper-put-path make-path]]))
+             [remove-idx helper-notify helper-create-def helper-put-path make-path drop-pkg]]))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -27,15 +27,14 @@
         files (get-in store [:collection :files])
         code-path (get stack pointer)
         focus (:focus code-path)
-        {current-ns :ns, kind :kind, extra-name :extra} code-path
-        drop-pkg (fn [x] (if (string? x) (string/replace x (str pkg ".") "") x))]
+        {current-ns :ns, kind :kind, extra-name :extra} code-path]
     (let [target (get-in store (concat (make-path code-path) focus))]
       (if (string? target)
         (let [stripped-target (strip-atom target)]
           (if forced?
             (if (string/includes? stripped-target "/")
               (let [[ns-part var-part] (string/split stripped-target "/")
-                    that-ns (drop-pkg (locate-ns ns-part current-ns files))]
+                    that-ns (drop-pkg (locate-ns ns-part current-ns files) pkg)]
                 (if (contains? files that-ns)
                   (if (contains-def? files that-ns var-part)
                     (update store :writer (helper-put-path that-ns var-part [2]))
@@ -49,7 +48,7 @@
                        :notifications
                        (helper-notify op-id (str "foreign namespace: " that-ns))))))
               (let [ns-part (compute-ns stripped-target current-ns files)
-                    that-ns (if (some? ns-part) (drop-pkg ns-part) current-ns)]
+                    that-ns (if (some? ns-part) (drop-pkg ns-part pkg) current-ns)]
                 (println "forced piece:" that-ns stripped-target)
                 (if (contains? files that-ns)
                   (-> store
@@ -61,7 +60,7 @@
                       (update
                        :notifications
                        (helper-notify op-id (str "foreign namespace: " that-ns)))))))
-            (let [that-ns (drop-pkg (compute-ns stripped-target current-ns files))
+            (let [that-ns (drop-pkg (compute-ns stripped-target current-ns files) pkg)
                   var-part (last (string/split stripped-target "/"))]
               (println "Search result:" that-ns var-part current-ns)
               (if (contains-def? files that-ns var-part)
