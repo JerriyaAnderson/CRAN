@@ -22,13 +22,12 @@
       :ns $ [] |ns |app.comp.brief-file
         [] |:require ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |list-> |<> |span |input) ([] |[] |clojure.string |:as |string) ([] |[] |respo-ui.core |:as |ui) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |app.style.widget |:as |widget) ([] |[] |app.util.keycode |:as |keycode)
       :defs $ {}
-        |on-input $ [] |defn |on-input ([] |e |d! |m!) ([] |m! $ [] |:value |e)
         |comp-brief-file $ [] |defcomp |comp-brief-file ([] |states |ns-text |file)
           [] |let
-            [] $ [] |state
-              [] |or ([] |:data |states) (, ||)
+            [] ([] |cursor $ [] |:cursor |states)
+              [] |state $ [] |or ([] |:data |states) (, ||)
             [] |div ([] |{} $ [] |:style |style-file)
-              [] |div ([] |{} $ [] |:style |ui/row) ([] |<> |span |ns-text |nil) ([] |=< |16 |nil)
+              [] |div ([] |{} $ [] |:style |ui/row) ([] |<> |ns-text |nil) ([] |=< |16 |nil)
                 [] |span $ [] |{} ([] |:inner-text ||ns) ([] |:style |style-link) ([] |:on-click $ [] |on-edit-ns |ns-text)
                 [] |=< |16 |nil
                 [] |span $ [] |{} ([] |:inner-text ||procs) ([] |:style |style-link) ([] |:on-click $ [] |on-edit-procs |ns-text)
@@ -36,7 +35,11 @@
                 [] |span $ [] |{} ([] |:inner-text ||Delete) ([] |:style |widget/clickable-text) ([] |:on-click $ [] |on-remove |ns-text)
               [] |div ([] |{})
                 [] |input $ [] |{} ([] |:value |state) ([] |:placeholder "||new def") ([] |:style |widget/input)
-                  [] |:on $ [] |{} ([] |:input |on-input) ([] |:keydown $ [] |on-keydown |ns-text |state)
+                  [] |:on-input $ [] |fn ([] |e |d!) ([] |d! |cursor $ [] |:value |e)
+                  [] |:on-keydown $ [] |fn ([] |e |d!)
+                    [] |if ([] |= |keycode/key-enter $ [] |:key-code |e)
+                      [] |if ([] |not $ [] |string/blank? |state)
+                        [] |do ([] |d! |:collection/add-definition $ [] |[] |ns-text |state) ([] |d! |cursor ||)
               [] |list-> ([] |{})
                 [] |->> ([] |:defs |file) ([] |sort |compare)
                   [] |map $ [] |fn ([] |entry)
@@ -183,13 +186,13 @@
                                   [] $ [] |def-deps
                                     [] |extract-deps
                                       [] |subvec ([] |val |entry) (, |2)
-                                      , |ns-part|file |pkg
+                                      , |ns-part |file |pkg
                                   [] |contains? |def-deps |def-as-dep
                               [] |map $ [] |fn ([] |entry)
                                 [] |{} ([] |:kind |:defs) ([] |:ns |ns-text) ([] |:extra $ [] |first |entry) ([] |:focus $ [] |[] |2)
                             [] |let
                               [] $ [] |proc-deps
-                                [] |extract-deps ([] |:procs |file) (, |ns-part) |file |pkg
+                                [] |extract-deps ([] |:procs |file) (, |ns-part |file |pkg)
                               [] |if ([] |contains? |proc-deps |def-as-dep)
                                 [] |list $ [] |{} ([] |:kind |:procs) ([] |:ns |ns-text) ([] |:extra |nil) ([] |:focus $ [] |[] |0)
                                 [] |list
@@ -268,7 +271,7 @@
                   []
                     [] |existed? $ [] |some?
                       [] |get-in |files $ [] |[] ([] |:ns |dep-info) (, |:defs) ([] |:def |dep-info)
-                    [] |shorten-ns $ [] |string/replace-first ([] |:ns |dep-info) (, |pkg_) ||
+                    [] |shorten-ns $ [] |string/replace-first ([] |:ns |dep-info) (, |pkg_ ||)
                     [] |touch-def $ [] |fn ([] |store) ([] |println ||touching |existed?)
                       [] |if |existed? |store $ [] |-> |store
                         [] |update-in ([] |[] |:collection |:files)
@@ -295,7 +298,7 @@
                 [] |assoc |base-dep |:deps $ [] |let
                   [] $ [] |def-deps
                     [] |if ([] |some? |def-expr)
-                      [] |extract-deps ([] |subvec |def-expr |2) (, |internal-ns) |this-file |pkg
+                      [] |extract-deps ([] |subvec |def-expr |2) (, |internal-ns |this-file |pkg)
                       , |nil
                   [] |->> |def-deps
                     [] |map $ [] |fn ([] |dep-info)
@@ -645,7 +648,7 @@
                 [] |[] ([] |:ns |root-info) (, |:defs) ([] |:def |root-info)
               [] |pkg $ [] |get-in |store ([] |[] |:collection |:package)
               [] |this-file $ [] |get |files |internal-ns
-              [] |deps-tree $ [] |expand-deps-tree |internal-ns ([] |:def |root-info) (, |files) |pkg ([] |#{})
+              [] |deps-tree $ [] |expand-deps-tree |internal-ns ([] |:def |root-info) (, |files |pkg) ([] |#{})
             [] |; |println |ns-deps
             [] |println
             [] |-> |store $ [] |assoc-in ([] |[] |:graph |:tree) (, |deps-tree)
@@ -1296,8 +1299,8 @@
               [] |html-content $ [] |make-string ([] |comp-container |schema/store)
               [] |assets $ [] |read-string ([] |slurp ||dist/assets.edn)
             [] |make-page |html-content $ [] |merge |base-info
-              [] |{} ([] |:styles $ [] |[])
-                [] |:scripts $ [] |map
+              [] |{} $ [] |:scripts
+                [] |map
                   [] |fn ([] |x) ([] |:output-name |x)
                   , |assets
         |dev-page $ [] |defn |dev-page ([])
@@ -1426,7 +1429,7 @@
           [] |let
             [] ([] |namespace' |op-data)
               [] |basic-code $ [] |[] ||ns
-                [] |str ([] |get-in |store $ [] |[] |:collection |:package) (, ||.) |namespace'
+                [] |str ([] |get-in |store $ [] |[] |:collection |:package) (, ||. |namespace')
             [] |-> |store $ [] |assoc-in ([] |[] |:collection |:files |namespace')
               [] |{} ([] |:ns |basic-code) ([] |:defs $ [] |{}) ([] |:procs $ [] |[])
         |remove-file $ [] |defn |remove-file ([] |store |op-data |op-id)

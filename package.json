@@ -1,6 +1,6 @@
 {
   "name": "stack-editor",
-  "version": "0.4.0-a1",
+  "version": "0.4.0-a2",
   "description": "Stack editor",
   "main": "index.js",
   "scripts": {

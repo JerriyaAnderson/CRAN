@@ -22,7 +22,7 @@
         assets (read-string (slurp "dist/assets.edn"))]
     (make-page
      html-content
-     (merge base-info {:styles [], :scripts (map (fn [x] (:output-name x)) assets)}))))
+     (merge base-info {:scripts (map (fn [x] (:output-name x)) assets)}))))
 
 (defn main! []
   (if (= js/process.env.env "dev")
