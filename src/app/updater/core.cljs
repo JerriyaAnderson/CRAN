@@ -5,7 +5,8 @@
             [app.updater.collection :as collection]
             [app.updater.notification :as notification]
             [app.updater.stack :as stack]
-            [app.updater.modal :as modal]))
+            [app.updater.modal :as modal]
+            (app.updater.graph :as graph)))
 
 (defn default-handler [store op-data] store)
 
@@ -36,5 +37,6 @@
                   :stack/shift stack/shift-one
                   :modal/mould modal/mould
                   :modal/recycle modal/recycle
+                  :graph/load-graph graph/load-graph
                   default-handler)]
     (handler store op-data op-id)))

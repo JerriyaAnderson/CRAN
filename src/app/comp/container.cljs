@@ -13,6 +13,7 @@
             [app.comp.notifications :refer [comp-notifications]]
             [app.comp.palette :refer [comp-palette]]
             [app.comp.modal-stack :refer [comp-modal-stack]]
+            (app.comp.graph :refer (comp-graph))
             [app.util.keycode :as keycode]
             [app.util.dom :as dom]
             [app.style.widget :as widget]))
@@ -31,6 +32,7 @@
       :loading (comp-loading)
       :analyzer (comp-definitions states (:collection store))
       :workspace (comp-workspace store)
+      :graph (comp-graph store)
       (comp-text router nil))
     (comp-notifications (:notifications store))
     (comment comp-debug (:stack (:writer store)) {:bottom 0})

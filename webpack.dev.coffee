@@ -1,3 +1,4 @@
+
 path = require 'path'
 resolve = require('path').resolve
 webpack = require 'webpack'
@@ -25,9 +26,9 @@ module.exports =
         limit: 100
         name: 'fonts/[name].[ext]'
     ,
-    # test: /\.js$/
-    # loader: 'source-map-loader'
-    # options: { enforce: 'pre' }
+      # test: /\.js$/
+      # loader: 'source-map-loader'
+      # options: { enforce: 'pre' }
     ]
   plugins: [
     new webpack.HotModuleReplacementPlugin(),

@@ -24,6 +24,7 @@
       :patch (dispatch! :effect/submit true)
       :dehydrate (dispatch! :effect/dehydrate nil)
       :hydrate (dispatch! :modal/mould {:title :hydrate, :data nil})
+      :graph (dispatch! :router/route {:name :graph, :data nil})
       :defs
         (do
          (dispatch!
@@ -49,7 +50,7 @@
 
 (def initial-state {:text "", :cursor 0})
 
-(def basic-commands [[:save] [:load] [:hydrate] [:dehydrate]])
+(def basic-commands [[:save] [:load] [:hydrate] [:dehydrate] [:graph]])
 
 (defn on-keydown [respo-cursor state commands cursor collection]
   (fn [e dispatch!]

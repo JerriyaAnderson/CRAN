@@ -18,7 +18,7 @@
 (defonce *store (atom schema/store))
 
 (defn dispatch! [op op-data]
-  (comment println "Dispatch!" op op-data)
+  (println "Dispatch!" op op-data)
   (case op
     :effect/submit
       (let [shift? op-data, sepal-data (:collection @*store)]
@@ -43,7 +43,7 @@
   (render! (comp-container @*store) mount-target dispatch!)
   (if @*focus-moved? (do (reset! *focus-moved? false) (focus!))))
 
-(defn -main! []
+(defn main! []
   (enable-console-print!)
   (if server-rendered?
     (falsify-stage! mount-target (render-element (comp-container @*store)) dispatch!))
@@ -74,6 +74,6 @@
   (println "app started!")
   (load-collection! dispatch! true))
 
-(defn on-jsload! [] (clear-cache!) (render-app!) (println "Code updated."))
+(defn reload! [] (clear-cache!) (render-app!) (println "Code updated."))
 
-(set! js/window.onload -main!)
+(set! js/window.onload main!)

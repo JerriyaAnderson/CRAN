@@ -3,7 +3,7 @@
 
 (def store
   {:router {:name :loading, :data :definitions, :show-palette? false},
-   :collection {:package nil, :files {}},
+   :collection {:package nil, :root nil, :files {}},
    :writer {:stack [], :pointer 0, :clipboard []},
    :notifications [],
    :modal-stack [],
