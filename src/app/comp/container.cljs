@@ -8,7 +8,6 @@
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
             [app.comp.loading :refer [comp-loading]]
-            [app.comp.definitions :refer [comp-definitions]]
             [app.comp.workspace :refer [comp-workspace]]
             [app.comp.notifications :refer [comp-notifications]]
             [app.comp.palette :refer [comp-palette]]
@@ -28,7 +27,6 @@
      :attrs {:tab-index 0}}
     (case (:name router)
       :loading (comp-loading)
-      :analyzer (comp-definitions states (:collection store))
       :workspace (comp-workspace store)
       :graph (comp-graph store)
       :file-tree (with-cursor :file-tree (comp-file-tree (:file-tree states) store))
