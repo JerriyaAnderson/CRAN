@@ -1,4 +1,5 @@
 {:package "stack-editor",
+ :root {:ns "main", :defs "-main!"},
  :files {"updater.router" {:ns ["ns" "stack-editor.updater.router"],
                            :defs {"toggle-palette" ["defn"
                                                     "toggle-palette"
@@ -1192,22 +1193,22 @@
                                       "op"
                                       [":effect/submit"
                                        ["let"
-                                        [["shift?" "op-data"] ["sepal-data" [":collection" "@store-ref"]]]
+                                        [["shift?" "op-data"] ["sepal-data" [":collection" "@*store"]]]
                                         ["if"
                                          "shift?"
                                          ["submit-collection!" "sepal-data" "dispatch!"]
                                          ["submit-changes!" "sepal-data" "dispatch!"]]]]
-                                      [":effect/dehydrate" ["display-code!" "@store-ref"]]
+                                      [":effect/dehydrate" ["display-code!" "@*store"]]
                                       [":effect/load" ["load-collection!" "dispatch!" "false"]]
                                       ["let"
-                                       [["new-store" ["updater" "@store-ref" "op" "op-data" ["now!"]]]]
+                                       [["new-store" ["updater" "@*store" "op" "op-data" ["now!"]]]]
                                        ["reset!"
-                                        "focus-moved?-ref"
+                                        "*focus-moved?"
                                         ["not"
                                          ["and"
-                                          ["identical?" [":collection" "@store-ref"] [":collection" "new-store"]]
-                                          ["identical?" [":writer" "@store-ref"] [":writer" "new-store"]]]]]
-                                       ["reset!" "store-ref" "new-store"]]]],
+                                          ["identical?" [":collection" "@*store"] [":collection" "new-store"]]
+                                          ["identical?" [":writer" "@*store"] [":writer" "new-store"]]]]]
+                                       ["reset!" "*store" "new-store"]]]],
                         "-main!" ["defn"
                                   "-main!"
                                   []
@@ -1218,10 +1219,10 @@
                                     [["target" [".querySelector" "js/document" "|#app"]]]
                                     ["falsify-stage!"
                                      "target"
-                                     ["render-element" ["comp-container" "@store-ref" "ssr-stages"]]
+                                     ["render-element" ["comp-container" "@*store" "ssr-stages"]]
                                      "dispatch!"]]]
                                   ["render-app!"]
-                                  ["add-watch" "store-ref" ":changes" "render-app!"]
+                                  ["add-watch" "*store" ":changes" "render-app!"]
                                   [".addEventListener"
                                    "js/window"
                                    "|keydown"
@@ -1241,7 +1242,7 @@
                                       [["and" "shift?" "command?" ["=" "code" "keycode/key-a"]]
                                        ["do"
                                         ["let"
-                                         [["router" [":router" "@store-ref"]] ["writer" [":writer" "@store-ref"]]]
+                                         [["router" [":router" "@*store"]] ["writer" [":writer" "@*store"]]]
                                          ["if"
                                           ["=" [":name" "router"] ":workspace"]
                                           ["dispatch!"
@@ -1265,21 +1266,20 @@
                                        ["let"
                                         [["target" [".querySelector" "js/document" "|#app"]]]
                                         ["render!"
-                                         ["comp-container" "@store-ref" ["#{}" ":shell" ":dynamic"]]
+                                         ["comp-container" "@*store" ["#{}" ":shell" ":dynamic"]]
                                          "target"
                                          "dispatch!"]
                                         ["if"
-                                         "@focus-moved?-ref"
-                                         ["do" ["reset!" "focus-moved?-ref" "false"] ["focus!"]]]]],
+                                         "@*focus-moved?"
+                                         ["do" ["reset!" "*focus-moved?" "false"] ["focus!"]]]]],
                         "ssr-stages" ["def"
                                       "ssr-stages"
                                       ["let"
                                        [["ssr-element" [".querySelector" "js/document" "|#ssr-stages"]]
                                         ["ssr-markup" [".getAttribute" "ssr-element" "|content"]]]
                                        ["read-string" "ssr-markup"]]],
-                        "store-ref" ["defonce" "store-ref" ["atom" "schema/store"]],
-                        "states-ref" ["defonce" "states-ref" ["atom" ["{}"]]],
-                        "focus-moved?-ref" ["def" "focus-moved?-ref" ["atom" "false"]]},
+                        "*store" ["defonce" "*store" ["atom" "schema/store"]],
+                        "*focus-moved?" ["def" "*focus-moved?" ["atom" "false"]]},
                  :procs [["set!" "js/window.onload" "-main!"]]},
          "updater.notification" {:ns ["ns" "stack-editor.updater.notification"],
                                  :defs {"add-one" ["defn"
@@ -2596,7 +2596,7 @@
                                                      ["dispatch!"
                                                       ":router/route"
                                                       ["{}" [":name" ":analyzer"] [":data" "nil"]]]]
-                                                    ["reset!" "remote-sepal-ref" "sepal-data"]]]]
+                                                    ["reset!" "*remote-sepal" "sepal-data"]]]]
                                                  [":error-handler"
                                                   ["fn"
                                                    ["error"]
@@ -2613,13 +2613,13 @@
                                                 ["get" "options" "|port"]]
                                                ["{}"
                                                 [":format" ["json-request-format"]]
-                                                [":body" ["pr-str" ["diff" "@remote-sepal-ref" "collection"]]]
+                                                [":body" ["pr-str" ["diff" "@*remote-sepal" "collection"]]]
                                                 [":handler"
                                                  ["fn"
                                                   ["response"]
                                                   ["println" "response"]
                                                   ["dispatch!" ":notification/add-one" "|Patched"]
-                                                  ["reset!" "remote-sepal-ref" "collection"]]]
+                                                  ["reset!" "*remote-sepal" "collection"]]]
                                                 [":error-handler"
                                                  ["fn"
                                                   ["error"]
@@ -2630,7 +2630,7 @@
                                                    ["let"
                                                     [["response" ["read-string" [":response" "error"]]]]
                                                     ["dispatch!" ":notification/add-one" [":status" "response"]]]]]]]]],
-                           "remote-sepal-ref" ["defonce" "remote-sepal-ref" ["atom" "nil"]],
+                           "*remote-sepal" ["defonce" "*remote-sepal" ["atom" "nil"]],
                            "options" ["def"
                                       "options"
                                       ["merge"
@@ -2653,7 +2653,7 @@
                                                      ["response"]
                                                      ["println" "response"]
                                                      ["dispatch!" ":notification/add-one" "|Saved"]
-                                                     ["reset!" "remote-sepal-ref" "collection"]]]
+                                                     ["reset!" "*remote-sepal" "collection"]]]
                                                    [":error-handler"
                                                     ["fn"
                                                      ["error"]

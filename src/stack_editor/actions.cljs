@@ -6,7 +6,7 @@
             [stack-editor.util.querystring :refer [parse-query]]
             [shallow-diff.diff :refer [diff]]))
 
-(defonce remote-sepal-ref (atom nil))
+(defonce *remote-sepal (atom nil))
 
 (def options
   (merge {"port" "7010", "host" "localhost"} (parse-query (.-search js/location))))
@@ -20,7 +20,7 @@
         (if (not (contains? sepal-data :package)) (js/alert "Cannot find a :package field"))
         (dispatch! :collection/load sepal-data)
         (if open-analyzer? (dispatch! :router/route {:name :analyzer, :data nil}))
-        (reset! remote-sepal-ref sepal-data))),
+        (reset! *remote-sepal sepal-data))),
     :error-handler (fn [error]
       (println error)
       (dispatch! :notification/add-one "Failed to fetch collection"))}))
@@ -29,11 +29,11 @@
   (PATCH
    (str "http://" (get options "host") ":" (get options "port"))
    {:format (json-request-format),
-    :body (pr-str (diff @remote-sepal-ref collection)),
+    :body (pr-str (diff @*remote-sepal collection)),
     :handler (fn [response]
       (println response)
       (dispatch! :notification/add-one "Patched")
-      (reset! remote-sepal-ref collection)),
+      (reset! *remote-sepal collection)),
     :error-handler (fn [error]
       (println error)
       (if (zero? (:status error))
@@ -49,7 +49,7 @@
     :handler (fn [response]
       (println response)
       (dispatch! :notification/add-one "Saved")
-      (reset! remote-sepal-ref collection)),
+      (reset! *remote-sepal collection)),
     :error-handler (fn [error]
       (println error)
       (if (zero? (:status error))

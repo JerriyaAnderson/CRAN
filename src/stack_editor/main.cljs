@@ -13,32 +13,32 @@
              [load-collection! submit-collection! submit-changes! display-code!]]
             [cirru-editor.util.dom :refer [focus!]]))
 
-(defonce store-ref (atom schema/store))
+(defonce *store (atom schema/store))
 
-(def focus-moved?-ref (atom false))
+(def *focus-moved? (atom false))
 
 (defn dispatch! [op op-data]
   (comment println "Dispatch!" op op-data)
   (case op
     :effect/submit
-      (let [shift? op-data, sepal-data (:collection @store-ref)]
+      (let [shift? op-data, sepal-data (:collection @*store)]
         (if shift?
           (submit-collection! sepal-data dispatch!)
           (submit-changes! sepal-data dispatch!)))
-    :effect/dehydrate (display-code! @store-ref)
+    :effect/dehydrate (display-code! @*store)
     :effect/load (load-collection! dispatch! false)
-    (let [new-store (updater @store-ref op op-data (now!))]
+    (let [new-store (updater @*store op op-data (now!))]
       (reset!
-       focus-moved?-ref
+       *focus-moved?
        (not
-        (and (identical? (:collection @store-ref) (:collection new-store))
-             (identical? (:writer @store-ref) (:writer new-store)))))
-      (reset! store-ref new-store))))
+        (and (identical? (:collection @*store) (:collection new-store))
+             (identical? (:writer @*store) (:writer new-store)))))
+      (reset! *store new-store))))
 
 (defn render-app! []
   (let [target (.querySelector js/document "#app")]
-    (render! (comp-container @store-ref #{:shell :dynamic}) target dispatch!)
-    (if @focus-moved?-ref (do (reset! focus-moved?-ref false) (focus!)))))
+    (render! (comp-container @*store #{:shell :dynamic}) target dispatch!)
+    (if @*focus-moved? (do (reset! *focus-moved? false) (focus!)))))
 
 (def ssr-stages
   (let [ssr-element (.querySelector js/document "#ssr-stages")
@@ -49,12 +49,9 @@
   (enable-console-print!)
   (if (not (empty? ssr-stages))
     (let [target (.querySelector js/document "#app")]
-      (falsify-stage!
-       target
-       (render-element (comp-container @store-ref ssr-stages))
-       dispatch!)))
+      (falsify-stage! target (render-element (comp-container @*store ssr-stages)) dispatch!)))
   (render-app!)
-  (add-watch store-ref :changes render-app!)
+  (add-watch *store :changes render-app!)
   (.addEventListener
    js/window
    "keydown"
@@ -71,7 +68,7 @@
             (dom/focus-palette!))
          (and shift? command? (= code keycode/key-a))
            (do
-            (let [router (:router @store-ref), writer (:writer @store-ref)]
+            (let [router (:router @*store), writer (:writer @*store)]
               (if (= (:name router) :workspace)
                 (dispatch! :router/route {:name :analyzer, :data :definitions})
                 (if (not (empty? (:stack writer)))
@@ -81,7 +78,5 @@
   (load-collection! dispatch! true))
 
 (defn on-jsload! [] (clear-cache!) (render-app!) (println "Code updated."))
-
-(defonce states-ref (atom {}))
 
 (set! js/window.onload -main!)
