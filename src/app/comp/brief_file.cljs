@@ -20,15 +20,6 @@
   (fn [e dispatch!]
     (dispatch! :collection/edit {:kind :procs, :ns ns-text, :extra nil, :focus []})))
 
-(defn on-input [e d! m!] (m! (:value e)))
-
-(defn on-keydown [ns-text def-text]
-  (fn [e d! m!]
-    (println "event")
-    (if (= keycode/key-enter (:key-code e))
-      (if (not (string/blank? def-text))
-        (do (d! :collection/add-definition [ns-text def-text]) (m! ""))))))
-
 (defn on-remove [ns-text] (fn [e d! m!] (d! :collection/remove-file ns-text)))
 
 (def style-file {:padding "16px", :font-size 16, :line-height 1.6})
@@ -38,12 +29,12 @@
 (defcomp
  comp-brief-file
  (states ns-text file)
- (let [state (or (:data states) "")]
+ (let [cursor (:cursor states), state (or (:data states) "")]
    (div
     {:style style-file}
     (div
      {:style ui/row}
-     (<> span ns-text nil)
+     (<> ns-text nil)
      (=< 16 nil)
      (span {:inner-text "ns", :style style-link, :on-click (on-edit-ns ns-text)})
      (=< 16 nil)
@@ -57,7 +48,11 @@
       {:value state,
        :placeholder "new def",
        :style widget/input,
-       :on {:input on-input, :keydown (on-keydown ns-text state)}}))
+       :on-input (fn [e d!] (d! cursor (:value e))),
+       :on-keydown (fn [e d!]
+         (if (= keycode/key-enter (:key-code e))
+           (if (not (string/blank? state))
+             (do (d! :collection/add-definition [ns-text state]) (d! cursor "")))))}))
     (list->
      {}
      (->> (:defs file)
@@ -70,3 +65,10 @@
                  {:inner-text (str def-text "↗"),
                   :style style-link,
                   :on-click (on-edit-def ns-text def-text)})]))))))))
+
+(defn on-keydown [ns-text def-text]
+  (fn [e d! m!]
+    (println "event")
+    (if (= keycode/key-enter (:key-code e))
+      (if (not (string/blank? def-text))
+        (do (d! :collection/add-definition [ns-text def-text]) (m! ""))))))

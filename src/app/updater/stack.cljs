@@ -38,8 +38,7 @@
                                           (fn [entry]
                                             (let [def-deps (extract-deps
                                                             (subvec (val entry) 2)
-                                                            ns-part
-                                                            file
+                                                            ns-part file
                                                             pkg)]
                                               (contains? def-deps def-as-dep))))
                                          (map
