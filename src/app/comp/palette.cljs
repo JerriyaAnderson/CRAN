@@ -94,8 +94,10 @@
     (div
      {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
      (input
-      {:style (merge widget/input {:width "100%", :line-height "40px"}),
-       :attrs {:placeholder "write command...", :id "command-palette", :value (:text state)},
+      {:placeholder "write command...",
+       :id "command-palette",
+       :value (:text state),
+       :style (merge widget/input {:width "100%", :line-height "40px"}),
        :event {:input (on-input cursor state),
                :keydown (on-keydown cursor state commands (:cursor state) files)}})
      (div

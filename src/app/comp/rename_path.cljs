@@ -29,11 +29,11 @@
     (div
      {}
      (input
-      {:style (merge ui/input {:width 400}),
-       :attrs {:value state},
+      {:value state,
+       :style (merge ui/input {:width 400}),
        :event {:input (on-input cursor)}})
      (=< 16 nil)
      (div
-      {:style widget/button,
-       :attrs {:inner-text "Rename"},
+      {:inner-text "Rename",
+       :style widget/button,
        :event {:click (on-rename code-path state)}})))))

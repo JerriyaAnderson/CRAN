@@ -96,12 +96,9 @@
        (div
         {:style (merge ui/row style-toolbar)}
         (div
-         {:style widget/button,
-          :event {:click (on-rename code-path)},
-          :attrs {:inner-text "Rename"}})
+         {:inner-text "Rename", :style widget/button, :event {:click (on-rename code-path)}})
         (=< 8 nil)
-        (div
-         {:style widget/button, :event {:click on-remove}, :attrs {:inner-text "Remove"}})))
+        (div {:inner-text "Remove", :style widget/button, :event {:click on-remove}})))
       (div
        {:style (merge ui/column ui/flex)}
        (div {:style style-removed} (<> span "Tree is be removed." nil)))))))

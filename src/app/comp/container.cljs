@@ -21,8 +21,8 @@
  (store)
  (let [router (:router store), states (:states store)]
    (div
-    {:style (merge ui/global {:background-color (hsl 0 0 0), :color (hsl 0 0 70)}),
-     :attrs {:tab-index 0}}
+    {:tab-index 0,
+     :style (merge ui/global {:background-color (hsl 0 0 0), :color (hsl 0 0 70)})}
     (case (:name router)
       :loading (comp-loading)
       :workspace (comp-workspace store)

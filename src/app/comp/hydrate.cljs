@@ -41,8 +41,8 @@
     (div
      {}
      (textarea
-      {:style (merge ui/textarea style-textarea),
-       :attrs {:value state},
+      {:value state,
+       :style (merge ui/textarea style-textarea),
        :event {:input (on-change cursor)}}))
     (=< nil 8)
     (div

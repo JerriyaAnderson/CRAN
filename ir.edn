@@ -869,15 +869,15 @@
                                                          ["{}" [":style" ["merge" "ui/row" "style-toolbar"]]]
                                                          ["div"
                                                           ["{}"
+                                                           [":inner-text" "|Rename"]
                                                            [":style" "widget/button"]
-                                                           [":event" ["{}" [":click" ["on-rename" "code-path"]]]]
-                                                           [":attrs" ["{}" [":inner-text" "|Rename"]]]]]
+                                                           [":event" ["{}" [":click" ["on-rename" "code-path"]]]]]]
                                                          ["=<" "8" "nil"]
                                                          ["div"
                                                           ["{}"
+                                                           [":inner-text" "|Remove"]
                                                            [":style" "widget/button"]
-                                                           [":event" ["{}" [":click" "on-remove"]]]
-                                                           [":attrs" ["{}" [":inner-text" "|Remove"]]]]]]]
+                                                           [":event" ["{}" [":click" "on-remove"]]]]]]]
                                                        ["div"
                                                         ["{}" [":style" ["merge" "ui/column" "ui/flex"]]]
                                                         ["div"
@@ -1183,13 +1183,13 @@
                                                      [["router" [":router" "store"]] ["states" [":states" "store"]]]
                                                      ["div"
                                                       ["{}"
+                                                       [":tab-index" "0"]
                                                        [":style"
                                                         ["merge"
                                                          "ui/global"
                                                          ["{}"
                                                           [":background-color" ["hsl" "0" "0" "0"]]
-                                                          [":color" ["hsl" "0" "0" "70"]]]]]
-                                                       [":attrs" ["{}" [":tab-index" "0"]]]]
+                                                          [":color" ["hsl" "0" "0" "70"]]]]]]
                                                       ["case"
                                                        [":name" "router"]
                                                        [":loading" ["comp-loading"]]
@@ -1374,14 +1374,14 @@
                                                            ["{}"]
                                                            ["input"
                                                             ["{}"
+                                                             [":value" "state"]
                                                              [":style" ["merge" "ui/input" ["{}" [":width" "400"]]]]
-                                                             [":attrs" ["{}" [":value" "state"]]]
                                                              [":event" ["{}" [":input" ["on-input" "cursor"]]]]]]
                                                            ["=<" "16" "nil"]
                                                            ["div"
                                                             ["{}"
+                                                             [":inner-text" "|Rename"]
                                                              [":style" "widget/button"]
-                                                             [":attrs" ["{}" [":inner-text" "|Rename"]]]
                                                              [":event"
                                                               ["{}" [":click" ["on-rename" "code-path" "state"]]]]]]]]]],
                                     "on-input" ["defn"
@@ -1720,15 +1720,13 @@
                                                        [":width" "|800px"]]]]]
                                                    ["input"
                                                     ["{}"
+                                                     [":placeholder" "|write command..."]
+                                                     [":id" "|command-palette"]
+                                                     [":value" [":text" "state"]]
                                                      [":style"
                                                       ["merge"
                                                        "widget/input"
                                                        ["{}" [":width" "|100%"] [":line-height" "|40px"]]]]
-                                                     [":attrs"
-                                                      ["{}"
-                                                       [":placeholder" "|write command..."]
-                                                       [":id" "|command-palette"]
-                                                       [":value" [":text" "state"]]]]
                                                      [":event"
                                                       ["{}"
                                                        [":input" ["on-input" "cursor" "state"]]
@@ -2189,8 +2187,8 @@
                                                    ["{}"]
                                                    ["textarea"
                                                     ["{}"
+                                                     [":value" "state"]
                                                      [":style" ["merge" "ui/textarea" "style-textarea"]]
-                                                     [":attrs" ["{}" [":value" "state"]]]
                                                      [":event" ["{}" [":input" ["on-change" "cursor"]]]]]]]
                                                   ["=<" "nil" "8"]
                                                   ["div"
