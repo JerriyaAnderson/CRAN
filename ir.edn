@@ -10,6 +10,89 @@
                                            ["store" "op-data"]
                                            ["let" [["router" "op-data"]] ["assoc" "store" ":router" "router"]]]},
                            :procs []},
+         "comp.brief-file" {:ns ["ns"
+                                 "app.comp.brief-file"
+                                 [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
+                                 [":require"
+                                  ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                                  ["[]" "respo.alias" ":refer" ["[]" "div"]]
+                                  ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
+                                  ["[]" "respo-ui.style" ":as" "ui"]
+                                  ["respo.comp.space" ":refer" ["comp-space"]]]],
+                            :defs {"comp-brief-file" ["defcomp"
+                                                      "comp-brief-file"
+                                                      ["ns-text" "file"]
+                                                      ["div"
+                                                       ["{}" [":style" "style-file"]]
+                                                       ["div"
+                                                        ["{}" [":style" "ui/row"]]
+                                                        ["div"
+                                                         ["{}"
+                                                          [":inner-text" "|ns"]
+                                                          [":style" "style-link"]
+                                                          [":event" ["{}" [":click" ["on-edit-ns" "ns-text"]]]]]]
+                                                        ["comp-space" "16" "nil"]
+                                                        ["div"
+                                                         ["{}"
+                                                          [":inner-text" "|procs"]
+                                                          [":style" "style-link"]
+                                                          [":event" ["{}" [":click" ["on-edit-procs" "ns-text"]]]]]]]
+                                                       ["div"
+                                                        ["{}"]
+                                                        ["->>"
+                                                         [":defs" "file"]
+                                                         ["map"
+                                                          ["fn"
+                                                           ["entry"]
+                                                           ["let"
+                                                            [["def-text" ["key" "entry"]]]
+                                                            ["[]"
+                                                             "def-text"
+                                                             ["div"
+                                                              ["{}"
+                                                               [":inner-text" "def-text"]
+                                                               [":style" "style-link"]
+                                                               [":event"
+                                                                ["{}" [":click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]]],
+                                   "style-file" ["def" "style-file" ["{}" [":padding" "|16px"] [":line-height" "1.4"]]],
+                                   "on-edit-ns" ["defn"
+                                                 "on-edit-ns"
+                                                 ["ns-text"]
+                                                 ["fn"
+                                                  ["e" "dispatch!"]
+                                                  ["dispatch!"
+                                                   ":collection/edit"
+                                                   ["{}"
+                                                    [":kind" ":ns"]
+                                                    [":ns" "ns-text"]
+                                                    [":extra" "nil"]
+                                                    [":focus" ["[]"]]]]]],
+                                   "on-edit-procs" ["defn"
+                                                    "on-edit-procs"
+                                                    ["ns-text"]
+                                                    ["fn"
+                                                     ["e" "dispatch!"]
+                                                     ["dispatch!"
+                                                      ":collection/edit"
+                                                      ["{}"
+                                                       [":kind" ":procs"]
+                                                       [":ns" "ns-text"]
+                                                       [":extra" "nil"]
+                                                       [":focus" ["[]"]]]]]],
+                                   "style-link" ["def" "style-link" ["{}" [":cursor" ":pointer"]]],
+                                   "on-edit-def" ["defn"
+                                                  "on-edit-def"
+                                                  ["ns-text" "def-text"]
+                                                  ["fn"
+                                                   ["e" "dispatch!"]
+                                                   ["dispatch!"
+                                                    ":collection/edit"
+                                                    ["{}"
+                                                     [":kind" ":defs"]
+                                                     [":ns" "ns-text"]
+                                                     [":extra" "def-text"]
+                                                     [":focus" ["[]" "2"]]]]]]},
+                            :procs []},
          "comp.loading" {:ns ["ns"
                               "app.comp.loading"
                               [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
@@ -1179,7 +1262,11 @@
                                  "view-path" ["defn"
                                               "view-path"
                                               ["store" "op-data"]
-                                              ["assoc-in" "store" ["[]" ":graph" ":path"] "op-data"]]},
+                                              ["assoc-in" "store" ["[]" ":graph" ":path"] "op-data"]],
+                                 "view-ns" ["defn"
+                                            "view-ns"
+                                            ["store" "op-data"]
+                                            ["assoc-in" "store" ["[]" ":graph" ":ns-path"] "op-data"]]},
                           :procs []},
          "schema" {:ns ["ns" "app.schema"],
                    :defs {"store" ["def"
@@ -2073,6 +2160,7 @@
                                                [":modal/recycle" "modal/recycle"]
                                                [":graph/load-graph" "graph/load-graph"]
                                                [":graph/view-path" "graph/view-path"]
+                                               [":graph/view-ns" "graph/view-ns"]
                                                "default-handler"]]]
                                             ["handler" "store" "op-data" "op-id"]]],
                                 "default-handler" ["defn" "default-handler" ["store" "op-data"] "store"]},
@@ -2564,39 +2652,90 @@
                                  ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
                                  ["[]" "respo-ui.style" ":as" "ui"]
                                  ["clojure.string" ":as" "string"]
-                                 ["app.util" ":refer" ["segments->tree"]]]],
+                                 ["app.util" ":refer" ["segments->tree"]]
+                                 ["respo.comp.space" ":refer" ["comp-space"]]
+                                 ["app.comp.brief-file" ":refer" ["comp-brief-file"]]]],
                            :defs {"comp-file-tree" ["defcomp"
                                                     "comp-file-tree"
                                                     ["store"]
-                                                    ["div"
-                                                     ["{}" [":style" ["merge" "ui/fullscreen" "style-file-tree"]]]
-                                                     ["render-toolbar"]
+                                                    ["let"
+                                                     [["ns-path" ["get-in" "store" ["[]" ":graph" ":ns-path"]]]
+                                                      ["ns-text" ["string/join" "|." "ns-path"]]
+                                                      ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]]
                                                      ["div"
-                                                      ["{}"]
-                                                      ["let"
-                                                       [["ns-names"
-                                                         ["keys" ["get-in" "store" ["[]" ":collection" ":files"]]]]
-                                                        ["segments"
-                                                         ["->>"
-                                                          "ns-names"
-                                                          ["map" ["fn" ["x"] ["string/split" "x" "|."]]]]]
-                                                        ["file-tree" ["segments->tree" "segments"]]
-                                                        ["ns-path" ["get-in" "store" ["[]" ":graph" ":ns-path"]]]]
-                                                       ["loop"
-                                                        ["[]" "children" ["[]"] "path" "ns-path"]
+                                                      ["{}" [":style" ["merge" "ui/fullscreen" "style-file-tree"]]]
+                                                      ["render-toolbar"]
+                                                      ["comp-text" "ns-text" "nil"]
+                                                      ["div"
+                                                       ["{}" [":style" "ui/row"]]
+                                                       ["div"
+                                                        ["{}" [":style" "ui/row"]]
                                                         ["let"
-                                                         [["next-children" "[]"]]
-                                                         ["if"
-                                                          ["empty?" "path"]
-                                                          "next-children"
-                                                          ["recur" "next-children" ["rest" "path"]]]]]]]]],
+                                                         [["ns-names" ["keys" "files"]]
+                                                          ["segments"
+                                                           ["->>"
+                                                            "ns-names"
+                                                            ["map" ["fn" ["x"] ["string/split" "x" "|."]]]]]
+                                                          ["file-tree" ["segments->tree" "segments"]]]
+                                                         ["loop"
+                                                          ["[]" "children" ["list"] "path" "ns-path"]
+                                                          ["let"
+                                                           [["dict" ["get-in" "file-tree" "path"]]
+                                                            ["next-children"
+                                                             ["cons"
+                                                              ["[]"
+                                                               ["string/join" "|/" "path"]
+                                                               ["if"
+                                                                ["map?" "dict"]
+                                                                ["div"
+                                                                 ["{}" [":style" "style-column"]]
+                                                                 ["->>"
+                                                                  "dict"
+                                                                  ["map"
+                                                                   ["fn"
+                                                                    ["entry"]
+                                                                    ["let"
+                                                                     [["ns-piece" ["key" "entry"]]]
+                                                                     ["[]"
+                                                                      "ns-piece"
+                                                                      ["div"
+                                                                       ["{}"
+                                                                        [":style" "style-file"]
+                                                                        [":event"
+                                                                         ["{}" [":click" ["on-view" "path" "ns-piece"]]]]]
+                                                                       ["comp-text" "ns-piece" "nil"]]]]]]]]
+                                                                "nil"]]
+                                                              "children"]]]
+                                                           ["if"
+                                                            ["empty?" "path"]
+                                                            "next-children"
+                                                            ["recur"
+                                                             "next-children"
+                                                             ["subvec" "path" "0" ["dec" ["count" "path"]]]]]]]]]
+                                                       ["comp-space" "16" "nil"]
+                                                       ["if"
+                                                        ["contains?" "files" "ns-text"]
+                                                        ["comp-brief-file" "ns-text" ["get" "files" "ns-text"]]]]]]],
                                   "style-file-tree" ["def"
                                                      "style-file-tree"
                                                      ["{}" [":background-color" ["hsl" "0" "0" "0"]]]],
                                   "render-toolbar" ["defn"
                                                     "render-toolbar"
                                                     []
-                                                    ["div" ["{}"] ["comp-text" "|Tools" "nil"]]]},
+                                                    ["div" ["{}"] ["comp-text" "|Tools" "nil"]]],
+                                  "on-view" ["defn"
+                                             "on-view"
+                                             ["path" "ns-piece"]
+                                             ["fn"
+                                              ["e" "dispatch!"]
+                                              ["dispatch!" ":graph/view-ns" ["conj" "path" "ns-piece"]]]],
+                                  "style-file" ["def" "style-file" ["{}" [":cursor" ":pointer"]]],
+                                  "style-column" ["def"
+                                                  "style-column"
+                                                  ["{}"
+                                                   [":padding" "|16px 16px"]
+                                                   [":min-width" "80"]
+                                                   [":line-height" "1.4"]]]},
                            :procs []},
          "updater.collection" {:ns ["ns"
                                     "app.updater.collection"

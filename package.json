@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "tiye": "rsync -r dist/ cirru.org:repo/Cirru/stack-editor",
-    "cljs-once": "shadow-cljs -b npm --once",
     "cljs-release": "shadow-cljs -b release --release",
     "cljs-browser": "shadow-cljs -b dev --dev",
+    "cljs-once": "shadow-cljs -b npm --once",
     "cljs": "shadow-cljs -b npm --dev",
     "html-dev": "env=dev node target/app.render.js",
     "html": "node target/app.render.js",

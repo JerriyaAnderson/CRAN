@@ -19,3 +19,5 @@
         (assoc-in [:graph :path] [{:deps #{deps-tree}}]))))
 
 (defn view-path [store op-data] (assoc-in store [:graph :path] op-data))
+
+(defn view-ns [store op-data] (assoc-in store [:graph :ns-path] op-data))
