@@ -27,9 +27,9 @@
    {:style style-toolbar}
    (div
     {}
-    (button {:inner-text "Expand", :style widget/button, :event {:click on-load}})
+    (button {:inner-text "Files", :style widget/button, :event {:click on-files}})
     (comp-space 8 nil)
-    (button {:inner-text "Files", :style widget/button, :event {:click on-files}}))))
+    (button {:inner-text "Expand", :style widget/button, :event {:click on-load}}))))
 
 (defcomp
  comp-graph

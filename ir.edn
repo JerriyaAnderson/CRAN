@@ -26,6 +26,8 @@
                                                        ["{}" [":style" "style-file"]]
                                                        ["div"
                                                         ["{}" [":style" "ui/row"]]
+                                                        ["comp-text" "ns-text" "nil"]
+                                                        ["comp-space" "8" "nil"]
                                                         ["div"
                                                          ["{}"
                                                           [":inner-text" "|ns"]
@@ -54,7 +56,7 @@
                                                                [":style" "style-link"]
                                                                [":event"
                                                                 ["{}" [":click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]]],
-                                   "style-file" ["def" "style-file" ["{}" [":padding" "|16px"] [":line-height" "1.4"]]],
+                                   "style-file" ["def" "style-file" ["{}" [":padding" "|16px"] [":line-height" "1.6"]]],
                                    "on-edit-ns" ["defn"
                                                  "on-edit-ns"
                                                  ["ns-text"]
@@ -1206,15 +1208,15 @@
                                                   ["{}"]
                                                   ["button"
                                                    ["{}"
-                                                    [":inner-text" "|Expand"]
+                                                    [":inner-text" "|Files"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-load"]]]]]
+                                                    [":event" ["{}" [":click" "on-files"]]]]]
                                                   ["comp-space" "8" "nil"]
                                                   ["button"
                                                    ["{}"
-                                                    [":inner-text" "|Files"]
+                                                    [":inner-text" "|Expand"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-files"]]]]]]]],
+                                                    [":event" ["{}" [":click" "on-load"]]]]]]]],
                               "on-files" ["defn"
                                           "on-files"
                                           ["e" "dispatch!"]
@@ -1387,20 +1389,20 @@
                             "style-def" ["def"
                                          "style-def"
                                          ["{}"
-                                          [":color" ["hsl" "0" "0" "70" "0.6"]]
+                                          [":color" ["hsl" "0" "0" "70" "0.7"]]
                                           [":font-size" "14"]
                                           [":cursor" ":pointer"]
                                           [":white-space" ":nowrap"]]],
                             "style-external" ["def"
                                               "style-external"
                                               ["{}"
-                                               [":color" ["hsl" "300" "40" "30"]]
+                                               [":color" ["hsl" "260" "16" "44"]]
                                                [":font-size" "12"]
                                                [":cursor" ":default"]]],
-                            "style-highlight" ["def" "style-highlight" ["{}" [":color" ":white"]]],
+                            "style-highlight" ["def" "style-highlight" ["{}" [":color" ["hsl" "0" "0" "100" "0.86"]]]],
                             "style-count" ["def"
                                            "style-count"
-                                           ["{}" [":font-size" "12"] [":color" ["hsl" "0" "0" "100" "0.2"]]]]},
+                                           ["{}" [":font-size" "12"] [":color" ["hsl" "0" "0" "100" "0.4"]]]]},
                      :procs []},
          "comp.modal-stack" {:ns ["ns"
                                   "app.comp.modal-stack"
@@ -2648,13 +2650,14 @@
                                 [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
                                 [":require"
                                  ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                 ["[]" "respo.alias" ":refer" ["[]" "div"]]
+                                 ["[]" "respo.alias" ":refer" ["[]" "div" "button"]]
                                  ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
                                  ["[]" "respo-ui.style" ":as" "ui"]
                                  ["clojure.string" ":as" "string"]
                                  ["app.util" ":refer" ["segments->tree"]]
                                  ["respo.comp.space" ":refer" ["comp-space"]]
-                                 ["app.comp.brief-file" ":refer" ["comp-brief-file"]]]],
+                                 ["app.comp.brief-file" ":refer" ["comp-brief-file"]]
+                                 ["app.style.widget" ":as" "widget"]]],
                            :defs {"comp-file-tree" ["defcomp"
                                                     "comp-file-tree"
                                                     ["store"]
@@ -2663,11 +2666,12 @@
                                                       ["ns-text" ["string/join" "|." "ns-path"]]
                                                       ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]]
                                                      ["div"
-                                                      ["{}" [":style" ["merge" "ui/fullscreen" "style-file-tree"]]]
+                                                      ["{}"
+                                                       [":style"
+                                                        ["merge" "ui/fullscreen" "ui/column" "style-file-tree"]]]
                                                       ["render-toolbar"]
-                                                      ["comp-text" "ns-text" "nil"]
                                                       ["div"
-                                                       ["{}" [":style" "ui/row"]]
+                                                       ["{}" [":style" ["merge" "ui/row" "style-body"]]]
                                                        ["div"
                                                         ["{}" [":style" "ui/row"]]
                                                         ["let"
@@ -2678,11 +2682,13 @@
                                                             ["map" ["fn" ["x"] ["string/split" "x" "|."]]]]]
                                                           ["file-tree" ["segments->tree" "segments"]]]
                                                          ["loop"
-                                                          ["[]" "children" ["list"] "path" "ns-path"]
+                                                          ["[]" "children" ["[]"] "path" ["[]"]]
                                                           ["let"
-                                                           [["dict" ["get-in" "file-tree" "path"]]
+                                                           [["next-piece" ["get" "ns-path" ["count" "path"]]]
+                                                            ["dict" ["get-in" "file-tree" "path"]]
                                                             ["next-children"
-                                                             ["cons"
+                                                             ["conj"
+                                                              "children"
                                                               ["[]"
                                                                ["string/join" "|/" "path"]
                                                                ["if"
@@ -2691,6 +2697,7 @@
                                                                  ["{}" [":style" "style-column"]]
                                                                  ["->>"
                                                                   "dict"
+                                                                  ["sort" "compare"]
                                                                   ["map"
                                                                    ["fn"
                                                                     ["entry"]
@@ -2700,42 +2707,69 @@
                                                                       "ns-piece"
                                                                       ["div"
                                                                        ["{}"
-                                                                        [":style" "style-file"]
+                                                                        [":style"
+                                                                         ["merge"
+                                                                          "style-file"
+                                                                          ["if"
+                                                                           ["=" "ns-piece" "next-piece"]
+                                                                           "style-highlight"]]]
                                                                         [":event"
                                                                          ["{}" [":click" ["on-view" "path" "ns-piece"]]]]]
-                                                                       ["comp-text" "ns-piece" "nil"]]]]]]]]
-                                                                "nil"]]
-                                                              "children"]]]
+                                                                       ["comp-text" "ns-piece" "nil"]
+                                                                       ["comp-space" "8" "nil"]
+                                                                       ["let"
+                                                                        [["info"
+                                                                          ["get-in" "dict" ["conj" "path" "ns-piece"]]]]
+                                                                        ["if"
+                                                                         ["map?" "info"]
+                                                                         ["comp-text" ["count" "info"] "nil"]]]]]]]]]]
+                                                                "nil"]]]]]
                                                            ["if"
-                                                            ["empty?" "path"]
+                                                            ["=" "path" "ns-path"]
                                                             "next-children"
-                                                            ["recur"
-                                                             "next-children"
-                                                             ["subvec" "path" "0" ["dec" ["count" "path"]]]]]]]]]
+                                                            ["recur" "next-children" ["conj" "path" "next-piece"]]]]]]]
                                                        ["comp-space" "16" "nil"]
                                                        ["if"
                                                         ["contains?" "files" "ns-text"]
                                                         ["comp-brief-file" "ns-text" ["get" "files" "ns-text"]]]]]]],
-                                  "style-file-tree" ["def"
-                                                     "style-file-tree"
-                                                     ["{}" [":background-color" ["hsl" "0" "0" "0"]]]],
-                                  "render-toolbar" ["defn"
-                                                    "render-toolbar"
-                                                    []
-                                                    ["div" ["{}"] ["comp-text" "|Tools" "nil"]]],
+                                  "style-body" ["def" "style-body" ["{}" [":flex" "1"]]],
+                                  "style-highlight" ["def"
+                                                     "style-highlight"
+                                                     ["{}" [":color" ["hsl" "0" "0" "100" "0.9"]]]],
+                                  "style-toolbar" ["def" "style-toolbar" ["{}" [":padding" "|16px 16px"]]],
+                                  "style-column" ["def"
+                                                  "style-column"
+                                                  ["{}"
+                                                   [":padding" "|16px 16px"]
+                                                   [":min-width" "80"]
+                                                   [":line-height" "1.6"]
+                                                   [":overflow" ":auto"]]],
                                   "on-view" ["defn"
                                              "on-view"
                                              ["path" "ns-piece"]
                                              ["fn"
                                               ["e" "dispatch!"]
                                               ["dispatch!" ":graph/view-ns" ["conj" "path" "ns-piece"]]]],
-                                  "style-file" ["def" "style-file" ["{}" [":cursor" ":pointer"]]],
-                                  "style-column" ["def"
-                                                  "style-column"
-                                                  ["{}"
-                                                   [":padding" "|16px 16px"]
-                                                   [":min-width" "80"]
-                                                   [":line-height" "1.4"]]]},
+                                  "style-file-tree" ["def"
+                                                     "style-file-tree"
+                                                     ["{}" [":background-color" ["hsl" "0" "0" "0"]]]],
+                                  "render-toolbar" ["defn"
+                                                    "render-toolbar"
+                                                    []
+                                                    ["div"
+                                                     ["{}" [":style" "style-toolbar"]]
+                                                     ["button"
+                                                      ["{}"
+                                                       [":inner-text" "|Graph"]
+                                                       [":style" "widget/button"]
+                                                       [":event" ["{}" [":click" "on-graph"]]]]]]],
+                                  "on-graph" ["defn"
+                                              "on-graph"
+                                              ["e" "dispatch!"]
+                                              ["dispatch!" ":router/route" ["{}" [":name" ":graph"] [":data" "nil"]]]],
+                                  "style-file" ["def"
+                                                "style-file"
+                                                ["{}" [":cursor" ":pointer"] [":color" ["hsl" "0" "0" "100" "0.5"]]]]},
                            :procs []},
          "updater.collection" {:ns ["ns"
                                     "app.updater.collection"
