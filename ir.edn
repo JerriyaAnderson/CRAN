@@ -182,14 +182,8 @@
                                 ["[]"
                                  "app.util"
                                  ":refer"
-                                 ["[]"
-                                  "remove-idx"
-                                  "helper-notify"
-                                  "helper-create-def"
-                                  "helper-put-path"
-                                  "make-path"
-                                  "has-ns?"
-                                  "helper-put-list"]]]],
+                                 ["[]" "remove-idx" "helper-notify" "helper-create-def" "make-path" "has-ns?"]]
+                                ["app.util.stack" ":refer" ["push-path" "push-paths"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
                                              ["store" "op-data" "op-id"]
@@ -300,14 +294,14 @@
                                                       ["filter" ["fn" ["xs"] ["not" ["empty?" "xs"]]]]
                                                       ["apply" "concat"]]]]
                                                    ["println" "|Got new paths:" "new-paths"]
-                                                   ["update" "store" ":writer" ["helper-put-list" "new-paths"]]]]
+                                                   ["update" "store" ":writer" ["push-paths" "new-paths"]]]]
                                                  [":ns"
                                                   ["let"
                                                    [["ns-list"
                                                      ["list-dependent-ns" "ns-part" [":files" "sepal-ir"] "pkg"]]
                                                     ["new-paths" ["map" ["fn" ["x"] ["[]" "x" ":ns"]] "ns-list"]]]
                                                    ["--" "println" "former-stack" "pointer" "new-paths"]
-                                                   ["update" "store" ":writer" ["helper-put-list" "new-paths"]]]]
+                                                   ["update" "store" ":writer" ["push-paths" "new-paths"]]]]
                                                  "store"]]],
                                  "point-to" ["defn"
                                              "point-to"
@@ -359,7 +353,7 @@
                                                       ["pkg_" ["str" "pkg" "|."]]
                                                       [["{}" ["stack" ":stack"] ["pointer" ":pointer"]]
                                                        [":writer" "store"]]
-                                                      ["code-path" ["get" "stack" "pointer" ""]]
+                                                      ["code-path" ["get" "stack" "pointer"]]
                                                       ["focus" [":focus" "code-path"]]
                                                       ["target"
                                                        ["strip-atom"
@@ -429,7 +423,7 @@
                                                          ["touch-def"]
                                                          ["update"
                                                           ":writer"
-                                                          ["helper-put-path"
+                                                          ["push-path"
                                                            ["{}"
                                                             [":kind" ":defs"]
                                                             [":ns" "shorten-ns"]
@@ -710,53 +704,6 @@
                                              ["stack" [":stack" "writer"]]
                                              ["code-path" ["get" "stack" "pointer"]]]
                                             ["concat" ["make-path" "code-path"] [":focus" "code-path"]]]],
-                        "helper-put-path" ["defn"
-                                           "helper-put-path"
-                                           ["code-path"]
-                                           ["fn"
-                                            ["writer"]
-                                            ["let"
-                                             [["next-pointer" ["inc" [":pointer" "writer"]]]
-                                              ["stack" [":stack" "writer"]]
-                                              ["matched-idx"
-                                               ["find-by" ["fn" ["x"] ["=path?" "x" "code-path"]] "stack"]]]
-                                             ["if"
-                                              [">=" "matched-idx" "0"]
-                                              ["->" "writer" ["assoc" ":pointer" "matched-idx"]]
-                                              ["if"
-                                               ["empty?" "stack"]
-                                               ["assoc" "writer" ":stack" ["[]" "code-path"] ":pointer" "0"]
-                                               ["->"
-                                                "writer"
-                                                ["update" ":pointer" "inc"]
-                                                ["update"
-                                                 ":stack"
-                                                 ["fn"
-                                                  ["stack"]
-                                                  ["if"
-                                                   [">=" "next-pointer" ["dec" ["count" "stack"]]]
-                                                   ["conj" "stack" "code-path"]
-                                                   ["if"
-                                                    ["=path?" "code-path" ["get" "stack" "next-pointer"]]
-                                                    "stack"
-                                                    ["conj"
-                                                     ["into" ["[]"] ["subvec" "stack" "0" "next-pointer"]]
-                                                     "code-path"]]]]]]]]]]],
-                        "helper-put-list" ["defn"
-                                           "helper-put-list"
-                                           ["new-paths"]
-                                           ["fn"
-                                            ["writer"]
-                                            ["let"
-                                             [["stack" [":stack" "writer"]] ["pointer" [":pointer" "writer"]]]
-                                             ["if"
-                                              ["empty?" "new-paths"]
-                                              "writer"
-                                              ["->"
-                                               "writer"
-                                               ["assoc" ":stack" ["into" ["[]"] ["concat" "stack" "new-paths"]]]
-                                               ["assoc" ":pointer" ["count" "stack"]]
-                                               ["assoc" ":focus" ["[]" "1"]]]]]]],
                         "has-ns?" ["defn" "has-ns?" ["x"] ["string/includes?" "x" "|/"]],
                         "helper-notify" ["defn"
                                          "helper-notify"
@@ -1108,7 +1055,7 @@
                                 ["app.util.analyze"
                                  ":refer"
                                  ["parse-ns-deps" "pick-dep" "pick-def-deps" "expand-deps-tree"]]
-                                ["app.util" ":refer" ["helper-put-path"]]]],
+                                ["app.util.stack" ":refer" ["push-path"]]]],
                           :defs {"load-graph" ["defn"
                                                "load-graph"
                                                ["store" "op-data"]
@@ -1156,7 +1103,7 @@
                                                     "store"
                                                     ["update"
                                                      ":writer"
-                                                     ["helper-put-path"
+                                                     ["push-path"
                                                       ["{}"
                                                        [":ns" [":ns" "maybe-path"]]
                                                        [":kind" ":defs"]
@@ -2518,13 +2465,9 @@
                                      ["[]"
                                       "app.util"
                                       ":refer"
-                                      ["[]"
-                                       "helper-notify"
-                                       "helper-put-path"
-                                       "make-path"
-                                       "view-focused"
-                                       "make-focus-path"]]
-                                     ["[]" "app.util.detect" ":refer" ["[]" "=path?"]]]],
+                                      ["[]" "helper-notify" "make-path" "view-focused" "make-focus-path"]]
+                                     ["[]" "app.util.detect" ":refer" ["[]" "=path?"]]
+                                     ["app.util.stack" ":refer" ["push-path"]]]],
                                :defs {"rename" ["defn"
                                                 "rename"
                                                 ["store" "op-data" "op-id"]
@@ -2682,7 +2625,7 @@
                                                [["path" "op-data"]]
                                                ["->"
                                                 "store"
-                                                ["update" ":writer" ["helper-put-path" "op-data"]]
+                                                ["update" ":writer" ["push-path" "op-data"]]
                                                 ["assoc" ":router" ["{}" [":name" ":workspace"] [":data" "nil"]]]]]],
                                       "add-definition" ["defn"
                                                         "add-definition"
@@ -2723,7 +2666,7 @@
                                                      ["update"
                                                       "store"
                                                       ":writer"
-                                                      ["helper-put-path"
+                                                      ["push-path"
                                                        ["{}"
                                                         [":ns" "ns-name"]
                                                         [":kind" ":ns"]
@@ -2742,7 +2685,7 @@
                                                    ["update"
                                                     "store"
                                                     ":writer"
-                                                    ["helper-put-path"
+                                                    ["push-path"
                                                      ["{}"
                                                       [":ns" [":ns" "code-path"]]
                                                       [":kind" ":ns"]
@@ -2777,6 +2720,44 @@
                                                           ["[]" ":collection" ":files" "namespace'"]
                                                           ["{}" [":ns" "basic-code"] [":defs" ["{}"]] [":procs" ["[]"]]]]]]]},
                                :procs []},
+         "util.stack" {:ns ["ns" "app.util.stack"],
+                       :defs {"push-paths" ["defn"
+                                            "push-paths"
+                                            ["new-paths"]
+                                            ["fn"
+                                             ["writer"]
+                                             ["if"
+                                              ["empty?" "new-paths"]
+                                              "writer"
+                                              ["let"
+                                               [["stack" [":stack" "writer"]] ["pointer" [":pointer" "writer"]]]
+                                               ["cond"
+                                                [["empty?" "stack"]
+                                                 ["{}"
+                                                  [":stack" "new-paths"]
+                                                  [":pointer" "0"]
+                                                  [":focus" [":focus" ["first" "new-paths"]]]]]
+                                                [["=" ["inc" "pointer"] ["count" "stack"]]
+                                                 ["->"
+                                                  "writer"
+                                                  ["assoc" ":stack" ["into" ["[]"] ["concat" "stack" "new-paths"]]]
+                                                  ["update" ":pointer" "inc"]
+                                                  ["assoc" ":focus" [":focus" ["first" "new-paths"]]]]]
+                                                [":else"
+                                                 ["->"
+                                                  "writer"
+                                                  ["assoc"
+                                                   ":stack"
+                                                   ["into"
+                                                    ["[]"]
+                                                    ["concat"
+                                                     ["subvec" "stack" "0" ["inc" "pointer"]]
+                                                     "new-paths"
+                                                     ["subvec" "stack" ["inc" "pointer"]]]]]
+                                                  ["update" ":pointer" "inc"]
+                                                  ["assoc" ":focus" [":focus" ["first" "new-paths"]]]]]]]]]],
+                              "push-path" ["defn" "push-path" ["x"] ["push-paths" ["[]" "x"]]]},
+                       :procs []},
          "comp.hot-corner" {:ns ["ns"
                                  "app.comp.hot-corner"
                                  [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]

@@ -3,15 +3,8 @@
   (:require [clojure.string :as string]
             [app.util.analyze :refer [list-dependent-ns pick-rule parse-ns-deps]]
             [app.util.detect :refer [strip-atom tree-contains? contains-def?]]
-            [app.util
-             :refer
-             [remove-idx
-              helper-notify
-              helper-create-def
-              helper-put-path
-              make-path
-              has-ns?
-              helper-put-list]]))
+            [app.util :refer [remove-idx helper-notify helper-create-def make-path has-ns?]]
+            (app.util.stack :refer (push-path push-paths))))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -95,12 +88,12 @@
                              (filter (fn [xs] (not (empty? xs))))
                              (apply concat))]
           (println "Got new paths:" new-paths)
-          (update store :writer (helper-put-list new-paths)))
+          (update store :writer (push-paths new-paths)))
       :ns
         (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) pkg)
               new-paths (map (fn [x] [x :ns]) ns-list)]
           (comment println former-stack pointer new-paths)
-          (update store :writer (helper-put-list new-paths)))
+          (update store :writer (push-paths new-paths)))
       store)))
 
 (defn point-to [store op-data op-id]
@@ -133,7 +126,7 @@
         {pkg :package, files :files} (get-in store [:collection])
         pkg_ (str pkg ".")
         {stack :stack, pointer :pointer} (:writer store)
-        code-path (get stack pointer )
+        code-path (get stack pointer)
         focus (:focus code-path)
         target (strip-atom (get-in store (concat (make-path code-path) focus)))
         ns-deps (parse-ns-deps (get-in files [(:ns code-path) :ns]))
@@ -172,8 +165,7 @@
               (touch-def)
               (update
                :writer
-               (helper-put-path
-                {:kind :defs, :ns shorten-ns, :extra (:def dep-info), :focus [2]}))))
+               (push-path {:kind :defs, :ns shorten-ns, :extra (:def dep-info), :focus [2]}))))
         (-> store
             (update
              :notifications

@@ -1,10 +1,9 @@
 
 (ns app.updater.collection
   (:require [clojure.string :as string]
-            [app.util
-             :refer
-             [helper-notify helper-put-path make-path view-focused make-focus-path]]
-            [app.util.detect :refer [=path?]]))
+            [app.util :refer [helper-notify make-path view-focused make-focus-path]]
+            [app.util.detect :refer [=path?]]
+            (app.util.stack :refer (push-path))))
 
 (defn rename [store op-data op-id]
   (let [[code-path new-form] op-data
@@ -92,7 +91,7 @@
 (defn edit [store op-data]
   (let [path op-data]
     (-> store
-        (update :writer (helper-put-path op-data))
+        (update :writer (push-path op-data))
         (assoc :router {:name :workspace, :data nil}))))
 
 (defn add-definition [store op-data]
@@ -112,10 +111,7 @@
       (let [guess-ns (view-focused store)
             ns-name (if (some? guess-ns) (string/replace guess-ns (str pkg ".") "") nil)]
         (if (and (some? ns-name) (some? (get-in store [:collection :files ns-name])))
-          (update
-           store
-           :writer
-           (helper-put-path {:ns ns-name, :kind :ns, :extra nil, :focus []}))
+          (update store :writer (push-path {:ns ns-name, :kind :ns, :extra nil, :focus []}))
           (update
            store
            :notifications
@@ -124,7 +120,7 @@
       (update
        store
        :writer
-       (helper-put-path {:ns (:ns code-path), :kind :ns, :extra nil, :focus []})))))
+       (push-path {:ns (:ns code-path), :kind :ns, :extra nil, :focus []})))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]
