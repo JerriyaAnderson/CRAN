@@ -4,7 +4,18 @@
   "description": "Stack editor",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "tiye": "rsync -r dist/ cirru.org:repo/Cirru/stack-editor",
+    "cljs-once": "shadow-cljs -b app --once",
+    "cljs-release": "shadow-cljs -b app --release",
+    "cljs": "shadow-cljs -b app --dev",
+    "html-dev": "env=dev node target/app.render.js",
+    "html": "node target/app.render.js",
+    "hmr": "webpack-dev-server --config webpack.dev.coffee --hot-only",
+    "webpack": "webpack --config webpack.release.coffee --hide-modules --progress",
+    "dev": "yarn html-dev && yarn hmr",
+    "del": "rm -rf dist/*",
+    "serve": "http-server dist",
+    "build": "yarn del && yarn cljs-release && yarn webpack && yarn cljs-once && yarn html && yarn serve"
   },
   "repository": {
     "type": "git",
@@ -13,12 +24,17 @@
   "author": "jiyinyiyong",
   "license": "MIT",
   "devDependencies": {
-    "css-loader": "^0.28.0",
-    "extract-text-webpack-plugin": "^2.0.0-beta.4",
-    "file-loader": "^0.11.1",
+    "coffee-script": "^1.12.6",
+    "css-loader": "^0.28.4",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "file-loader": "^0.11.2",
     "respo-ui": "^0.1.2",
-    "style-loader": "^0.16.1",
-    "url-loader": "^0.5.7",
-    "webpack": "^2.4.1"
+    "shadow-cljs": "^0.9.6",
+    "source-map-loader": "^0.2.1",
+    "style-loader": "^0.18.2",
+    "uglifyjs-webpack-plugin": "^0.4.3",
+    "url-loader": "^0.5.9",
+    "webpack": "^2.6.1",
+    "webpack-manifest-plugin": "^1.1.0"
   }
 }

@@ -1,10 +1,4 @@
 
-/target/
-/server-target
-.nrepl-history
-.nrepl-port
-/src/*.*
-/src/.*
-/node_modules
-/.lumo_cache
-tasks/class-path.sh
+target
+node_modules
+dist
