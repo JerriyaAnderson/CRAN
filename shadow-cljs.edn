@@ -4,7 +4,7 @@
     [mvc-works/hsl "0.1.2"]
     [cumulo/shallow-diff "0.1.3"]
     [mvc-works/shell-page "0.1.10"]
-    [cirru/editor "0.3.0-a1"]
+    [cirru/editor "0.3.0-a2"]
     [respo "0.12.1"]
     [respo/ui "0.3.14"]
     [cljs-ajax "0.8.0"]

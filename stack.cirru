@@ -28,9 +28,13 @@
               [] |state $ [] |or ([] |:data |states) (, ||)
             [] |div ([] |{} $ [] |:style |style-file)
               [] |div ([] |{} $ [] |:style |ui/row) ([] |<> |ns-text |nil) ([] |=< |16 |nil)
-                [] |span $ [] |{} ([] |:inner-text ||ns) ([] |:style |style-link) ([] |:on-click $ [] |on-edit-ns |ns-text)
+                [] |span $ [] |{} ([] |:inner-text ||ns)
+                  [] |:style $ [] |{} ([] |:cursor |:pointer)
+                  [] |:on-click $ [] |on-edit-ns |ns-text
                 [] |=< |16 |nil
-                [] |span $ [] |{} ([] |:inner-text ||procs) ([] |:style |style-link) ([] |:on-click $ [] |on-edit-procs |ns-text)
+                [] |span $ [] |{} ([] |:inner-text ||procs)
+                  [] |:style $ [] |{} ([] |:cursor |:pointer)
+                  [] |:on-click $ [] |on-edit-procs |ns-text
                 [] |=< |16 |nil
                 [] |span $ [] |{} ([] |:inner-text ||Delete) ([] |:style |widget/clickable-text) ([] |:on-click $ [] |on-remove |ns-text)
               [] |div ([] |{})
@@ -40,17 +44,19 @@
                     [] |if ([] |= |keycode/key-enter $ [] |:key-code |e)
                       [] |if ([] |not $ [] |string/blank? |state)
                         [] |do ([] |d! |:collection/add-definition $ [] |[] |ns-text |state) ([] |d! |cursor ||)
+              [] |=< |nil |8
               [] |list-> ([] |{})
                 [] |->> ([] |:defs |file) ([] |sort |compare)
                   [] |map $ [] |fn ([] |entry)
                     [] |let
                       [] $ [] |def-text ([] |key |entry)
                       [] |[] |def-text $ [] |div
-                        [] |{} ([] |:inner-text $ [] |str |def-text "||↗") ([] |:style |style-link) ([] |:on-click $ [] |on-edit-def |ns-text |def-text)
+                        [] |{} ([] |:inner-text |def-text)
+                          [] |:style $ [] |{} ([] |:cursor |:pointer) ([] |:font-size |14) ([] |:line-height "|\"24px") ([] |:color $ [] |hsl |0 |0 |50)
+                          [] |:on-click $ [] |on-edit-def |ns-text |def-text
         |on-edit-procs $ [] |defn |on-edit-procs ([] |ns-text)
           [] |fn ([] |e |dispatch!)
             [] |dispatch! |:collection/edit $ [] |{} ([] |:kind |:procs) ([] |:ns |ns-text) ([] |:extra |nil) ([] |:focus $ [] |[])
-        |style-link $ [] |def |style-link ([] |{} $ [] |:cursor |:pointer)
         |on-remove $ [] |defn |on-remove ([] |ns-text)
           [] |fn ([] |e |d! |m!) ([] |d! |:collection/remove-file |ns-text)
         |on-keydown $ [] |defn |on-keydown ([] |ns-text |def-text)
@@ -65,7 +71,7 @@
           [] |fn ([] |e |dispatch!)
             [] |dispatch! |:collection/edit $ [] |{} ([] |:kind |:defs) ([] |:ns |ns-text) ([] |:extra |def-text) ([] |:focus $ [] |[] |2)
         |style-file $ [] |def |style-file
-          [] |{} ([] |:padding ||16px) ([] |:font-size |16) ([] |:line-height |1.6)
+          [] |{} ([] |:padding "|\"0 8px 16px 8px") ([] |:line-height |1.6)
       :procs $ []
     |comp.loading $ {}
       :ns $ [] |ns |app.comp.loading
@@ -74,25 +80,27 @@
         |comp-loading $ [] |defcomp |comp-loading ([])
           [] |div
             [] |{} $ [] |:style ([] |merge |ui/fullscreen |ui/row-center |style-loading)
-            [] |<> |span ||Loading... |nil
+            [] |<> ||Loading... |nil
         |style-loading $ [] |def |style-loading
-          [] |{} ([] |:background-color $ [] |hsl |200 |40 |10) ([] |:justify-content ||center) ([] |:color $ [] |hsl |0 |0 |80) ([] |:font-size ||32px) ([] |:font-weight ||100) ([] |:font-family "||Josefin Sans")
+          [] |{} ([] |:background-color $ [] |hsl |200 |40 |10) ([] |:justify-content ||center) ([] |:color $ [] |hsl |0 |0 |80) ([] |:font-size ||32px) ([] |:font-weight ||100) ([] |:font-family |ui/font-fancy)
       :procs $ []
     |comp.command $ {}
       :ns $ [] |ns |app.comp.command
-        [] |:require ([] |[] |clojure.string |:as |string) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |<> |span |input) ([] |[] |hsl.core |:refer $ [] |[] |hsl)
+        [] |:require ([] |[] |clojure.string |:as |string) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |<> |span |input) ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |respo-ui.core |:as |ui)
       :defs $ {}
         |style-command $ [] |def |style-command
-          [] |{} ([] |:backgroud-color $ [] |hsl |0 |0 |0) ([] |:padding "||0 8px") ([] |:line-height |2.4) ([] |:font-family "||Source Code Pro, Menlo,monospace") ([] |:cursor ||pointer)
-        |on-click $ [] |defn |on-click ([] |on-select)
-          [] |fn ([] |e |dispatch!) ([] |on-select |dispatch!)
+          [] |{} ([] |:backgroud-color $ [] |hsl |0 |0 |0) ([] |:padding "||0 8px") ([] |:line-height "|\"30px") ([] |:font-family |ui/font-normal) ([] |:cursor ||pointer)
         |comp-command $ [] |defcomp |comp-command ([] |command |selected? |on-select)
           [] |div
             [] |{}
               [] |:style $ [] |merge |style-command
-                [] |if |selected? $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |30)
-              [] |:on-click $ [] |on-click |on-select
-            [] |<> |span ([] |string/join "|| " |command) (, |nil)
+                [] |if |selected? $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |20 |0.8)
+              [] |:on-click $ [] |fn ([] |e |dispatch!) ([] |on-select |dispatch!)
+            [] |case ([] |first |command)
+              [] |:defs $ [] |div ([] |{}) ([] |<> $ [] |get |command |2) ([] |=< |16 |nil)
+                [] |<> ([] |get |command |1)
+                  [] |{} $ [] |:color ([] |hsl |0 |0 |40)
+              [] |<> ([] |string/join "|| " |command) (, |nil)
       :procs $ []
     |updater $ {}
       :ns $ [] |ns |app.updater
@@ -455,15 +463,6 @@
               [] |[] |:collection |:files ([] |:ns |info) (, |:defs) ([] |:extra |info)
               [] |[] |:collection |:files ([] |:ns |info) (, |kind)
         |view-focused $ [] |defn |view-focused ([] |store) ([] |get-in |store $ [] |make-focus-path |store)
-        |segments->tree $ [] |defn |segments->tree ([] |segments)
-          [] |if ([] |empty? |segments) (, |:file)
-            [] |->> |segments ([] |group-by |first)
-              [] |map $ [] |fn ([] |entry)
-                [] |[] ([] |key |entry)
-                  [] |->> ([] |val |entry) ([] |map |rest)
-                    [] |filter $ [] |fn ([] |x) ([] |not $ [] |empty? |x)
-                    [] |segments->tree
-              [] |into $ [] |{}
         |make-short-path $ [] |defn |make-short-path ([] |info)
           [] |let
             [] $ [] |kind ([] |:kind |info)
@@ -499,7 +498,7 @@
       :procs $ []
     |comp.workspace $ {}
       :ns $ [] |ns |app.comp.workspace
-        [] |:require ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |<> |>> |span |input) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |respo.comp.inspect |:refer $ [] |[] |comp-inspect) ([] |[] |respo-ui.core |:as |ui) ([] |[] |app.comp.hot-corner |:refer $ [] |[] |comp-hot-corner) ([] |[] |app.comp.stack |:refer $ [] |[] |comp-stack) ([] |[] |cirru-editor.comp.editor |:refer $ [] |[] |comp-editor) ([] |[] |app.util.keycode |:as |keycode) ([] |[] |app.util.dom |:as |dom) ([] |[] |app.util |:refer $ [] |[] |make-path) ([] |[] |app.style.widget |:as |widget)
+        [] |:require ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |<> |>> |span |input) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |respo.comp.inspect |:refer $ [] |[] |comp-inspect) ([] |[] |respo-ui.core |:as |ui) ([] |[] |app.comp.stack |:refer $ [] |[] |comp-stack) ([] |[] |cirru-editor.comp.editor |:refer $ [] |[] |comp-editor) ([] |[] |app.util.keycode |:as |keycode) ([] |[] |app.util.dom |:as |dom) ([] |[] |app.util |:refer $ [] |[] |make-path) ([] |[] |app.style.widget |:as |widget)
       :defs $ {}
         |on-command $ [] |defn |on-command ([] |store)
           [] |fn ([] |snapshot |dispatch! |e)
@@ -534,10 +533,9 @@
               [] |code-path $ [] |get |stack |pointer
               [] |tree $ [] |if ([] |some? |code-path) ([] |get-in |store $ [] |make-path |code-path) (, |nil)
             [] |div
-              [] |{} $ [] |:style ([] |merge |ui/fullscreen |ui/row |style-container)
+              [] |{} $ [] |:style ([] |merge |ui/expand |ui/row |style-container)
               [] |div
                 [] |{} $ [] |:style ([] |merge |ui/column |style-sidebar)
-                [] |comp-hot-corner |router $ [] |:writer |store
                 [] |comp-stack |stack |pointer
               [] |; |comp-inspect |writer |style-debugger
               [] |if ([] |some? |tree)
@@ -582,20 +580,17 @@
           [] |{} ([] |:background-color $ [] |hsl |0 |0 |0) ([] |:overflow |:auto)
         |on-load $ [] |defn |on-load ([] |e |dispatch!) ([] |dispatch! |:graph/load-graph |nil)
         |style-toolbar $ [] |def |style-toolbar ([] |{} $ [] |:padding |16)
-        |on-files $ [] |defn |on-files ([] |e |dispatch!)
-          [] |dispatch! |:router/route $ [] |{} ([] |:name |:file-tree) ([] |:data |nil)
         |style-column $ [] |def |style-column
           [] |{} ([] |:min-width |80) ([] |:overflow |:auto) ([] |:padding "||16px 16px") ([] |:flex-shrink |0)
         |comp-graph $ [] |defcomp |comp-graph ([] |store)
           [] |div
-            [] |{} $ [] |:style ([] |merge |ui/fullscreen |ui/column |style-graph)
+            [] |{} $ [] |:style ([] |merge |ui/expand |ui/column |style-graph)
             [] |render-toolbar
             [] |let
               []
                 [] |tree $ [] |get-in |store ([] |[] |:graph |:tree)
                 [] |root-tree $ [] |assoc ([] |get-in |store $ [] |[] |:collection |:root) (, |:deps) ([] |#{} |tree)
                 [] |view-path $ [] |get-in |store ([] |[] |:graph |:path)
-              [] |println ||tree |tree
               [] |if ([] |some? |tree)
                 [] |list->
                   [] |{} $ [] |:style ([] |merge |ui/row |style-body)
@@ -623,15 +618,10 @@
         |render-toolbar $ [] |defn |render-toolbar ([])
           [] |div ([] |{} $ [] |:style |style-toolbar)
             [] |div ([] |{})
-              [] |button $ [] |{} ([] |:inner-text ||Files) ([] |:style |widget/button) ([] |:on-click |on-files)
-              [] |=< |8 |nil
-              [] |button $ [] |{} ([] |:inner-text ||Edit) ([] |:style |widget/button) ([] |:on-click |on-edit)
-              [] |=< |64 |nil
               [] |button $ [] |{} ([] |:inner-text "||Build tree") ([] |:style |widget/button) ([] |:on-click |on-load)
               [] |=< |8 |nil
               [] |button $ [] |{} ([] |:inner-text "||Find orphans") ([] |:style |widget/button) ([] |:on-click |on-orphans)
         |on-orphans $ [] |defn |on-orphans ([] |e |dispatch!) ([] |dispatch! |:graph/show-orphans |nil)
-        |on-edit $ [] |defn |on-edit ([] |e |dispatch!) ([] |dispatch! |:graph/edit-current |nil)
       :procs $ []
     |updater.graph $ {}
       :ns $ [] |ns |app.updater.graph
@@ -702,19 +692,34 @@
       :defs $ {}
         |comp-container $ [] |defcomp |comp-container ([] |store)
           [] |let
-            [] ([] |router $ [] |:router |store) ([] |states $ [] |:states |store)
-            [] |div
-              [] |{} ([] |:tab-index |0)
-                [] |:style $ [] |merge |ui/global
-                  [] |{} ([] |:background-color $ [] |hsl |0 |0 |0) ([] |:color $ [] |hsl |0 |0 |70)
-              [] |case ([] |:name |router) ([] |:loading $ [] |comp-loading) ([] |:workspace $ [] |comp-workspace |store) ([] |:graph $ [] |comp-graph |store)
-                [] |:file-tree $ [] |comp-file-tree ([] |>> |states |:file-tree) (, |store)
-                [] |<> ([] |str |router) (, |nil)
-              [] |comp-notifications $ [] |:notifications |store
-              [] |; |comp-inspect ||Store |store $ [] |{} ([] |:bottom |0) ([] |:background-color $ [] |hsl |0 |0 |0) ([] |:opacity |1) ([] |:color |:white)
-              [] |if ([] |:show-palette? |router)
-                [] |comp-palette ([] |>> |states |:palette) ([] |:files $ [] |:collection |store)
-              [] |comp-modal-stack |states $ [] |:modal-stack |store
+            [] ([] |router $ [] |:router |store) ([] |states $ [] |:states |store) ([] |page $ [] |:name |router)
+            [] |if ([] |= |:router $ [] |:name |router) ([] |comp-loading)
+              [] |div
+                [] |{} $ [] |:style
+                  [] |merge |ui/global |ui/fullscreen |ui/column $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |0) ([] |:color $ [] |hsl |0 |0 |70)
+                [] |div
+                  [] |{} $ [] |:style
+                    [] |merge |ui/row-middle $ [] |{} ([] |:padding "|\"0 8px")
+                  [] |comp-tab "|\"Files" |:file-tree $ [] |= |page |:file-tree
+                  [] |comp-tab "|\"Editor" |:workspace $ [] |= |page |:workspace
+                  [] |comp-tab "|\"Graph" |:graph $ [] |= |page |:graph
+                [] |case ([] |:name |router) ([] |:workspace $ [] |comp-workspace |store) ([] |:graph $ [] |comp-graph |store)
+                  [] |:file-tree $ [] |comp-file-tree ([] |>> |states |:file-tree) (, |store)
+                  [] |<> ([] |str |router) (, |nil)
+                [] |comp-notifications $ [] |:notifications |store
+                [] |; |comp-inspect ||Store |store $ [] |{} ([] |:bottom |0) ([] |:background-color $ [] |hsl |0 |0 |0) ([] |:opacity |1) ([] |:color |:white)
+                [] |if ([] |:show-palette? |router)
+                  [] |comp-palette ([] |>> |states |:palette) ([] |:files $ [] |:collection |store)
+                [] |comp-modal-stack |states $ [] |:modal-stack |store
+        |comp-tab $ [] |defcomp |comp-tab ([] |title |code |selected?)
+          [] |div
+            [] |{}
+              [] |:style $ [] |merge
+                [] |{} ([] |:font-family |ui/font-fancy) ([] |:font-size |18) ([] |:font-weight |300) ([] |:min-width |60) ([] |:color $ [] |hsl |0 |0 |50) ([] |:cursor |:pointer)
+                [] |if |selected? $ [] |{} ([] |:color $ [] |hsl |0 |0 |100)
+              [] |:on-click $ [] |fn ([] |e |d!)
+                [] |d! |:router/route $ [] |{} ([] |:name |code)
+            [] |<> |title
       :procs $ []
     |comp.def $ {}
       :ns $ [] |ns |app.comp.def
@@ -976,6 +981,7 @@
                 [] |input $ [] |{} ([] |:placeholder "||write command...") ([] |:id ||command-palette) ([] |:value $ [] |:text |state)
                   [] |:style $ [] |merge |widget/input
                     [] |{} ([] |:width ||100%) ([] |:line-height ||40px)
+                  [] |:autocomplete "|\"off"
                   [] |:on-input $ [] |on-input |cursor |state
                   [] |:on-keydown $ [] |on-keydown |cursor |state |commands ([] |:cursor |state) (, |files)
                 [] |list->
@@ -1107,7 +1113,7 @@
               [] |some
                 [] |fn ([] |piece)
                   [] |string/includes? ([] |str |piece) (, |query)
-                , |pieces
+                [] |if ([] |= |:defs $ [] |first |pieces) ([] |subvec |pieces |1) (, |pieces)
             , |queries
         |contains-def? $ [] |defn |contains-def? ([] |files |ns-part |name-part) ([] |println "||Contains def:" |ns-part |name-part)
           [] |if ([] |contains? |files |ns-part)
@@ -1198,92 +1204,51 @@
       :procs $ []
     |comp.file-tree $ {}
       :ns $ [] |ns |app.comp.file-tree
-        [] |:require ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |list-> |>> |<> |span |input |button) ([] |[] |respo-ui.core |:as |ui) ([] |[] |clojure.string |:as |string) ([] |[] |app.util |:refer $ [] |[] |segments->tree) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |app.comp.brief-file |:refer $ [] |[] |comp-brief-file) ([] |[] |app.style.widget |:as |widget) ([] |[] |app.util.keycode |:as |keycode)
+        [] |:require ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.core |:refer $ [] |[] |defcomp |div |list-> |>> |<> |span |input |button) ([] |[] |respo-ui.core |:as |ui) ([] |[] |clojure.string |:as |string) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |app.comp.brief-file |:refer $ [] |[] |comp-brief-file) ([] |[] |app.style.widget |:as |widget) ([] |[] |app.util.keycode |:as |keycode)
       :defs $ {}
         |comp-file-tree $ [] |defcomp |comp-file-tree ([] |states |store)
           [] |let
-            [] ([] |cursor $ [] |:cursor |states) ([] |state $ [] |:data |states)
-              [] |ns-path $ [] |get-in |store ([] |[] |:graph |:ns-path)
-              [] |ns-text $ [] |string/join ||. |ns-path
+            [] ([] |cursor $ [] |:cursor |states)
+              [] |state $ [] |or ([] |:data |states)
+                [] |{} ([] |:draft "|\"") ([] |:selected-ns |nil)
               [] |files $ [] |get-in |store ([] |[] |:collection |:files)
+              [] |selected-ns $ [] |:selected-ns |state
             [] |div
-              [] |{} $ [] |:style ([] |merge |ui/fullscreen |ui/column |style-file-tree)
-              [] |render-toolbar |state |cursor
+              [] |{} $ [] |:style ([] |merge |ui/expand |ui/column |style-file-tree)
               [] |div
                 [] |{} $ [] |:style ([] |merge |ui/row |style-body)
-                [] |list-> ([] |{} $ [] |:style |ui/row)
-                  [] |let
-                    [] ([] |ns-names $ [] |keys |files)
-                      [] |segments $ [] |->> |ns-names
-                        [] |map $ [] |fn ([] |x) ([] |string/split |x ||.)
-                      [] |file-tree $ [] |segments->tree |segments
-                    [] |loop
-                      [] ([] |children $ [] |[]) ([] |path $ [] |[])
-                      [] |let
-                        []
-                          [] |next-piece $ [] |get |ns-path ([] |count |path)
-                          [] |dict $ [] |get-in |file-tree |path
-                          [] |next-children $ [] |conj |children
-                            [] |[] ([] |string/join ||/ |path)
-                              [] |if ([] |map? |dict)
-                                [] |list-> ([] |{} $ [] |:style |style-column)
-                                  [] |->> |dict ([] |sort |compare)
-                                    [] |map $ [] |fn ([] |entry)
-                                      [] |let
-                                        [] $ [] |ns-piece ([] |key |entry)
-                                        [] |[] |ns-piece $ [] |div
-                                          [] |{}
-                                            [] |:style $ [] |merge |style-file
-                                              [] |if ([] |= |ns-piece |next-piece) (, |style-highlight)
-                                            [] |:on-click $ [] |on-view |path |ns-piece
-                                          [] |<> |span |ns-piece |nil
-                                          [] |=< |8 |nil
-                                          [] |let
-                                            [] $ [] |info ([] |get |dict |ns-piece)
-                                            [] |cond
-                                              [] ([] |map? |info)
-                                                [] |<> |span ([] |count |info) (, |nil)
-                                              [] ([] |= |:file |info) ([] |<> |span ||. |nil)
-                                              [] |:else |nil
-                                [] |span $ [] |{}
-                        [] |if ([] |= |path |ns-path) (, |next-children) ([] |recur |next-children $ [] |conj |path |next-piece)
-                [] |=< |64 |nil
-                [] |if ([] |contains? |files |ns-text)
-                  [] |comp-brief-file ([] |>> |states |ns-text) (, |ns-text) ([] |get |files |ns-text)
+                [] |div ([] |{} $ [] |:style |ui/column)
+                  [] |input $ [] |{} ([] |:value $ [] |:draft |state) ([] |:placeholder "||ns/def or ns") ([] |:style |widget/input)
+                    [] |:on-input $ [] |fn ([] |e |dispatch!)
+                      [] |dispatch! |cursor $ [] |assoc |state |:draft ([] |:value |e)
+                    [] |:on-keydown $ [] |on-keydown ([] |:draft |state) (, |cursor)
+                  [] |list->
+                    [] |{} $ [] |:style
+                      [] |{} ([] |:overflow |:auto) ([] |:padding "|\"8px 0px 200px 0px")
+                    [] |->> ([] |keys |files) ([] |sort)
+                      [] |map $ [] |fn ([] |ns-name)
+                        [] |[] |ns-name $ [] |div
+                          [] |{}
+                            [] |:on-click $ [] |fn ([] |e |d!) ([] |d! |cursor $ [] |assoc |state |:selected-ns |ns-name)
+                            [] |:style $ [] |merge
+                              [] |{} ([] |:color $ [] |hsl |0 |0 |50) ([] |:cursor |:pointer)
+                              [] |if ([] |= |ns-name |selected-ns)
+                                [] |{} $ [] |:color ([] |hsl |0 |0 |100)
+                          [] |<> |ns-name
+                [] |=< |8 |nil
+                [] |if ([] |contains? |files |selected-ns)
+                  [] |comp-brief-file ([] |>> |states |selected-ns) (, |selected-ns) ([] |get |files |selected-ns)
         |style-body $ [] |def |style-body
           [] |{} ([] |:flex |1) ([] |:overflow |:auto)
-        |style-highlight $ [] |def |style-highlight
-          [] |{} $ [] |:color ([] |hsl |0 |0 |100 |0.9)
-        |style-toolbar $ [] |def |style-toolbar ([] |{} $ [] |:padding "||16px 16px")
-        |style-column $ [] |def |style-column
-          [] |{} ([] |:padding "||16px 16px") ([] |:min-width |80) ([] |:line-height |1.6) ([] |:overflow |:auto)
-        |on-view $ [] |defn |on-view ([] |path |ns-piece)
-          [] |fn ([] |e |dispatch!) ([] |dispatch! |:graph/view-ns $ [] |conj |path |ns-piece)
-        |on-change $ [] |defn |on-change ([] |cursor)
-          [] |fn ([] |e |dispatch!)
-            [] |dispatch! |:states $ [] |[] |cursor ([] |:value |e)
         |style-file-tree $ [] |def |style-file-tree
-          [] |{} $ [] |:background-color ([] |hsl |0 |0 |0)
-        |render-toolbar $ [] |defn |render-toolbar ([] |state |cursor)
-          [] |div ([] |{} $ [] |:style |style-toolbar)
-            [] |button $ [] |{} ([] |:inner-text ||Graph) ([] |:style |widget/button) ([] |:on-click |on-graph)
-            [] |=< |8 |nil
-            [] |button $ [] |{} ([] |:inner-text ||Stack) ([] |:style |widget/button) ([] |:on-click |on-stack)
-            [] |=< |8 |nil
-            [] |input $ [] |{} ([] |:value |state) ([] |:placeholder "||ns/def or ns") ([] |:style |widget/input) ([] |:on-input $ [] |on-change |cursor) ([] |:on-keydown $ [] |on-keydown |state |cursor)
-        |on-keydown $ [] |defn |on-keydown ([] |state |cursor)
+          [] |{} ([] |:background-color $ [] |hsl |0 |0 |0) ([] |:padding "|\"0 16px")
+        |on-keydown $ [] |defn |on-keydown ([] |draft |cursor)
           [] |fn ([] |e |dispatch!)
             [] |if
               [] |= |keycode/key-enter $ [] |.-keyCode ([] |:original-event |e)
               [] |do
-                [] |if ([] |string/includes? |state ||/) ([] |dispatch! |:collection/add-definition $ [] |string/split |state ||/) ([] |dispatch! |:collection/add-namespace |state)
-                [] |dispatch! |:states $ [] |[] |cursor ||
-        |on-graph $ [] |defn |on-graph ([] |e |dispatch!)
-          [] |dispatch! |:router/route $ [] |{} ([] |:name |:graph) ([] |:data |nil)
-        |style-file $ [] |def |style-file
-          [] |{} ([] |:cursor |:pointer) ([] |:color $ [] |hsl |0 |0 |100 |0.5) ([] |:white-space |:nowrap) ([] |:font-size |16)
-        |on-stack $ [] |defn |on-stack ([] |e |d! |m!)
-          [] |d! |:router/route $ [] |{} ([] |:name |:workspace) ([] |:data |nil)
+                [] |if ([] |string/includes? |draft ||/) ([] |dispatch! |:collection/add-definition $ [] |string/split |draft ||/) ([] |dispatch! |:collection/add-namespace |draft)
+                [] |dispatch! |cursor $ [] |{} ([] |:draft "|\"")
       :procs $ []
     |page $ {}
       :ns $ [] |ns |app.page
@@ -1485,20 +1450,6 @@
       :ns $ [] |ns |app.comp.hot-corner
         [] |:require ([] |[] |hsl.core |:refer $ [] |[] |hsl) ([] |[] |respo.core |:refer $ [] |[] |defcomp |<> |div |span) ([] |[] |respo.comp.space |:refer $ [] |[] |=<) ([] |[] |respo-ui.core |:as |ui)
       :defs $ {}
-        |comp-hot-corner $ [] |defcomp |comp-hot-corner ([] |router |writer)
-          [] |div
-            [] |{}
-              [] |:style $ [] |{} ([] |:font-size ||24px) ([] |:font-weight ||300) ([] |:text-align ||center) ([] |:cursor ||pointer)
-              [] |:on-click $ [] |on-switch |router |writer
-            [] |<> |span "||Stack Editor" $ [] |{} ([] |:font-family "||Josefin Sans")
-        |on-switch $ [] |defn |on-switch ([] |router |writer)
-          [] |fn ([] |e |dispatch!)
-            [] |if
-              [] |= ([] |:name |router) (, |:workspace)
-              [] |dispatch! |:router/open-file-tree |nil
-              [] |if
-                [] |not $ [] |empty? ([] |:stack |writer)
-                [] |dispatch! |:router/route $ [] |{} ([] |:name |:workspace) ([] |:data |nil)
       :procs $ []
     |actions $ {}
       :ns $ [] |ns |app.actions
@@ -1562,11 +1513,11 @@
         |clickable-text $ [] |def |clickable-text
           [] |{} ([] |:text-decoration |:underline) ([] |:cursor |:pointer) ([] |:color $ [] |hsl |0 |0 |80) ([] |:font-family "||Josefin Sans")
         |input $ [] |def |input
-          [] |merge |ui/input $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |100 |0.14) ([] |:color $ [] |hsl |0 |0 |100) ([] |:font-family "||Source Code Pro,Menlo,monospace") ([] |:width ||320px)
+          [] |merge |ui/input $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |100 |0.14) ([] |:color $ [] |hsl |0 |0 |100) ([] |:font-family "||Source Code Pro,Menlo,monospace") ([] |:width ||200px) ([] |:border |:none)
         |var-entry $ [] |def |var-entry
           [] |{} ([] |:color $ [] |hsl |0 |0 |80) ([] |:cursor ||pointer) ([] |:font-family "||Source Code Pro,Menlo,monospace") ([] |:font-size ||14px) ([] |:line-height ||24px) ([] |:min-width ||160px)
         |entry $ [] |def |entry
           [] |{} ([] |:display ||inline-block) ([] |:background-color $ [] |hsl |200 |10 |40 |0) ([] |:color $ [] |hsl |0 |0 |100) ([] |:padding "||0 8px") ([] |:cursor ||pointer) ([] |:margin-bottom ||8px)
         |button $ [] |def |button
-          [] |merge |ui/button $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |100 |0.2) ([] |:color $ [] |hsl |0 |0 |100 |0.6) ([] |:height |28) ([] |:line-height ||28px)
+          [] |merge |ui/button $ [] |{} ([] |:background-color $ [] |hsl |0 |0 |100 |0.2) ([] |:color $ [] |hsl |0 |0 |100 |0.6) ([] |:height |28) ([] |:line-height ||28px) ([] |:border |:none)
       :procs $ []

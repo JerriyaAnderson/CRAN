@@ -7,7 +7,8 @@
    {:background-color (hsl 0 0 100 0.2),
     :color (hsl 0 0 100 0.6),
     :height 28,
-    :line-height "28px"}))
+    :line-height "28px",
+    :border :none}))
 
 (def clickable-text
   {:text-decoration :underline,
@@ -39,4 +40,5 @@
    {:background-color (hsl 0 0 100 0.14),
     :color (hsl 0 0 100),
     :font-family "Source Code Pro,Menlo,monospace",
-    :width "320px"}))
+    :width "200px",
+    :border :none}))

@@ -60,18 +60,4 @@
       (= idx (dec xs-size)) (subvec xs 0 idx)
       :else (into [] (concat (subvec xs 0 idx) (subvec xs (inc idx)))))))
 
-(defn segments->tree [segments]
-  (if (empty? segments)
-    :file
-    (->> segments
-         (group-by first)
-         (map
-          (fn [entry]
-            [(key entry)
-             (->> (val entry)
-                  (map rest)
-                  (filter (fn [x] (not (empty? x))))
-                  (segments->tree))]))
-         (into {}))))
-
 (defn view-focused [store] (get-in store (make-focus-path store)))

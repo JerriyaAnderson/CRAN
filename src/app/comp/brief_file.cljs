@@ -22,9 +22,7 @@
 
 (defn on-remove [ns-text] (fn [e d! m!] (d! :collection/remove-file ns-text)))
 
-(def style-file {:padding "16px", :font-size 16, :line-height 1.6})
-
-(def style-link {:cursor :pointer})
+(def style-file {:padding "0 8px 16px 8px", :line-height 1.6})
 
 (defcomp
  comp-brief-file
@@ -36,9 +34,10 @@
      {:style ui/row}
      (<> ns-text nil)
      (=< 16 nil)
-     (span {:inner-text "ns", :style style-link, :on-click (on-edit-ns ns-text)})
+     (span {:inner-text "ns", :style {:cursor :pointer}, :on-click (on-edit-ns ns-text)})
      (=< 16 nil)
-     (span {:inner-text "procs", :style style-link, :on-click (on-edit-procs ns-text)})
+     (span
+      {:inner-text "procs", :style {:cursor :pointer}, :on-click (on-edit-procs ns-text)})
      (=< 16 nil)
      (span
       {:inner-text "Delete", :style widget/clickable-text, :on-click (on-remove ns-text)}))
@@ -53,6 +52,7 @@
          (if (= keycode/key-enter (:key-code e))
            (if (not (string/blank? state))
              (do (d! :collection/add-definition [ns-text state]) (d! cursor "")))))}))
+    (=< nil 8)
     (list->
      {}
      (->> (:defs file)
@@ -62,8 +62,11 @@
              (let [def-text (key entry)]
                [def-text
                 (div
-                 {:inner-text (str def-text "↗"),
-                  :style style-link,
+                 {:inner-text def-text,
+                  :style {:cursor :pointer,
+                          :font-size 14,
+                          :line-height "24px",
+                          :color (hsl 0 0 50)},
                   :on-click (on-edit-def ns-text def-text)})]))))))))
 
 (defn on-keydown [ns-text def-text]

@@ -97,6 +97,7 @@
        :id "command-palette",
        :value (:text state),
        :style (merge widget/input {:width "100%", :line-height "40px"}),
+       :autocomplete "off",
        :on-input (on-input cursor state),
        :on-keydown (on-keydown cursor state commands (:cursor state) files)})
      (list->
