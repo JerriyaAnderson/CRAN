@@ -2,14 +2,15 @@
 (ns app.comp.file-tree
   (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div button]]
+            [respo.alias :refer [div button input]]
             [respo.comp.text :refer [comp-text]]
             [respo-ui.style :as ui]
             (clojure.string :as string)
             (app.util :refer (segments->tree))
             (respo.comp.space :refer (comp-space))
             (app.comp.brief-file :refer (comp-brief-file))
-            (app.style.widget :as widget)))
+            (app.style.widget :as widget)
+            (app.util.keycode :as keycode)))
 
 (def style-body {:flex 1, :overflow :auto})
 
@@ -22,27 +23,45 @@
 (defn on-view [path ns-piece]
   (fn [e dispatch!] (dispatch! :graph/view-ns (conj path ns-piece))))
 
+(defn on-change [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
+
 (def style-file-tree {:background-color (hsl 0 0 0)})
+
+(defn on-keydown [state cursor]
+  (fn [e dispatch!]
+    (if (= keycode/key-enter (.-keyCode (:original-event e)))
+      (do
+       (if (string/includes? state "/")
+         (dispatch! :collection/add-definition (string/split state "/"))
+         (dispatch! :collection/add-namespace state))
+       (dispatch! :states [cursor ""])))))
 
 (defn on-graph [e dispatch!] (dispatch! :router/route {:name :graph, :data nil}))
 
-(defn render-toolbar []
+(defn render-toolbar [state cursor]
   (div
    {:style style-toolbar}
-   (button {:inner-text "Graph", :style widget/button, :event {:click on-graph}})))
+   (button {:inner-text "Graph", :style widget/button, :event {:click on-graph}})
+   (comp-space 8 nil)
+   (input
+    {:value state,
+     :placeholder "ns/def or ns",
+     :style widget/input,
+     :event {:input (on-change cursor), :keydown (on-keydown state cursor)}})))
 
 (def style-file
   {:cursor :pointer, :color (hsl 0 0 100 0.5), :white-space :nowrap, :font-size 16})
 
 (defcomp
  comp-file-tree
- (store)
- (let [ns-path (get-in store [:graph :ns-path])
+ (states store)
+ (let [state (:data states)
+       ns-path (get-in store [:graph :ns-path])
        ns-text (string/join "." ns-path)
        files (get-in store [:collection :files])]
    (div
     {:style (merge ui/fullscreen ui/column style-file-tree)}
-    (render-toolbar)
+    (render-toolbar state cursor)
     (div
      {:style (merge ui/row style-body)}
      (div

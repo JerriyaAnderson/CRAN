@@ -31,7 +31,7 @@
       :analyzer (comp-definitions states (:collection store))
       :workspace (comp-workspace store)
       :graph (comp-graph store)
-      :file-tree (comp-file-tree store)
+      :file-tree (with-cursor :file-tree (comp-file-tree (:file-tree states) store))
       (comp-text router nil))
     (comp-notifications (:notifications store))
     (comment comp-debug (:stack (:writer store)) {:bottom 0})
