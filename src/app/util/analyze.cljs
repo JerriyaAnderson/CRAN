@@ -154,9 +154,9 @@
         def-expr (get-in this-file [:defs def-text])
         def-deps (pick-def-deps def-expr internal-ns this-file pkg)
         stamp {:ns internal-ns, :def def-text}
-        base-dep {:ns internal-ns, :def def-text, :external? false}]
+        base-dep {:ns internal-ns, :def def-text, :external? false, :circular? false}]
     (if (contains? parents stamp)
-      base-dep
+      (assoc base-dep :circular? true)
       (assoc
        base-dep
        :deps

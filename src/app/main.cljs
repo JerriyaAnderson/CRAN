@@ -18,7 +18,7 @@
 (defonce *store (atom schema/store))
 
 (defn dispatch! [op op-data]
-  (println "Dispatch!" op op-data)
+  (println "Dispatch!" op)
   (case op
     :effect/submit
       (let [shift? op-data, sepal-data (:collection @*store)]

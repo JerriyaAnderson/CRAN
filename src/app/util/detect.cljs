@@ -31,3 +31,11 @@
 
 (defn =path? [x y]
   (and (= (:ns x) (:ns y)) (= (:kind x) (:kind y)) (= (:extra x) (:extra y))))
+
+(defn def-order [x y]
+  (cond
+    (and (:circular? x) (not (:circular? y))) -1
+    (and (:circular? y) (not (:circular? x))) 1
+    (and (:external? x) (not (:external? y))) 1
+    (and (:external? y) (not (:external? x))) -1
+    :else (compare (str (:ns x) "/" (:def x)) (str (:ns y) "/" (:def y)))))

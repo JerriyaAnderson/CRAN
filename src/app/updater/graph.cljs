@@ -14,4 +14,8 @@
     (comment println (pick-def-deps def-expr internal-ns this-file pkg))
     (comment println ns-deps)
     (println)
-    (assoc-in store [:graph :tree] deps-tree)))
+    (-> store
+        (assoc-in [:graph :tree] deps-tree)
+        (assoc-in [:graph :path] [{:deps #{deps-tree}}]))))
+
+(defn view-path [store op-data] (assoc-in store [:graph :path] op-data))

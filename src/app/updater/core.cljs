@@ -38,5 +38,6 @@
                   :modal/mould modal/mould
                   :modal/recycle modal/recycle
                   :graph/load-graph graph/load-graph
+                  :graph/view-path graph/view-path
                   default-handler)]
     (handler store op-data op-id)))

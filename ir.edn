@@ -526,10 +526,11 @@
                                                        ["{}"
                                                         [":ns" "internal-ns"]
                                                         [":def" "def-text"]
-                                                        [":external?" "false"]]]]
+                                                        [":external?" "false"]
+                                                        [":circular?" "false"]]]]
                                                      ["if"
                                                       ["contains?" "parents" "stamp"]
-                                                      "base-dep"
+                                                      ["assoc" "base-dep" ":circular?" "true"]
                                                       ["assoc"
                                                        "base-dep"
                                                        ":deps"
@@ -1037,12 +1038,27 @@
                              ["[]" "respo.alias" ":refer" ["[]" "div" "button"]]
                              ["respo-ui.style" ":as" "ui"]
                              ["respo.comp.text" ":refer" ["comp-text"]]
-                             ["app.comp.dep-node" ":refer" ["comp-dep-node"]]]],
-                       :defs {"comp-graph" ["defcomp"
+                             ["respo.comp.space" ":refer" ["comp-space"]]
+                             ["app.comp.def" ":refer" ["comp-def"]]
+                             ["app.util.detect" ":refer" ["def-order"]]]],
+                       :defs {"style-body" ["def" "style-body" ["{}" [":flex" "1"] [":overflow" ":auto"]]],
+                              "style-graph" ["def"
+                                             "style-graph"
+                                             ["{}" [":background-color" ["hsl" "0" "0" "0"]] [":overflow" ":auto"]]],
+                              "on-load" ["defn" "on-load" ["e" "dispatch!"] ["dispatch!" ":graph/load-graph" "nil"]],
+                              "style-toolbar" ["def" "style-toolbar" ["{}" [":padding" "16"]]],
+                              "style-column" ["def"
+                                              "style-column"
+                                              ["{}"
+                                               [":min-width" "80"]
+                                               [":overflow" ":auto"]
+                                               [":padding" "|16px 16px"]
+                                               [":flex-shrink" "0"]]],
+                              "comp-graph" ["defcomp"
                                             "comp-graph"
                                             ["store"]
                                             ["div"
-                                             ["{}" [":style" ["merge" "ui/fullscreen" "style-graph"]]]
+                                             ["{}" [":style" ["merge" "ui/fullscreen" "ui/column" "style-graph"]]]
                                              ["div"
                                               ["{}" [":style" "style-toolbar"]]
                                               ["div"
@@ -1051,20 +1067,40 @@
                                                 ["{}"
                                                  [":inner-text" "|Generate!"]
                                                  [":style" "ui/button"]
-                                                 [":event" ["{}" [":click" "on-load"]]]]]]
+                                                 [":event" ["{}" [":click" "on-load"]]]]]]]
+                                             ["let"
+                                              [["tree" ["get-in" "store" ["[]" ":graph" ":tree"]]]
+                                               ["view-path" ["get-in" "store" ["[]" ":graph" ":path"]]]]
                                               ["div"
-                                               ["{}"]
-                                               ["let"
-                                                [["tree" ["get-in" "store" ["[]" ":graph" ":tree"]]]]
+                                               ["{}" [":style" ["merge" "ui/row" "style-body"]]]
+                                               ["loop"
+                                                ["[]" "children" ["[]"] "path" "view-path"]
                                                 ["if"
-                                                 ["some?" "tree"]
-                                                 ["comp-dep-node" "tree"]
-                                                 ["comp-text" "|Need to generate..."]]]]]]],
-                              "style-graph" ["def"
-                                             "style-graph"
-                                             ["{}" [":background-color" ["hsl" "0" "0" "0"]] [":overflow" ":auto"]]],
-                              "style-toolbar" ["def" "style-toolbar" ["{}" [":padding" "16"]]],
-                              "on-load" ["defn" "on-load" ["e" "dispatch!"] ["dispatch!" ":graph/load-graph" "nil"]]},
+                                                 ["empty?" "path"]
+                                                 "children"
+                                                 ["let"
+                                                  [["path-cursor" ["first" "path"]]
+                                                   ["rest-path" ["rest" "path"]]
+                                                   ["next-cursor" ["first" "rest-path"]]
+                                                   ["path-length" ["count" "children"]]
+                                                   ["next-path" ["subvec" "view-path" "0" ["inc" "path-length"]]]
+                                                   ["next-children"
+                                                    ["conj"
+                                                     "children"
+                                                     ["[]"
+                                                      "path-length"
+                                                      ["div"
+                                                       ["{}" [":style" "style-column"]]
+                                                       ["->>"
+                                                        [":deps" "path-cursor"]
+                                                        ["sort" "def-order"]
+                                                        ["map-indexed"
+                                                         ["fn"
+                                                          ["idx" "child-node"]
+                                                          ["[]"
+                                                           "idx"
+                                                           ["comp-def" "child-node" "next-path" "next-cursor"]]]]]]]]]]
+                                                  ["recur" "next-children" "rest-path"]]]]]]]]},
                        :procs []},
          "updater.graph" {:ns ["ns"
                                "app.updater.graph"
@@ -1099,7 +1135,16 @@
                                                  ["pick-def-deps" "def-expr" "internal-ns" "this-file" "pkg"]]
                                                 ["--" "println" "ns-deps"]
                                                 ["println"]
-                                                ["assoc-in" "store" ["[]" ":graph" ":tree"] "deps-tree"]]]},
+                                                ["->"
+                                                 "store"
+                                                 ["assoc-in" ["[]" ":graph" ":tree"] "deps-tree"]
+                                                 ["assoc-in"
+                                                  ["[]" ":graph" ":path"]
+                                                  ["[]" ["{}" [":deps" ["#{}" "deps-tree"]]]]]]]],
+                                 "view-path" ["defn"
+                                              "view-path"
+                                              ["store" "op-data"]
+                                              ["assoc-in" "store" ["[]" ":graph" ":path"] "op-data"]]},
                           :procs []},
          "schema" {:ns ["ns" "app.schema"],
                    :defs {"store" ["def"
@@ -1172,6 +1217,56 @@
                                                       ["comp-modal-stack" "states" [":modal-stack" "store"]]]]],
                                   "on-keydown" ["defn" "on-keydown" ["e" "dispatch!"]]},
                            :procs []},
+         "comp.def" {:ns ["ns"
+                          "app.comp.def"
+                          [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
+                          [":require"
+                           ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                           ["[]" "respo.alias" ":refer" ["[]" "div" "button"]]
+                           ["respo-ui.style" ":as" "ui"]
+                           ["respo.comp.text" ":refer" ["comp-text"]]
+                           ["respo.comp.space" ":refer" ["comp-space"]]]],
+                     :defs {"comp-def" ["defcomp"
+                                        "comp-def"
+                                        ["child-node" "next-path" "next-cursor"]
+                                        ["div"
+                                         ["{}"
+                                          [":event" ["{}" [":click" ["on-view" "next-path" "child-node"]]]]
+                                          [":style"
+                                           ["merge"
+                                            "style-def"
+                                            ["if" [":external?" "child-node"] "style-external"]
+                                            ["if" ["=" "child-node" "next-cursor"] "style-highlight"]
+                                            ["if" [":circular?" "child-node"] "style-circular"]]]]
+                                         ["comp-text" ["str" [":ns" "child-node"] "| / " [":def" "child-node"]] "nil"]
+                                         ["comp-space" "4" "nil"]
+                                         ["let"
+                                          [["many-deps" ["count" [":deps" "child-node"]]]]
+                                          ["if" ["pos?" "many-deps"] ["comp-text" "many-deps" "style-count"]]]]],
+                            "on-view" ["defn"
+                                       "on-view"
+                                       ["path" "child-node"]
+                                       ["fn"
+                                        ["e" "dispatch!"]
+                                        ["dispatch!" ":graph/view-path" ["conj" "path" "child-node"]]]],
+                            "style-circular" ["def" "style-circular" ["{}" [":text-decoration" ":underline"]]],
+                            "style-def" ["def"
+                                         "style-def"
+                                         ["{}"
+                                          [":color" ["hsl" "0" "0" "70" "0.6"]]
+                                          [":cursor" ":pointer"]
+                                          [":white-space" ":nowrap"]]],
+                            "style-external" ["def"
+                                              "style-external"
+                                              ["{}"
+                                               [":color" ["hsl" "300" "40" "30"]]
+                                               [":font-size" "12"]
+                                               [":cursor" ":default"]]],
+                            "style-highlight" ["def" "style-highlight" ["{}" [":color" ":white"]]],
+                            "style-count" ["def"
+                                           "style-count"
+                                           ["{}" [":font-size" "12"] [":color" ["hsl" "0" "0" "100" "0.2"]]]]},
+                     :procs []},
          "comp.modal-stack" {:ns ["ns"
                                   "app.comp.modal-stack"
                                   [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
@@ -1399,7 +1494,7 @@
                         "dispatch!" ["defn"
                                      "dispatch!"
                                      ["op" "op-data"]
-                                     ["println" "|Dispatch!" "op" "op-data"]
+                                     ["println" "|Dispatch!" "op"]
                                      ["case"
                                       "op"
                                       [":effect/submit"
@@ -1929,6 +2024,7 @@
                                                [":modal/mould" "modal/mould"]
                                                [":modal/recycle" "modal/recycle"]
                                                [":graph/load-graph" "graph/load-graph"]
+                                               [":graph/view-path" "graph/view-path"]
                                                "default-handler"]]]
                                             ["handler" "store" "op-data" "op-id"]]],
                                 "default-handler" ["defn" "default-handler" ["store" "op-data"] "store"]},
@@ -2310,7 +2406,19 @@
                                          ["and"
                                           ["=" [":ns" "x"] [":ns" "y"]]
                                           ["=" [":kind" "x"] [":kind" "y"]]
-                                          ["=" [":extra" "x"] [":extra" "y"]]]]},
+                                          ["=" [":extra" "x"] [":extra" "y"]]]],
+                               "def-order" ["defn"
+                                            "def-order"
+                                            ["x" "y"]
+                                            ["cond"
+                                             [["and" [":circular?" "x"] ["not" [":circular?" "y"]]] "-1"]
+                                             [["and" [":circular?" "y"] ["not" [":circular?" "x"]]] "1"]
+                                             [["and" [":external?" "x"] ["not" [":external?" "y"]]] "1"]
+                                             [["and" [":external?" "y"] ["not" [":external?" "x"]]] "-1"]
+                                             [":else"
+                                              ["compare"
+                                               ["str" [":ns" "x"] "|/" [":def" "x"]]
+                                               ["str" [":ns" "y"] "|/" [":def" "y"]]]]]]},
                         :procs []},
          "updater.modal" {:ns ["ns" "app.updater.modal"],
                           :defs {"mould" ["defn"
@@ -2798,119 +2906,6 @@
                                                     ":router/route"
                                                     ["{}" [":name" ":workspace"] [":data" "nil"]]]]]]]},
                             :procs []},
-         "comp.dep-node" {:ns ["ns"
-                               "app.comp.dep-node"
-                               [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
-                               [":require"
-                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                ["[]" "respo.alias" ":refer" ["[]" "div"]]
-                                ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
-                                ["[]" "respo-ui.style" ":as" "ui"]
-                                ["clojure.set" ":refer" ["difference"]]]],
-                          :defs {"comp-dep-node" ["defcomp"
-                                                  "comp-dep-node"
-                                                  ["dep-info"]
-                                                  ["let"
-                                                   [["external?" [":external?" "dep-info"]]]
-                                                   ["div"
-                                                    ["{}" [":style" ["merge" "ui/row" "style-dependency"]]]
-                                                    ["if"
-                                                     "external?"
-                                                     ["render-external-name" "dep-info"]
-                                                     ["render-internal-name" "dep-info"]]
-                                                    ["let"
-                                                     [["deps" [":deps" "dep-info"]]
-                                                      ["external-deps" ["into" ["#{}"] ["filter" ":external?" "deps"]]]
-                                                      ["internal-deps" ["difference" "deps" "external-deps"]]]
-                                                     ["if"
-                                                      ["not" ["empty?" "deps"]]
-                                                      ["div"
-                                                       ["{}"]
-                                                       ["if"
-                                                        ["not" ["empty?" "external-deps"]]
-                                                        ["div"
-                                                         ["{}" [":style" "ui/row"]]
-                                                         ["->>"
-                                                          "external-deps"
-                                                          ["map"
-                                                           ["fn"
-                                                            ["child-dep-info"]
-                                                            ["let"
-                                                             [[["{}" ["ns-text" ":ns"] ["def-text" ":def"]]
-                                                               "child-dep-info"]]
-                                                             ["[]"
-                                                              ["str" "ns-text" "|/" "def-text"]
-                                                              ["comp-dep-node" "child-dep-info"]]]]]]]]
-                                                       ["if"
-                                                        ["not" ["empty?" "internal-deps"]]
-                                                        ["div"
-                                                         ["{}"]
-                                                         ["->>"
-                                                          "internal-deps"
-                                                          ["map"
-                                                           ["fn"
-                                                            ["child-dep-info"]
-                                                            ["let"
-                                                             [[["{}" ["ns-text" ":ns"] ["def-text" ":def"]]
-                                                               "child-dep-info"]]
-                                                             ["[]"
-                                                              ["str" "ns-text" "|/" "def-text"]
-                                                              ["comp-dep-node" "child-dep-info"]]]]]]]]]]]]]],
-                                 "style-name" ["def"
-                                               "style-name"
-                                               ["{}"
-                                                [":padding" "|0 4px"]
-                                                [":white-space" ":nowrap"]
-                                                [":line-height" "|20px"]
-                                                [":cursor" ":pointer"]]],
-                                 "style-external" ["def"
-                                                   "style-external"
-                                                   ["{}"
-                                                    [":color" ["hsl" "0" "0" "70" "0.7"]]
-                                                    [":font-size" "12"]
-                                                    [":line-height" "1"]
-                                                    [":cursor" ":default"]]],
-                                 "render-external-name" ["defn"
-                                                         "render-external-name"
-                                                         ["dep-info"]
-                                                         ["div"
-                                                          ["{}"
-                                                           [":inner-text"
-                                                            ["str"
-                                                             [":ns" "dep-info"]
-                                                             "\\newline"
-                                                             "|/"
-                                                             [":def" "dep-info"]]]
-                                                           [":style"
-                                                            ["merge" "style-name" "style-external" "ui/column"]]]]],
-                                 "render-internal-name" ["defn"
-                                                         "render-internal-name"
-                                                         ["dep-info"]
-                                                         ["div"
-                                                          ["{}"
-                                                           [":inner-text"
-                                                            ["str" [":ns" "dep-info"] "|/" [":def" "dep-info"]]]
-                                                           [":style" ["merge" "style-name"]]
-                                                           [":event" ["{}" [":click" ["on-edit" "dep-info"]]]]]]],
-                                 "style-dependency" ["def"
-                                                     "style-dependency"
-                                                     ["{}"
-                                                      [":border-left" ["str" "|1px solid " ["hsl" "0" "0" "100" "0.3"]]]
-                                                      [":padding-left" "8"]
-                                                      [":align-items" ":flex-start"]]],
-                                 "on-edit" ["defn"
-                                            "on-edit"
-                                            ["dep-info"]
-                                            ["fn"
-                                             ["e" "dispatch!"]
-                                             ["dispatch!"
-                                              ":collection/edit"
-                                              ["{}"
-                                               [":ns" [":ns" "dep-info"]]
-                                               [":kind" ":defs"]
-                                               [":extra" [":def" "dep-info"]]
-                                               [":focus" ["[]"]]]]]]},
-                          :procs []},
          "actions" {:ns ["ns"
                          "app.actions"
                          [":require"
