@@ -131,3 +131,6 @@
         basic-code ["ns" (str (get-in store [:collection :package]) "." namespace')]]
     (-> store
         (assoc-in [:collection :files namespace'] {:ns basic-code, :defs {}, :procs []}))))
+
+(defn remove-file [store op-data op-id]
+  (update-in store [:collection :files] (fn [files] (dissoc files op-data))))

@@ -4,7 +4,8 @@
   (:require [hsl.core :refer [hsl]]
             [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]
-            [respo.comp.space :refer [=<]]))
+            [respo.comp.space :refer [=<]]
+            [app.style.widget :as widget]))
 
 (def style-file {:padding "16px", :font-size 16, :line-height 1.6})
 
@@ -22,6 +23,8 @@
   (fn [e dispatch!]
     (dispatch! :collection/edit {:kind :defs, :ns ns-text, :extra def-text, :focus [2]})))
 
+(defn on-remove [ns-text] (fn [e d! m!] (d! :collection/remove-file ns-text)))
+
 (defcomp
  comp-brief-file
  (ns-text file)
@@ -33,7 +36,12 @@
    (=< 16 nil)
    (div {:inner-text "ns", :style style-link, :event {:click (on-edit-ns ns-text)}})
    (=< 16 nil)
-   (div {:inner-text "procs", :style style-link, :event {:click (on-edit-procs ns-text)}}))
+   (div {:inner-text "procs", :style style-link, :event {:click (on-edit-procs ns-text)}})
+   (=< 16 nil)
+   (span
+    {:inner-text "Delete",
+     :style widget/clickable-text,
+     :event {:click (on-remove ns-text)}}))
   (div
    {}
    (->> (:defs file)

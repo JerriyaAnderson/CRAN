@@ -22,6 +22,7 @@
                   :collection/write collection/write-code
                   :collection/load collection/load-remote
                   :collection/remove-this collection/remove-this
+                  :collection/remove-file collection/remove-file
                   :collection/rename collection/rename
                   :collection/hydrate collection/hydrate
                   :notification/add-one notification/add-one

@@ -17,7 +17,8 @@
                                   ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
                                   ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
                                   ["[]" "respo-ui.style" ":as" "ui"]
-                                  ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]]],
+                                  ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
+                                  ["[]" "app.style.widget" ":as" "widget"]]],
                             :defs {"comp-brief-file" ["defcomp"
                                                       "comp-brief-file"
                                                       ["ns-text" "file"]
@@ -37,7 +38,13 @@
                                                          ["{}"
                                                           [":inner-text" "|procs"]
                                                           [":style" "style-link"]
-                                                          [":event" ["{}" [":click" ["on-edit-procs" "ns-text"]]]]]]]
+                                                          [":event" ["{}" [":click" ["on-edit-procs" "ns-text"]]]]]]
+                                                        ["=<" "16" "nil"]
+                                                        ["span"
+                                                         ["{}"
+                                                          [":inner-text" "|Delete"]
+                                                          [":style" "widget/clickable-text"]
+                                                          [":event" ["{}" [":click" ["on-remove" "ns-text"]]]]]]]
                                                        ["div"
                                                         ["{}"]
                                                         ["->>"
@@ -95,7 +102,11 @@
                                                      [":kind" ":defs"]
                                                      [":ns" "ns-text"]
                                                      [":extra" "def-text"]
-                                                     [":focus" ["[]" "2"]]]]]]},
+                                                     [":focus" ["[]" "2"]]]]]],
+                                   "on-remove" ["defn"
+                                                "on-remove"
+                                                ["ns-text"]
+                                                ["fn" ["e" "d!" "m!"] ["d!" ":collection/remove-file" "ns-text"]]]},
                             :procs []},
          "comp.loading" {:ns ["ns"
                               "app.comp.loading"
@@ -1202,7 +1213,7 @@
                                                         ["cursor->" ":file-tree" "comp-file-tree" "states" "store"]]
                                                        ["<>" "span" "router" "nil"]]
                                                       ["comp-notifications" [":notifications" "store"]]
-                                                      ["--" "comp-debug" [":writer" "store"] ["{}" [":bottom" "0"]]]
+                                                      ["comp-inspect" "|Store" "store" ["{}" [":bottom" "0"]]]
                                                       ["if"
                                                        [":show-palette?" "router"]
                                                        ["cursor->"
@@ -1862,6 +1873,7 @@
                                                [":collection/write" "collection/write-code"]
                                                [":collection/load" "collection/load-remote"]
                                                [":collection/remove-this" "collection/remove-this"]
+                                               [":collection/remove-file" "collection/remove-file"]
                                                [":collection/rename" "collection/rename"]
                                                [":collection/hydrate" "collection/hydrate"]
                                                [":notification/add-one" "notification/add-one"]
@@ -2659,7 +2671,14 @@
                                                          "store"
                                                          ["assoc-in"
                                                           ["[]" ":collection" ":files" "namespace'"]
-                                                          ["{}" [":ns" "basic-code"] [":defs" ["{}"]] [":procs" ["[]"]]]]]]]},
+                                                          ["{}" [":ns" "basic-code"] [":defs" ["{}"]] [":procs" ["[]"]]]]]]],
+                                      "remove-file" ["defn"
+                                                     "remove-file"
+                                                     ["store" "op-data" "op-id"]
+                                                     ["update-in"
+                                                      "store"
+                                                      ["[]" ":collection" ":files"]
+                                                      ["fn" ["files"] ["dissoc" "files" "op-data"]]]]},
                                :procs []},
          "util.stack" {:ns ["ns" "app.util.stack"],
                        :defs {"push-paths" ["defn"
