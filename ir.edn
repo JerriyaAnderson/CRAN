@@ -27,13 +27,11 @@
                            :procs []},
          "comp.brief-file" {:ns ["ns"
                                  "app.comp.brief-file"
-                                 [":require-macros"
-                                  ["[]" "respo.macros" ":refer" ["[]" "defcomp" "div" "<>" "span" "input"]]]
                                  [":require"
                                   ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                                  ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "list->" "<>" "span" "input"]]
                                   ["[]" "clojure.string" ":as" "string"]
-                                  ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                                  ["[]" "respo-ui.style" ":as" "ui"]
+                                  ["[]" "respo-ui.core" ":as" "ui"]
                                   ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
                                   ["[]" "app.style.widget" ":as" "widget"]
                                   ["[]" "app.util.keycode" ":as" "keycode"]]],
@@ -53,19 +51,19 @@
                                                           ["{}"
                                                            [":inner-text" "|ns"]
                                                            [":style" "style-link"]
-                                                           [":event" ["{}" [":click" ["on-edit-ns" "ns-text"]]]]]]
+                                                           [":on-click" ["on-edit-ns" "ns-text"]]]]
                                                          ["=<" "16" "nil"]
                                                          ["span"
                                                           ["{}"
                                                            [":inner-text" "|procs"]
                                                            [":style" "style-link"]
-                                                           [":event" ["{}" [":click" ["on-edit-procs" "ns-text"]]]]]]
+                                                           [":on-click" ["on-edit-procs" "ns-text"]]]]
                                                          ["=<" "16" "nil"]
                                                          ["span"
                                                           ["{}"
                                                            [":inner-text" "|Delete"]
                                                            [":style" "widget/clickable-text"]
-                                                           [":event" ["{}" [":click" ["on-remove" "ns-text"]]]]]]]
+                                                           [":on-click" ["on-remove" "ns-text"]]]]]
                                                         ["div"
                                                          ["{}"]
                                                          ["input"
@@ -77,7 +75,7 @@
                                                             ["{}"
                                                              [":input" "on-input"]
                                                              [":keydown" ["on-keydown" "ns-text" "state"]]]]]]]
-                                                        ["div"
+                                                        ["list->"
                                                          ["{}"]
                                                          ["->>"
                                                           [":defs" "file"]
@@ -93,8 +91,7 @@
                                                                ["{}"
                                                                 [":inner-text" ["str" "def-text" "|↗"]]
                                                                 [":style" "style-link"]
-                                                                [":event"
-                                                                 ["{}" [":click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]]]],
+                                                                [":on-click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]],
                                    "on-edit-procs" ["defn"
                                                     "on-edit-procs"
                                                     ["ns-text"]
@@ -155,11 +152,10 @@
                             :procs []},
          "comp.loading" {:ns ["ns"
                               "app.comp.loading"
-                              [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "span" "div"]]]
                               [":require"
                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                               ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                               ["[]" "respo-ui.style" ":as" "ui"]]],
+                               ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "<>" "span" "input"]]
+                               ["[]" "respo-ui.core" ":as" "ui"]]],
                          :defs {"comp-loading" ["defcomp"
                                                 "comp-loading"
                                                 []
@@ -179,11 +175,10 @@
                          :procs []},
          "comp.command" {:ns ["ns"
                               "app.comp.command"
-                              [":require-macros" ["respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "span"]]]
                               [":require"
                                ["[]" "clojure.string" ":as" "string"]
-                               ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                               ["[]" "respo.core" ":refer" ["[]" "create-comp"]]]],
+                               ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "<>" "span" "input"]]
+                               ["[]" "hsl.core" ":refer" ["[]" "hsl"]]]],
                          :defs {"style-command" ["def"
                                                  "style-command"
                                                  ["{}"
@@ -205,9 +200,61 @@
                                                    ["merge"
                                                     "style-command"
                                                     ["if" "selected?" ["{}" [":background-color" ["hsl" "0" "0" "30"]]]]]]
-                                                  [":event" ["{}" [":click" ["on-click" "on-select"]]]]]
+                                                  [":on-click" ["on-click" "on-select"]]]
                                                  ["<>" "span" ["string/join" "| " "command"] "nil"]]]},
                          :procs []},
+         "updater" {:ns ["ns"
+                         "app.updater"
+                         [":require"
+                          ["[]" "respo.cursor" ":refer" ["[]" "update-states"]]
+                          ["[]" "app.updater.router" ":as" "router"]
+                          ["[]" "app.updater.collection" ":as" "collection"]
+                          ["[]" "app.updater.notification" ":as" "notification"]
+                          ["[]" "app.updater.stack" ":as" "stack"]
+                          ["[]" "app.updater.modal" ":as" "modal"]
+                          ["[]" "app.updater.graph" ":as" "graph"]]],
+                    :defs {"updater" ["defn"
+                                      "updater"
+                                      ["store" "op" "op-data" "op-id"]
+                                      ["let"
+                                       [["handler"
+                                         ["case"
+                                          "op"
+                                          [":states" ["fn" ["x"] ["update-states" "x" "op-data"]]]
+                                          [":router/route" "router/route"]
+                                          [":router/toggle-palette" "router/toggle-palette"]
+                                          [":router/open-file-tree" "router/open-file-tree"]
+                                          [":collection/add-definition" "collection/add-definition"]
+                                          [":collection/add-namespace" "collection/add-namespace"]
+                                          [":collection/edit" "collection/edit"]
+                                          [":collection/edit-ns" "collection/edit-ns"]
+                                          [":collection/write" "collection/write-code"]
+                                          [":collection/load" "collection/load-remote"]
+                                          [":collection/remove-this" "collection/remove-this"]
+                                          [":collection/remove-file" "collection/remove-file"]
+                                          [":collection/rename" "collection/rename"]
+                                          [":collection/hydrate" "collection/hydrate"]
+                                          [":notification/add-one" "notification/add-one"]
+                                          [":notification/remove-one" "notification/remove-one"]
+                                          [":notification/remove-since" "notification/remove-since"]
+                                          [":stack/goto-definition" "stack/goto-definition"]
+                                          [":stack/dependents" "stack/dependents"]
+                                          [":stack/go-back" "stack/go-back"]
+                                          [":stack/go-next" "stack/go-next"]
+                                          [":stack/point-to" "stack/point-to"]
+                                          [":stack/collapse" "stack/collapse"]
+                                          [":stack/shift" "stack/shift-one"]
+                                          [":modal/mould" "modal/mould"]
+                                          [":modal/recycle" "modal/recycle"]
+                                          [":graph/load-graph" "graph/load-graph"]
+                                          [":graph/view-path" "graph/view-path"]
+                                          [":graph/view-ns" "graph/view-ns"]
+                                          [":graph/edit-current" "graph/edit-current"]
+                                          [":graph/show-orphans" "graph/show-orphans"]
+                                          "default-handler"]]]
+                                       ["handler" "store" "op-data" "op-id"]]],
+                           "default-handler" ["defn" "default-handler" ["store" "op-data"] "store"]},
+                    :procs []},
          "util.keycode" {:ns ["ns" "app.util.keycode"],
                          :defs {"key-esc" ["def" "key-esc" "27"],
                                 "key-u" ["def" "key-u" "85"],
@@ -827,14 +874,12 @@
                  :procs []},
          "comp.workspace" {:ns ["ns"
                                 "app.comp.workspace"
-                                [":require-macros"
-                                 ["[]" "respo.macros" ":refer" ["[]" "defcomp" "cursor->" "<>" "div" "span"]]]
                                 [":require"
                                  ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                 ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
+                                 ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "<>" ">>" "span" "input"]]
                                  ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
                                  ["[]" "respo.comp.inspect" ":refer" ["[]" "comp-inspect"]]
-                                 ["[]" "respo-ui.style" ":as" "ui"]
+                                 ["[]" "respo-ui.core" ":as" "ui"]
                                  ["[]" "app.comp.hot-corner" ":refer" ["[]" "comp-hot-corner"]]
                                  ["[]" "app.comp.stack" ":refer" ["[]" "comp-stack"]]
                                  ["[]" "cirru-editor.comp.editor" ":refer" ["[]" "comp-editor"]]
@@ -911,10 +956,8 @@
                                                        ["some?" "tree"]
                                                        ["div"
                                                         ["{}" [":style" ["merge" "ui/column" "ui/flex"]]]
-                                                        ["cursor->"
-                                                         ":editor"
-                                                         "comp-editor"
-                                                         "states"
+                                                        ["comp-editor"
+                                                         [">>" "states" ":editor"]
                                                          ["{}"
                                                           [":tree" "tree"]
                                                           [":focus" [":focus" "code-path"]]
@@ -928,14 +971,14 @@
                                                            [":inner-text" "|Rename"]
                                                            [":class-name" "|is-unremarkable"]
                                                            [":style" "widget/clickable-text"]
-                                                           [":event" ["{}" [":click" ["on-rename" "code-path"]]]]]]
+                                                           [":on-click" ["on-rename" "code-path"]]]]
                                                          ["=<" "8" "nil"]
                                                          ["div"
                                                           ["{}"
                                                            [":inner-text" "|Delete"]
                                                            [":class-name" "|is-unremarkable"]
                                                            [":style" "widget/clickable-text"]
-                                                           [":event" ["{}" [":click" "on-remove"]]]]]]]
+                                                           [":on-click" "on-remove"]]]]]
                                                        ["div"
                                                         ["{}" [":style" ["merge" "ui/column" "ui/flex"]]]
                                                         ["div"
@@ -993,12 +1036,10 @@
                            :procs []},
          "comp.graph" {:ns ["ns"
                             "app.comp.graph"
-                            [":require-macros"
-                             ["[]" "respo.macros" ":refer" ["[]" "defcomp" "cursor->" "div" "button" "span" "<>"]]]
                             [":require"
                              ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                             ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                             ["[]" "respo-ui.style" ":as" "ui"]
+                             ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "list->" "<>" "span" "input" "button"]]
+                             ["[]" "respo-ui.core" ":as" "ui"]
                              ["[]" "app.comp.def" ":refer" ["[]" "comp-def"]]
                              ["[]" "app.util.detect" ":refer" ["[]" "def-order" "=def?"]]
                              ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
@@ -1038,7 +1079,7 @@
                                               ["println" "|tree" "tree"]
                                               ["if"
                                                ["some?" "tree"]
-                                               ["div"
+                                               ["list->"
                                                 ["{}" [":style" ["merge" "ui/row" "style-body"]]]
                                                 ["loop"
                                                  ["[]" "branch" "root-tree" "children" ["[]"] "path" ["[]"]]
@@ -1050,7 +1091,7 @@
                                                      "children"
                                                      ["[]"
                                                       ["count" "children"]
-                                                      ["div"
+                                                      ["list->"
                                                        ["{}" [":style" "style-column"]]
                                                        ["->>"
                                                         [":deps" "branch"]
@@ -1087,25 +1128,25 @@
                                                    ["{}"
                                                     [":inner-text" "|Files"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-files"]]]]]
+                                                    [":on-click" "on-files"]]]
                                                   ["=<" "8" "nil"]
                                                   ["button"
                                                    ["{}"
                                                     [":inner-text" "|Edit"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-edit"]]]]]
+                                                    [":on-click" "on-edit"]]]
                                                   ["=<" "64" "nil"]
                                                   ["button"
                                                    ["{}"
                                                     [":inner-text" "|Build tree"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-load"]]]]]
+                                                    [":on-click" "on-load"]]]
                                                   ["=<" "8" "nil"]
                                                   ["button"
                                                    ["{}"
                                                     [":inner-text" "|Find orphans"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-orphans"]]]]]]]],
+                                                    [":on-click" "on-orphans"]]]]]],
                               "on-orphans" ["defn"
                                             "on-orphans"
                                             ["e" "dispatch!"]
@@ -1222,23 +1263,21 @@
                    :procs []},
          "comp.container" {:ns ["ns"
                                 "app.comp.container"
-                                [":require-macros"
-                                 ["[]" "respo.macros" ":refer" ["[]" "defcomp" "cursor->" "<>" "div" "span"]]]
                                 [":require"
                                  ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                 ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
                                  ["[]" "respo.comp.inspect" ":refer" ["[]" "comp-inspect"]]
-                                 ["[]" "respo-ui.style" ":as" "ui"]
+                                 ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" ">>" "<>" "span" "input"]]
+                                 ["[]" "respo-ui.core" ":as" "ui"]
                                  ["[]" "app.comp.loading" ":refer" ["[]" "comp-loading"]]
                                  ["[]" "app.comp.workspace" ":refer" ["[]" "comp-workspace"]]
                                  ["[]" "app.comp.notifications" ":refer" ["[]" "comp-notifications"]]
                                  ["[]" "app.comp.palette" ":refer" ["[]" "comp-palette"]]
                                  ["[]" "app.comp.modal-stack" ":refer" ["[]" "comp-modal-stack"]]
-                                 ["app.comp.graph" ":refer" ["comp-graph"]]
+                                 ["[]" "app.comp.graph" ":refer" ["[]" "comp-graph"]]
                                  ["[]" "app.util.keycode" ":as" "keycode"]
                                  ["[]" "app.util.dom" ":as" "dom"]
                                  ["[]" "app.style.widget" ":as" "widget"]
-                                 ["app.comp.file-tree" ":refer" ["comp-file-tree"]]]],
+                                 ["[]" "app.comp.file-tree" ":refer" ["[]" "comp-file-tree"]]]],
                            :defs {"comp-container" ["defcomp"
                                                     "comp-container"
                                                     ["store"]
@@ -1259,8 +1298,8 @@
                                                        [":workspace" ["comp-workspace" "store"]]
                                                        [":graph" ["comp-graph" "store"]]
                                                        [":file-tree"
-                                                        ["cursor->" ":file-tree" "comp-file-tree" "states" "store"]]
-                                                       ["<>" "span" "router" "nil"]]
+                                                        ["comp-file-tree" [">>" "states" ":file-tree"] "store"]]
+                                                       ["<>" ["str" "router"] "nil"]]
                                                       ["comp-notifications" [":notifications" "store"]]
                                                       ["--"
                                                        "comp-inspect"
@@ -1273,33 +1312,30 @@
                                                         [":color" ":white"]]]
                                                       ["if"
                                                        [":show-palette?" "router"]
-                                                       ["cursor->"
-                                                        ":palette"
-                                                        "comp-palette"
-                                                        "states"
+                                                       ["comp-palette"
+                                                        [">>" "states" ":palette"]
                                                         [":files" [":collection" "store"]]]]
                                                       ["comp-modal-stack" "states" [":modal-stack" "store"]]]]]},
                            :procs []},
          "comp.def" {:ns ["ns"
                           "app.comp.def"
-                          [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "div" "button" "span" "<>"]]]
                           [":require"
                            ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                           ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                           ["[]" "respo-ui.style" ":as" "ui"]
+                           ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "<>" "span" "input"]]
+                           ["[]" "respo-ui.core" ":as" "ui"]
                            ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]]],
                      :defs {"comp-def" ["defcomp"
                                         "comp-def"
                                         ["child-node" "path" "selected?"]
                                         ["div"
                                          ["{}"
-                                          [":event" ["{}" [":click" ["on-view" "path" "child-node"]]]]
                                           [":style"
                                            ["merge"
                                             "style-def"
                                             ["if" [":external?" "child-node"] "style-external"]
                                             ["if" "selected?" "style-highlight"]
-                                            ["if" [":circular?" "child-node"] "style-circular"]]]]
+                                            ["if" [":circular?" "child-node"] "style-circular"]]]
+                                          [":on-click" ["on-view" "path" "child-node"]]]
                                          ["<>" "span" ["str" [":ns" "child-node"] "| / " [":def" "child-node"]] "nil"]
                                          ["=<" "4" "nil"]
                                          ["let"
@@ -1345,12 +1381,10 @@
                      :procs []},
          "comp.modal-stack" {:ns ["ns"
                                   "app.comp.modal-stack"
-                                  [":require-macros"
-                                   ["[]" "respo.macros" ":refer" ["[]" "defcomp" "cursor->" "<>" "div" "span"]]]
                                   [":require"
                                    ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                   ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                                   ["[]" "respo-ui.style" ":as" "ui"]
+                                   ["[]" "respo.core" ":refer" ["[]" "defcomp" "list->" "div" "<>" ">>" "span" "input"]]
+                                   ["[]" "respo-ui.core" ":as" "ui"]
                                    ["[]" "app.style.widget" ":as" "widget"]
                                    ["[]" "app.comp.rename-path" ":refer" ["[]" "comp-rename-path"]]
                                    ["[]" "app.comp.hydrate" ":refer" ["[]" "comp-hydrate"]]
@@ -1380,14 +1414,14 @@
                                                  ["case"
                                                   "title"
                                                   [":rename-path"
-                                                   ["cursor->" ":rename-path" "comp-rename-path" "states" "data"]]
-                                                  [":hydrate" ["cursor->" ":hydrate" "comp-hydrate" "states"]]
+                                                   ["comp-rename-path" [">>" "states" ":rename-path"] "data"]]
+                                                  [":hydrate" ["comp-hydrate" [">>" "states" ":hydrate"]]]
                                                   [":orphans" ["comp-orphans" "data"]]
                                                   ["<>" "span" "title" "nil"]]]],
                                     "comp-modal-stack" ["defcomp"
                                                         "comp-modal-stack"
                                                         ["states" "modal-stack"]
-                                                        ["div"
+                                                        ["list->"
                                                          ["{}"]
                                                          ["->>"
                                                           "modal-stack"
@@ -1403,19 +1437,17 @@
                                                               ["div"
                                                                ["{}"
                                                                 [":style" "style-modal"]
-                                                                [":event" ["{}" [":click" "on-recycle"]]]]
+                                                                [":on-click" "on-recycle"]]
                                                                ["div"
-                                                                ["{}" [":event" ["{}" [":click" "on-tip"]]]]
+                                                                ["{}" [":on-click" "on-tip"]]
                                                                 ["renderer" "states" "kind" "title" "data"]]]]]]]]]]},
                              :procs []},
          "comp.rename-path" {:ns ["ns"
                                   "app.comp.rename-path"
-                                  [":require-macros"
-                                   ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "input" "span"]]]
                                   [":require"
-                                   ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
+                                   ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "<>" "span" "input"]]
                                    ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
-                                   ["[]" "respo-ui.style" ":as" "ui"]
+                                   ["[]" "respo-ui.core" ":as" "ui"]
                                    ["[]" "app.style.widget" ":as" "widget"]
                                    ["[]" "app.util.keycode" ":as" "keycode"]]],
                              :defs {"init-state" ["defn"
@@ -1452,17 +1484,14 @@
                                                              [":value" "state"]
                                                              [":id" "|rename-box"]
                                                              [":style" ["merge" "ui/input" ["{}" [":width" "400"]]]]
-                                                             [":event"
-                                                              ["{}"
-                                                               [":input" "on-input"]
-                                                               [":keydown" ["on-keydown" "code-path" "state"]]]]]]
+                                                             [":on-input" "on-input"]
+                                                             [":on-keydown" ["on-keydown" "code-path" "state"]]]]
                                                            ["=<" "16" "nil"]
                                                            ["div"
                                                             ["{}"
                                                              [":inner-text" "|Rename"]
                                                              [":style" "widget/button"]
-                                                             [":event"
-                                                              ["{}" [":click" ["on-rename" "code-path" "state"]]]]]]]]]],
+                                                             [":on-click" ["on-rename" "code-path" "state"]]]]]]]],
                                     "on-input" ["defn" "on-input" ["e" "dispatch!" "m!"] ["m!" [":value" "e"]]],
                                     "on-rename" ["defn"
                                                  "on-rename"
@@ -1510,7 +1539,7 @@
                        ["[]" "app.schema" ":as" "schema"]
                        ["[]" "app.comp.container" ":refer" ["[]" "comp-container"]]
                        ["[]" "cljs.reader" ":refer" ["[]" "read-string"]]
-                       ["[]" "app.updater.core" ":refer" ["[]" "updater"]]
+                       ["[]" "app.updater" ":refer" ["[]" "updater"]]
                        ["[]" "app.util.keycode" ":as" "keycode"]
                        ["[]" "app.util.dom" ":as" "dom"]
                        ["[]" "app.util" ":refer" ["[]" "now!"]]
@@ -1593,7 +1622,7 @@
                                    ["render-app!" "render!"]
                                    ["println" "|Code updated."]],
                         "mount-target" ["def" "mount-target" [".querySelector" "js/document" "|.app"]]},
-                 :procs [["set!" "js/window.onload" "main!"]]},
+                 :procs []},
          "updater.notification" {:ns ["ns" "app.updater.notification"],
                                  :defs {"add-one" ["defn"
                                                    "add-one"
@@ -1640,18 +1669,17 @@
                                  :procs []},
          "comp.orphans" {:ns ["ns"
                               "app.comp.orphans"
-                              [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "span"]]]
                               [":require"
                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                               ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                               ["[]" "respo-ui.style" ":as" "ui"]]],
+                               ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "list->" "<>" "span" "input"]]
+                               ["[]" "respo-ui.core" ":as" "ui"]]],
                          :defs {"comp-orphans" ["defcomp"
                                                 "comp-orphans"
                                                 ["orphans"]
                                                 ["div"
                                                  ["{}" [":style" "style-container"]]
                                                  ["div" ["{}"] ["<>" "span" "|Orphans:" "style-title"]]
-                                                 ["div"
+                                                 ["list->"
                                                   ["{}"]
                                                   ["->>"
                                                    "orphans"
@@ -1666,7 +1694,7 @@
                                                         ["{}"
                                                          [":inner-text" "def-id"]
                                                          [":style" "style-def"]
-                                                         [":event" ["{}" [":click" ["on-edit" "def-info"]]]]]]]]]]]]]],
+                                                         [":on-click" ["on-edit" "def-info"]]]]]]]]]]]],
                                 "style-container" ["def"
                                                    "style-container"
                                                    ["{}"
@@ -1703,12 +1731,11 @@
                          :procs []},
          "comp.palette" {:ns ["ns"
                               "app.comp.palette"
-                              [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "div" "input"]]]
                               [":require"
                                ["[]" "clojure.string" ":as" "string"]
                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                               ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                               ["[]" "respo-ui.style" ":as" "ui"]
+                               ["[]" "respo.core" ":refer" ["[]" "defcomp" "list->" "div" "<>" "span" "input"]]
+                               ["[]" "respo-ui.core" ":as" "ui"]
                                ["[]" "cirru-editor.util.dom" ":refer" ["[]" "focus!"]]
                                ["[]" "app.comp.command" ":refer" ["[]" "comp-command"]]
                                ["[]" "app.util.keycode" ":as" "keycode"]
@@ -1778,6 +1805,7 @@
                                                 ["let"
                                                  [["ns-names"
                                                    ["->>" ["keys" "files"] ["map" ["fn" ["path"] ["[]" ":ns" "path"]]]]]
+                                                  ["cursor" [":cursor" "states"]]
                                                   ["state" ["or" [":data" "states"] "initial-state"]]
                                                   ["def-paths"
                                                    ["->>"
@@ -1820,17 +1848,15 @@
                                                       ["merge"
                                                        "widget/input"
                                                        ["{}" [":width" "|100%"] [":line-height" "|40px"]]]]
-                                                     [":event"
-                                                      ["{}"
-                                                       [":input" ["on-input" "cursor" "state"]]
-                                                       [":keydown"
-                                                        ["on-keydown"
-                                                         "cursor"
-                                                         "state"
-                                                         "commands"
-                                                         [":cursor" "state"]
-                                                         "files"]]]]]]
-                                                   ["div"
+                                                     [":on-input" ["on-input" "cursor" "state"]]
+                                                     [":on-keydown"
+                                                      ["on-keydown"
+                                                       "cursor"
+                                                       "state"
+                                                       "commands"
+                                                       [":cursor" "state"]
+                                                       "files"]]]]
+                                                   ["list->"
                                                     ["{}" [":style" ["merge" "ui/flex" ["{}" [":overflow" "|auto"]]]]]
                                                     ["->>"
                                                      "commands"
@@ -1903,66 +1929,13 @@
                                                    ["handle-command" "cursor" "commands" "collection" "dispatch!"]]]
                                                  [":else" "nil"]]]]]},
                          :procs []},
-         "updater.core" {:ns ["ns"
-                              "app.updater.core"
-                              [":require"
-                               ["[]" "respo.cursor" ":refer" ["[]" "mutate"]]
-                               ["[]" "app.updater.router" ":as" "router"]
-                               ["[]" "app.updater.collection" ":as" "collection"]
-                               ["[]" "app.updater.notification" ":as" "notification"]
-                               ["[]" "app.updater.stack" ":as" "stack"]
-                               ["[]" "app.updater.modal" ":as" "modal"]
-                               ["app.updater.graph" ":as" "graph"]]],
-                         :defs {"updater" ["defn"
-                                           "updater"
-                                           ["store" "op" "op-data" "op-id"]
-                                           ["let"
-                                            [["handler"
-                                              ["case"
-                                               "op"
-                                               [":states" ["fn" ["x"] ["update" "x" ":states" ["mutate" "op-data"]]]]
-                                               [":router/route" "router/route"]
-                                               [":router/toggle-palette" "router/toggle-palette"]
-                                               [":router/open-file-tree" "router/open-file-tree"]
-                                               [":collection/add-definition" "collection/add-definition"]
-                                               [":collection/add-namespace" "collection/add-namespace"]
-                                               [":collection/edit" "collection/edit"]
-                                               [":collection/edit-ns" "collection/edit-ns"]
-                                               [":collection/write" "collection/write-code"]
-                                               [":collection/load" "collection/load-remote"]
-                                               [":collection/remove-this" "collection/remove-this"]
-                                               [":collection/remove-file" "collection/remove-file"]
-                                               [":collection/rename" "collection/rename"]
-                                               [":collection/hydrate" "collection/hydrate"]
-                                               [":notification/add-one" "notification/add-one"]
-                                               [":notification/remove-one" "notification/remove-one"]
-                                               [":notification/remove-since" "notification/remove-since"]
-                                               [":stack/goto-definition" "stack/goto-definition"]
-                                               [":stack/dependents" "stack/dependents"]
-                                               [":stack/go-back" "stack/go-back"]
-                                               [":stack/go-next" "stack/go-next"]
-                                               [":stack/point-to" "stack/point-to"]
-                                               [":stack/collapse" "stack/collapse"]
-                                               [":stack/shift" "stack/shift-one"]
-                                               [":modal/mould" "modal/mould"]
-                                               [":modal/recycle" "modal/recycle"]
-                                               [":graph/load-graph" "graph/load-graph"]
-                                               [":graph/view-path" "graph/view-path"]
-                                               [":graph/view-ns" "graph/view-ns"]
-                                               [":graph/edit-current" "graph/edit-current"]
-                                               [":graph/show-orphans" "graph/show-orphans"]
-                                               "default-handler"]]]
-                                            ["handler" "store" "op-data" "op-id"]]],
-                                "default-handler" ["defn" "default-handler" ["store" "op-data"] "store"]},
-                         :procs []},
          "comp.stack" {:ns ["ns"
                             "app.comp.stack"
-                            [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "span"]]]
                             [":require"
                              ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                             ["[]" "respo.core" ":refer" ["[]" "defcomp" "div" "list->" "<>" "span" "input"]]
                              ["[]" "clojure.string" ":as" "string"]
-                             ["[]" "respo-ui.style" ":as" "ui"]
-                             ["[]" "respo.core" ":refer" ["[]" "create-comp"]]]],
+                             ["[]" "respo-ui.core" ":as" "ui"]]],
                        :defs {"style-ns" ["def"
                                           "style-ns"
                                           ["{}"
@@ -2014,7 +1987,7 @@
                               "comp-stack" ["defcomp"
                                             "comp-stack"
                                             ["stack" "pointer"]
-                                            ["div"
+                                            ["list->"
                                              ["{}" [":style" ["merge" "ui/flex" "style-container"]]]
                                              ["->>"
                                               "stack"
@@ -2029,9 +2002,7 @@
                                                   ["if"
                                                    ["=" "kind" ":defs"]
                                                    ["div"
-                                                    ["{}"
-                                                     [":style" "style-bar"]
-                                                     [":event" ["{}" [":click" ["on-click" "idx"]]]]]
+                                                    ["{}" [":style" "style-bar"] [":on-click" ["on-click" "idx"]]]
                                                     ["div"
                                                      ["{}" [":style" ["if" ["=" "idx" "pointer"] "style-bright"]]]
                                                      ["<>" "span" "extra-name" "nil"]]
@@ -2042,21 +2013,19 @@
                                                       ["merge"
                                                        "style-ns-main"
                                                        ["if" ["=" "idx" "pointer"] "style-bright"]]]
-                                                     [":event" ["{}" [":click" ["on-click" "idx"]]]]]
+                                                     [":on-click" ["on-click" "idx"]]]
                                                     ["<>" "span" "ns-part" "nil"]]]]]]]]]]},
                        :procs []},
          "comp.notifications" {:ns ["ns"
                                     "app.comp.notifications"
-                                    [":require-macros"
-                                     ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "span"]]]
                                     [":require"
                                      ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                     ["[]" "respo-ui.style" ":as" "ui"]
-                                     ["[]" "respo.core" ":refer" ["[]" "create-comp"]]]],
+                                     ["[]" "respo-ui.core" ":as" "ui"]
+                                     ["[]" "respo.core" ":refer" ["[]" "defcomp" "list->" "div" "<>" "span" "input"]]]],
                                :defs {"comp-notifications" ["defcomp"
                                                             "comp-notifications"
                                                             ["notifications"]
-                                                            ["div"
+                                                            ["list->"
                                                              ["{}"]
                                                              ["->>"
                                                               "notifications"
@@ -2072,7 +2041,7 @@
                                                                      "style-notification"
                                                                      ["{}"
                                                                       [":top" ["str" ["+" "8" ["*" "40" "idx"]] "|px"]]]]]
-                                                                   [":event" ["{}" [":click" ["on-click" "idx"]]]]]
+                                                                   [":on-click" ["on-click" "idx"]]]
                                                                   ["<>" "span" ["last" "entry"] "nil"]]]]]]]],
                                       "on-click" ["defn"
                                                   "on-click"
@@ -2097,56 +2066,6 @@
                                                              [":cursor" "|pointer"]
                                                              [":border-radius" "|2px"]]]},
                                :procs []},
-         "render" {:ns ["ns"
-                        "app.render"
-                        [":require-macros"
-                         ["[]"
-                          "respo.macros"
-                          ":refer"
-                          ["[]" "html" "head" "title" "script" "style" "meta'" "div" "link" "body"]]]
-                        [":require"
-                         ["[]" "respo.core" ":refer" ["[]" "create-element"]]
-                         ["[]" "respo.render.html" ":refer" ["[]" "make-string"]]
-                         ["[]" "app.comp.container" ":refer" ["[]" "comp-container"]]
-                         ["[]" "shell-page.core" ":refer" ["[]" "make-page" "slurp" "spit"]]
-                         ["[]" "app.schema" ":as" "schema"]]],
-                   :defs {"main!" ["defn"
-                                   "main!"
-                                   []
-                                   ["if"
-                                    ["=" "js/process.env.env" "|dev"]
-                                    ["spit" "|target/index.html" ["dev-page"]]
-                                    ["spit" "|dist/index.html" ["prod-page"]]]],
-                          "base-info" ["def"
-                                       "base-info"
-                                       ["{}"
-                                        [":title" "|Stack Editor"]
-                                        [":icon" "|http://logo.cirru.org/cirru-400x400.png"]
-                                        [":ssr" "nil"]
-                                        [":inilne-html" "|"]]],
-                          "prod-page" ["defn"
-                                       "prod-page"
-                                       []
-                                       ["let"
-                                        [["html-content" ["make-string" ["comp-container" "schema/store"]]]
-                                         ["manifest" ["js/JSON.parse" ["slurp" "|dist/manifest.json"]]]]
-                                        ["make-page"
-                                         "html-content"
-                                         ["merge"
-                                          "base-info"
-                                          ["{}"
-                                           [":styles" ["[]" ["aget" "manifest" "|main.css"]]]
-                                           [":scripts"
-                                            ["[]" ["aget" "manifest" "|vendor.js"] ["aget" "manifest" "|main.js"]]]]]]]],
-                          "dev-page" ["defn"
-                                      "dev-page"
-                                      []
-                                      ["make-page"
-                                       "|"
-                                       ["merge"
-                                        "base-info"
-                                        ["{}" [":styles" ["[]"]] [":scripts" ["[]" "|/browser/main.js" "|/main.js"]]]]]]},
-                   :procs []},
          "util.querystring" {:ns ["ns" "app.util.querystring" [":require" ["[]" "clojure.string" ":as" "string"]]],
                              :defs {"parse-query" ["defn"
                                                    "parse-query"
@@ -2240,13 +2159,14 @@
                           :procs []},
          "comp.hydrate" {:ns ["ns"
                               "app.comp.hydrate"
-                              [":require-macros"
-                               ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "textarea" "button" "span"]]]
                               [":require"
                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                               ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
+                               ["[]"
+                                "respo.core"
+                                ":refer"
+                                ["[]" "defcomp" "div" "<>" ">>" "span" "input" "button" "textarea"]]
                                ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
-                               ["[]" "respo-ui.style" ":as" "ui"]
+                               ["[]" "respo-ui.core" ":as" "ui"]
                                ["[]" "app.style.widget" ":as" "widget"]
                                ["[]" "cljs.reader" ":refer" ["[]" "read-string"]]
                                ["[]" "app.util.detect" ":refer" ["[]" "cirru-vec?"]]]],
@@ -2272,7 +2192,7 @@
                                                 "comp-hydrate"
                                                 ["states"]
                                                 ["let"
-                                                 [["state" [":data" "states"]]]
+                                                 [["cursor" [":cursor" "states"]] ["state" [":data" "states"]]]
                                                  ["div"
                                                   ["{}"]
                                                   ["div"
@@ -2284,14 +2204,14 @@
                                                     ["{}"
                                                      [":value" "state"]
                                                      [":style" ["merge" "ui/textarea" "style-textarea"]]
-                                                     [":event" ["{}" [":input" ["on-change" "cursor"]]]]]]]
+                                                     [":on-input" ["on-change" "cursor"]]]]]
                                                   ["=<" "nil" "8"]
                                                   ["div"
                                                    ["{}" [":style" ["merge" "ui/row" "style-toolbar"]]]
                                                    ["button"
                                                     ["{}"
                                                      [":style" "widget/button"]
-                                                     [":event" ["{}" [":click" ["on-hydrate" "state"]]]]]
+                                                     [":on-click" ["on-hydrate" "state"]]]
                                                     ["<>" "span" "|Hydrate" "nil"]]]]]],
                                 "on-hydrate" ["defn"
                                               "on-hydrate"
@@ -2311,15 +2231,13 @@
                          :procs []},
          "comp.file-tree" {:ns ["ns"
                                 "app.comp.file-tree"
-                                [":require-macros"
-                                 ["[]"
-                                  "respo.macros"
-                                  ":refer"
-                                  ["[]" "defcomp" "cursor->" "<>" "div" "button" "input" "span"]]]
                                 [":require"
                                  ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                 ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
-                                 ["[]" "respo-ui.style" ":as" "ui"]
+                                 ["[]"
+                                  "respo.core"
+                                  ":refer"
+                                  ["[]" "defcomp" "div" "list->" ">>" "<>" "span" "input" "button"]]
+                                 ["[]" "respo-ui.core" ":as" "ui"]
                                  ["[]" "clojure.string" ":as" "string"]
                                  ["[]" "app.util" ":refer" ["[]" "segments->tree"]]
                                  ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
@@ -2330,7 +2248,8 @@
                                                     "comp-file-tree"
                                                     ["states" "store"]
                                                     ["let"
-                                                     [["state" [":data" "states"]]
+                                                     [["cursor" [":cursor" "states"]]
+                                                      ["state" [":data" "states"]]
                                                       ["ns-path" ["get-in" "store" ["[]" ":graph" ":ns-path"]]]
                                                       ["ns-text" ["string/join" "|." "ns-path"]]
                                                       ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]]
@@ -2341,7 +2260,7 @@
                                                       ["render-toolbar" "state" "cursor"]
                                                       ["div"
                                                        ["{}" [":style" ["merge" "ui/row" "style-body"]]]
-                                                       ["div"
+                                                       ["list->"
                                                         ["{}" [":style" "ui/row"]]
                                                         ["let"
                                                          [["ns-names" ["keys" "files"]]
@@ -2362,7 +2281,7 @@
                                                                ["string/join" "|/" "path"]
                                                                ["if"
                                                                 ["map?" "dict"]
-                                                                ["div"
+                                                                ["list->"
                                                                  ["{}" [":style" "style-column"]]
                                                                  ["->>"
                                                                   "dict"
@@ -2382,8 +2301,7 @@
                                                                           ["if"
                                                                            ["=" "ns-piece" "next-piece"]
                                                                            "style-highlight"]]]
-                                                                        [":event"
-                                                                         ["{}" [":click" ["on-view" "path" "ns-piece"]]]]]
+                                                                        [":on-click" ["on-view" "path" "ns-piece"]]]
                                                                        ["<>" "span" "ns-piece" "nil"]
                                                                        ["=<" "8" "nil"]
                                                                        ["let"
@@ -2393,7 +2311,7 @@
                                                                           ["<>" "span" ["count" "info"] "nil"]]
                                                                          [["=" ":file" "info"] ["<>" "span" "|." "nil"]]
                                                                          [":else" "nil"]]]]]]]]]]
-                                                                "nil"]]]]]
+                                                                ["span" ["{}"]]]]]]]
                                                            ["if"
                                                             ["=" "path" "ns-path"]
                                                             "next-children"
@@ -2401,10 +2319,8 @@
                                                        ["=<" "64" "nil"]
                                                        ["if"
                                                         ["contains?" "files" "ns-text"]
-                                                        ["cursor->"
-                                                         "ns-text"
-                                                         "comp-brief-file"
-                                                         "states"
+                                                        ["comp-brief-file"
+                                                         [">>" "states" "ns-text"]
                                                          "ns-text"
                                                          ["get" "files" "ns-text"]]]]]]],
                                   "style-body" ["def" "style-body" ["{}" [":flex" "1"] [":overflow" ":auto"]]],
@@ -2443,23 +2359,21 @@
                                                       ["{}"
                                                        [":inner-text" "|Graph"]
                                                        [":style" "widget/button"]
-                                                       [":event" ["{}" [":click" "on-graph"]]]]]
+                                                       [":on-click" "on-graph"]]]
                                                      ["=<" "8" "nil"]
                                                      ["button"
                                                       ["{}"
                                                        [":inner-text" "|Stack"]
                                                        [":style" "widget/button"]
-                                                       [":event" ["{}" [":click" "on-stack"]]]]]
+                                                       [":on-click" "on-stack"]]]
                                                      ["=<" "8" "nil"]
                                                      ["input"
                                                       ["{}"
                                                        [":value" "state"]
                                                        [":placeholder" "|ns/def or ns"]
                                                        [":style" "widget/input"]
-                                                       [":event"
-                                                        ["{}"
-                                                         [":input" ["on-change" "cursor"]]
-                                                         [":keydown" ["on-keydown" "state" "cursor"]]]]]]]],
+                                                       [":on-input" ["on-change" "cursor"]]
+                                                       [":on-keydown" ["on-keydown" "state" "cursor"]]]]]],
                                   "on-keydown" ["defn"
                                                 "on-keydown"
                                                 ["state" "cursor"]
@@ -2491,6 +2405,52 @@
                                               ["e" "d!" "m!"]
                                               ["d!" ":router/route" ["{}" [":name" ":workspace"] [":data" "nil"]]]]},
                            :procs []},
+         "page" {:ns ["ns"
+                      "app.page"
+                      [":require"
+                       ["[]" "respo.core" ":refer" ["[]" "create-element"]]
+                       ["[]"
+                        "respo.core"
+                        ":refer"
+                        ["[]" "html" "head" "title" "script" "style" "meta'" "div" "link" "body"]]
+                       ["[]" "respo.render.html" ":refer" ["[]" "make-string"]]
+                       ["[]" "app.comp.container" ":refer" ["[]" "comp-container"]]
+                       ["[]" "shell-page.core" ":refer" ["[]" "make-page" "slurp" "spit"]]
+                       ["[]" "app.schema" ":as" "schema"]]],
+                 :defs {"main!" ["defn"
+                                 "main!"
+                                 []
+                                 ["if"
+                                  ["=" "js/process.env.env" "|dev"]
+                                  ["spit" "|target/index.html" ["dev-page"]]
+                                  ["spit" "|dist/index.html" ["prod-page"]]]],
+                        "base-info" ["def"
+                                     "base-info"
+                                     ["{}"
+                                      [":title" "|Stack Editor"]
+                                      [":icon" "|http://logo.cirru.org/cirru-400x400.png"]
+                                      [":ssr" "nil"]
+                                      [":inilne-html" "|"]
+                                      [":styles" ["[]" "|http://cdn.tiye.me/favored-fonts/main-fonts.css"]]]],
+                        "prod-page" ["defn"
+                                     "prod-page"
+                                     []
+                                     ["let"
+                                      [["html-content" ["make-string" ["comp-container" "schema/store"]]]
+                                       ["manifest" ["js/JSON.parse" ["slurp" "|dist/manifest.json"]]]]
+                                      ["make-page"
+                                       "html-content"
+                                       ["merge"
+                                        "base-info"
+                                        ["{}"
+                                         [":styles" ["[]" ["aget" "manifest" "|main.css"]]]
+                                         [":scripts"
+                                          ["[]" ["aget" "manifest" "|vendor.js"] ["aget" "manifest" "|main.js"]]]]]]]],
+                        "dev-page" ["defn"
+                                    "dev-page"
+                                    []
+                                    ["make-page" "|" ["merge" "base-info" ["{}" [":scripts" ["[]" "|/client.js"]]]]]]},
+                 :procs []},
          "updater.collection" {:ns ["ns"
                                     "app.updater.collection"
                                     [":require"
@@ -2824,12 +2784,11 @@
                        :procs []},
          "comp.hot-corner" {:ns ["ns"
                                  "app.comp.hot-corner"
-                                 [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "span"]]]
                                  [":require"
                                   ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                  ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
+                                  ["[]" "respo.core" ":refer" ["[]" "defcomp" "<>" "div" "span"]]
                                   ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
-                                  ["[]" "respo-ui.style" ":as" "ui"]]],
+                                  ["[]" "respo-ui.core" ":as" "ui"]]],
                             :defs {"comp-hot-corner" ["defcomp"
                                                       "comp-hot-corner"
                                                       ["router" "writer"]
@@ -2841,7 +2800,7 @@
                                                           [":font-weight" "|300"]
                                                           [":text-align" "|center"]
                                                           [":cursor" "|pointer"]]]
-                                                        [":event" ["{}" [":click" ["on-switch" "router" "writer"]]]]]
+                                                        [":on-click" ["on-switch" "router" "writer"]]]
                                                        ["<>"
                                                         "span"
                                                         "|Stack Editor"
@@ -2981,7 +2940,7 @@
                     :procs []},
          "style.widget" {:ns ["ns"
                               "app.style.widget"
-                              [":require" ["[]" "hsl.core" ":refer" ["[]" "hsl"]] ["[]" "respo-ui.style" ":as" "ui"]]],
+                              [":require" ["[]" "hsl.core" ":refer" ["[]" "hsl"]] ["[]" "respo-ui.core" ":as" "ui"]]],
                          :defs {"entry-line" ["def" "entry-line" ["merge" "var-entry" ["{}" [":display" "|block"]]]],
                                 "clickable-text" ["def"
                                                   "clickable-text"

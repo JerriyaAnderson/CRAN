@@ -1,10 +1,9 @@
 
 (ns app.comp.stack
-  (:require-macros [respo.macros :refer [defcomp <> div span]])
   (:require [hsl.core :refer [hsl]]
+            [respo.core :refer [defcomp div list-> <> span input]]
             [clojure.string :as string]
-            [respo-ui.style :as ui]
-            [respo.core :refer [create-comp]]))
+            [respo-ui.core :as ui]))
 
 (def style-ns
   {:font-size "11px", :line-height 1.4, :color (hsl 0 0 50), :font-family "Hind"})
@@ -45,7 +44,7 @@
 (defcomp
  comp-stack
  (stack pointer)
- (div
+ (list->
   {:style (merge ui/flex style-container)}
   (->> stack
        (map-indexed
@@ -54,10 +53,10 @@
            (let [{ns-part :ns, kind :kind, extra-name :extra} item]
              (if (= kind :defs)
                (div
-                {:style style-bar, :event {:click (on-click idx)}}
+                {:style style-bar, :on-click (on-click idx)}
                 (div {:style (if (= idx pointer) style-bright)} (<> span extra-name nil))
                 (div {:style style-ns} (<> span ns-part nil)))
                (div
                 {:style (merge style-ns-main (if (= idx pointer) style-bright)),
-                 :event {:click (on-click idx)}}
+                 :on-click (on-click idx)}
                 (<> span ns-part nil))))])))))

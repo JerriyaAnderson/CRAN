@@ -1,9 +1,8 @@
 
 (ns app.comp.notifications
-  (:require-macros [respo.macros :refer [defcomp <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo-ui.style :as ui]
-            [respo.core :refer [create-comp]]))
+            [respo-ui.core :as ui]
+            [respo.core :refer [defcomp list-> div <> span input]]))
 
 (defn on-click [idx] (fn [e dispatch!] (dispatch! :notification/remove-since idx)))
 
@@ -25,7 +24,7 @@
 (defcomp
  comp-notifications
  (notifications)
- (div
+ (list->
   {}
   (->> notifications
        (map-indexed
@@ -33,5 +32,5 @@
           [(first entry)
            (div
             {:style (merge style-notification {:top (str (+ 8 (* 40 idx)) "px")}),
-             :event {:click (on-click idx)}}
+             :on-click (on-click idx)}
             (<> span (last entry) nil))])))))

@@ -1,10 +1,9 @@
 
 (ns app.comp.palette
-  (:require-macros [respo.macros :refer [defcomp div input]])
   (:require [clojure.string :as string]
             [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]
+            [respo.core :refer [defcomp list-> div <> span input]]
+            [respo-ui.core :as ui]
             [cirru-editor.util.dom :refer [focus!]]
             [app.comp.command :refer [comp-command]]
             [app.util.keycode :as keycode]
@@ -76,6 +75,7 @@
  comp-palette
  (states files)
  (let [ns-names (->> (keys files) (map (fn [path] [:ns path])))
+       cursor (:cursor states)
        state (or (:data states) initial-state)
        def-paths (->> files
                       (map
@@ -98,9 +98,9 @@
        :id "command-palette",
        :value (:text state),
        :style (merge widget/input {:width "100%", :line-height "40px"}),
-       :event {:input (on-input cursor state),
-               :keydown (on-keydown cursor state commands (:cursor state) files)}})
-     (div
+       :on-input (on-input cursor state),
+       :on-keydown (on-keydown cursor state commands (:cursor state) files)})
+     (list->
       {:style (merge ui/flex {:overflow "auto"})}
       (->> commands
            (map-indexed

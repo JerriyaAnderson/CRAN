@@ -1,9 +1,8 @@
 
 (ns app.comp.rename-path
-  (:require-macros [respo.macros :refer [defcomp <> div input span]])
-  (:require [respo.core :refer [create-comp]]
+  (:require [respo.core :refer [defcomp div <> span input]]
             [respo.comp.space :refer [=<]]
-            [respo-ui.style :as ui]
+            [respo-ui.core :as ui]
             [app.style.widget :as widget]
             [app.util.keycode :as keycode]))
 
@@ -38,9 +37,8 @@
       {:value state,
        :id "rename-box",
        :style (merge ui/input {:width 400}),
-       :event {:input on-input, :keydown (on-keydown code-path state)}})
+       :on-input on-input,
+       :on-keydown (on-keydown code-path state)})
      (=< 16 nil)
      (div
-      {:inner-text "Rename",
-       :style widget/button,
-       :event {:click (on-rename code-path state)}})))))
+      {:inner-text "Rename", :style widget/button, :on-click (on-rename code-path state)})))))

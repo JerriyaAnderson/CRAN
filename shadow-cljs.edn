@@ -1,23 +1,43 @@
-
-{:source-paths ["src"]
- :dependencies [[mvc-works/hsl        "0.1.2"]
-                [cumulo/shallow-diff  "0.1.3"]
-                [mvc-works/shell-page "0.1.2"]
-                [cirru/editor         "0.2.4"]
-                [respo                "0.5.13"]
-                [respo/ui             "0.2.0"]
-                [cljs-ajax            "0.5.8"]]
- :builds {:browser {:output-dir "target/browser"
-                    :asset-path "/browser"
-                    :target :browser
-                    :modules {:main {:entries [app.main]}}
-                    :devtools {:after-load app.main/reload!
-                               :preloads [shadow.cljs.devtools.client.hud]}}
-          :ssr {:target :node-script
-                :output-to "target/ssr.js"
-                :main app.render/main!
-                :devtools {:after-load app.render/main!}}
-          :release {:entries [app.main]
-                    :target :npm-module
-                    :output-dir "target/release/"
-                    :compiler-options {:pseudo-names true}}}}
+{
+  :source-paths ["src" "server"]
+  :dependencies [
+    [mvc-works/hsl "0.1.2"]
+    [cumulo/shallow-diff "0.1.3"]
+    [mvc-works/shell-page "0.1.10"]
+    [cirru/editor "0.3.0-a1"]
+    [respo "0.12.1"]
+    [respo/ui "0.3.14"]
+    [cljs-ajax "0.8.0"]
+    [cumulo/shallow-diff "0.1.3"]
+    [fipp "0.6.22"]
+    [cirru/sepal "0.2.7"]
+    [mvc-works/polyfill "0.1.1"]
+  ]
+  :open-file-command [
+    "subl"
+    ["%s:%s:%s" :file :line :column]
+  ]
+  :dev-http {7000 "target/"}
+  :builds {
+    :client {
+      :output-dir "target", :target :browser, :asset-path "./"
+      :modules {
+        :client {:init-fn app.main/main!}
+      }
+      :release {
+        :output-dir "dist/", :module-hash-names 8
+        :build-options {:manifest-name "assets.edn"}
+      }
+      :devtools {:after-load app.main/reload!}
+    }
+    :page {
+      :target :node-script, :output-to "target/page.js", :main app.page/main!
+      :devtools {:after-load app.page/main!}
+    }
+    :server {
+      :target :node-script, :main app.server/main!, :output-to "target/server.js"
+      :release {:output-to "dist/server.js"}
+      :devtools {:after-load app.server/reload!}
+    }
+  }
+}

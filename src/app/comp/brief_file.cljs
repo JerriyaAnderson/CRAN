@@ -1,10 +1,9 @@
 
 (ns app.comp.brief-file
-  (:require-macros [respo.macros :refer [defcomp div <> span input]])
   (:require [hsl.core :refer [hsl]]
+            [respo.core :refer [defcomp div list-> <> span input]]
             [clojure.string :as string]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]
+            [respo-ui.core :as ui]
             [respo.comp.space :refer [=<]]
             [app.style.widget :as widget]
             [app.util.keycode :as keycode]))
@@ -46,15 +45,12 @@
      {:style ui/row}
      (<> span ns-text nil)
      (=< 16 nil)
-     (span {:inner-text "ns", :style style-link, :event {:click (on-edit-ns ns-text)}})
+     (span {:inner-text "ns", :style style-link, :on-click (on-edit-ns ns-text)})
+     (=< 16 nil)
+     (span {:inner-text "procs", :style style-link, :on-click (on-edit-procs ns-text)})
      (=< 16 nil)
      (span
-      {:inner-text "procs", :style style-link, :event {:click (on-edit-procs ns-text)}})
-     (=< 16 nil)
-     (span
-      {:inner-text "Delete",
-       :style widget/clickable-text,
-       :event {:click (on-remove ns-text)}}))
+      {:inner-text "Delete", :style widget/clickable-text, :on-click (on-remove ns-text)}))
     (div
      {}
      (input
@@ -62,7 +58,7 @@
        :placeholder "new def",
        :style widget/input,
        :on {:input on-input, :keydown (on-keydown ns-text state)}}))
-    (div
+    (list->
      {}
      (->> (:defs file)
           (sort compare)
@@ -73,4 +69,4 @@
                 (div
                  {:inner-text (str def-text "↗"),
                   :style style-link,
-                  :event {:click (on-edit-def ns-text def-text)}})]))))))))
+                  :on-click (on-edit-def ns-text def-text)})]))))))))

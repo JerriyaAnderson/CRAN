@@ -1,9 +1,8 @@
 
 (ns app.comp.graph
-  (:require-macros [respo.macros :refer [defcomp cursor-> div button span <>]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]
+            [respo.core :refer [defcomp div list-> <> span input button]]
+            [respo-ui.core :as ui]
             [app.comp.def :refer [comp-def]]
             [app.util.detect :refer [def-order =def?]]
             [respo.comp.space :refer [=<]]
@@ -31,13 +30,13 @@
    {:style style-toolbar}
    (div
     {}
-    (button {:inner-text "Files", :style widget/button, :event {:click on-files}})
+    (button {:inner-text "Files", :style widget/button, :on-click on-files})
     (=< 8 nil)
-    (button {:inner-text "Edit", :style widget/button, :event {:click on-edit}})
+    (button {:inner-text "Edit", :style widget/button, :on-click on-edit})
     (=< 64 nil)
-    (button {:inner-text "Build tree", :style widget/button, :event {:click on-load}})
+    (button {:inner-text "Build tree", :style widget/button, :on-click on-load})
     (=< 8 nil)
-    (button {:inner-text "Find orphans", :style widget/button, :event {:click on-orphans}}))))
+    (button {:inner-text "Find orphans", :style widget/button, :on-click on-orphans}))))
 
 (defcomp
  comp-graph
@@ -50,7 +49,7 @@
         view-path (get-in store [:graph :path])]
     (println "tree" tree)
     (if (some? tree)
-      (div
+      (list->
        {:style (merge ui/row style-body)}
        (loop [branch root-tree, children [], path []]
          (let [next-path (conj path (get view-path (count path)))
@@ -58,7 +57,7 @@
                next-children (conj
                               children
                               [(count children)
-                               (div
+                               (list->
                                 {:style style-column}
                                 (->> (:deps branch)
                                      (sort def-order)

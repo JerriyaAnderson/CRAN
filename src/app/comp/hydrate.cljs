@@ -1,10 +1,9 @@
 
 (ns app.comp.hydrate
-  (:require-macros [respo.macros :refer [defcomp <> div textarea button span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
+            [respo.core :refer [defcomp div <> >> span input button textarea]]
             [respo.comp.space :refer [=<]]
-            [respo-ui.style :as ui]
+            [respo-ui.core :as ui]
             [app.style.widget :as widget]
             [cljs.reader :refer [read-string]]
             [app.util.detect :refer [cirru-vec?]]))
@@ -34,7 +33,7 @@
 (defcomp
  comp-hydrate
  (states)
- (let [state (:data states)]
+ (let [cursor (:cursor states), state (:data states)]
    (div
     {}
     (div {:style style-hint} (<> span "EDN Cirru code to hydrate:" nil))
@@ -43,10 +42,8 @@
      (textarea
       {:value state,
        :style (merge ui/textarea style-textarea),
-       :event {:input (on-change cursor)}}))
+       :on-input (on-change cursor)}))
     (=< nil 8)
     (div
      {:style (merge ui/row style-toolbar)}
-     (button
-      {:style widget/button, :event {:click (on-hydrate state)}}
-      (<> span "Hydrate" nil))))))
+     (button {:style widget/button, :on-click (on-hydrate state)} (<> span "Hydrate" nil))))))
