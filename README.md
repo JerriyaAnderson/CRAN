@@ -1,6 +1,8 @@
 
-Stack Editor
+[Deprecated, use Cumulo Editor instead!](https://github.com/Cirru/cumulo-editor).
 ----
+
+Stack Editor
 
 > A structured editor of Clojure(Script).
 
@@ -8,12 +10,6 @@ Stack Editor
 * [Editor Shortcuts](https://github.com/Cirru/stack-editor/wiki/Keyboard-Shortcuts)
 * [Code Shortcuts](https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts)
 * [Video Introduction](https://youtu.be/PdP7DHlQBoQ)
-
-### Deprecated
-
-Stack Editor has been evolved into [Cumulo Editor](https://github.com/Cirru/cumulo-editor).
-So that this project is no longer maintained.
-Cumulo Editor implements most features of Stack Editor, and provides more.
 
 ### Usage
 
