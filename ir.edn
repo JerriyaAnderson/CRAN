@@ -27,72 +27,74 @@
                            :procs []},
          "comp.brief-file" {:ns ["ns"
                                  "app.comp.brief-file"
-                                 [":require-macros" ["[]" "respo.macros" ":refer" ["[]" "defcomp" "div" "<>" "span"]]]
+                                 [":require-macros"
+                                  ["[]" "respo.macros" ":refer" ["[]" "defcomp" "div" "<>" "span" "input"]]]
                                  [":require"
                                   ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                                  ["[]" "clojure.string" ":as" "string"]
                                   ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
                                   ["[]" "respo-ui.style" ":as" "ui"]
                                   ["[]" "respo.comp.space" ":refer" ["[]" "=<"]]
-                                  ["[]" "app.style.widget" ":as" "widget"]]],
-                            :defs {"comp-brief-file" ["defcomp"
+                                  ["[]" "app.style.widget" ":as" "widget"]
+                                  ["[]" "app.util.keycode" ":as" "keycode"]]],
+                            :defs {"on-input" ["defn" "on-input" ["e" "d!" "m!"] ["m!" [":value" "e"]]],
+                                   "comp-brief-file" ["defcomp"
                                                       "comp-brief-file"
-                                                      ["ns-text" "file"]
-                                                      ["div"
-                                                       ["{}" [":style" "style-file"]]
+                                                      ["states" "ns-text" "file"]
+                                                      ["let"
+                                                       [["state" ["or" [":data" "states"] "|"]]]
                                                        ["div"
-                                                        ["{}" [":style" "ui/row"]]
-                                                        ["<>" "span" "ns-text" "nil"]
-                                                        ["=<" "16" "nil"]
+                                                        ["{}" [":style" "style-file"]]
                                                         ["div"
-                                                         ["{}"
-                                                          [":inner-text" "|ns"]
-                                                          [":style" "style-link"]
-                                                          [":event" ["{}" [":click" ["on-edit-ns" "ns-text"]]]]]]
-                                                        ["=<" "16" "nil"]
+                                                         ["{}" [":style" "ui/row"]]
+                                                         ["<>" "span" "ns-text" "nil"]
+                                                         ["=<" "16" "nil"]
+                                                         ["span"
+                                                          ["{}"
+                                                           [":inner-text" "|ns"]
+                                                           [":style" "style-link"]
+                                                           [":event" ["{}" [":click" ["on-edit-ns" "ns-text"]]]]]]
+                                                         ["=<" "16" "nil"]
+                                                         ["span"
+                                                          ["{}"
+                                                           [":inner-text" "|procs"]
+                                                           [":style" "style-link"]
+                                                           [":event" ["{}" [":click" ["on-edit-procs" "ns-text"]]]]]]
+                                                         ["=<" "16" "nil"]
+                                                         ["span"
+                                                          ["{}"
+                                                           [":inner-text" "|Delete"]
+                                                           [":style" "widget/clickable-text"]
+                                                           [":event" ["{}" [":click" ["on-remove" "ns-text"]]]]]]]
                                                         ["div"
-                                                         ["{}"
-                                                          [":inner-text" "|procs"]
-                                                          [":style" "style-link"]
-                                                          [":event" ["{}" [":click" ["on-edit-procs" "ns-text"]]]]]]
-                                                        ["=<" "16" "nil"]
-                                                        ["span"
-                                                         ["{}"
-                                                          [":inner-text" "|Delete"]
-                                                          [":style" "widget/clickable-text"]
-                                                          [":event" ["{}" [":click" ["on-remove" "ns-text"]]]]]]]
-                                                       ["div"
-                                                        ["{}"]
-                                                        ["->>"
-                                                         [":defs" "file"]
-                                                         ["sort" "compare"]
-                                                         ["map"
-                                                          ["fn"
-                                                           ["entry"]
-                                                           ["let"
-                                                            [["def-text" ["key" "entry"]]]
-                                                            ["[]"
-                                                             "def-text"
-                                                             ["div"
-                                                              ["{}"
-                                                               [":inner-text" ["str" "def-text" "|↗"]]
-                                                               [":style" "style-link"]
-                                                               [":event"
-                                                                ["{}" [":click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]]],
-                                   "style-file" ["def"
-                                                 "style-file"
-                                                 ["{}" [":padding" "|16px"] [":font-size" "16"] [":line-height" "1.6"]]],
-                                   "on-edit-ns" ["defn"
-                                                 "on-edit-ns"
-                                                 ["ns-text"]
-                                                 ["fn"
-                                                  ["e" "dispatch!"]
-                                                  ["dispatch!"
-                                                   ":collection/edit"
-                                                   ["{}"
-                                                    [":kind" ":ns"]
-                                                    [":ns" "ns-text"]
-                                                    [":extra" "nil"]
-                                                    [":focus" ["[]"]]]]]],
+                                                         ["{}"]
+                                                         ["input"
+                                                          ["{}"
+                                                           [":value" "state"]
+                                                           [":placeholder" "|new def"]
+                                                           [":style" "widget/input"]
+                                                           [":on"
+                                                            ["{}"
+                                                             [":input" "on-input"]
+                                                             [":keydown" ["on-keydown" "ns-text" "state"]]]]]]]
+                                                        ["div"
+                                                         ["{}"]
+                                                         ["->>"
+                                                          [":defs" "file"]
+                                                          ["sort" "compare"]
+                                                          ["map"
+                                                           ["fn"
+                                                            ["entry"]
+                                                            ["let"
+                                                             [["def-text" ["key" "entry"]]]
+                                                             ["[]"
+                                                              "def-text"
+                                                              ["div"
+                                                               ["{}"
+                                                                [":inner-text" ["str" "def-text" "|↗"]]
+                                                                [":style" "style-link"]
+                                                                [":event"
+                                                                 ["{}" [":click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]]]],
                                    "on-edit-procs" ["defn"
                                                     "on-edit-procs"
                                                     ["ns-text"]
@@ -106,6 +108,35 @@
                                                        [":extra" "nil"]
                                                        [":focus" ["[]"]]]]]],
                                    "style-link" ["def" "style-link" ["{}" [":cursor" ":pointer"]]],
+                                   "on-remove" ["defn"
+                                                "on-remove"
+                                                ["ns-text"]
+                                                ["fn" ["e" "d!" "m!"] ["d!" ":collection/remove-file" "ns-text"]]],
+                                   "on-keydown" ["defn"
+                                                 "on-keydown"
+                                                 ["ns-text" "def-text"]
+                                                 ["fn"
+                                                  ["e" "d!" "m!"]
+                                                  ["println" "|event"]
+                                                  ["if"
+                                                   ["=" "keycode/key-enter" [":key-code" "e"]]
+                                                   ["if"
+                                                    ["not" ["string/blank?" "def-text"]]
+                                                    ["do"
+                                                     ["d!" ":collection/add-definition" ["[]" "ns-text" "def-text"]]
+                                                     ["m!" "|"]]]]]],
+                                   "on-edit-ns" ["defn"
+                                                 "on-edit-ns"
+                                                 ["ns-text"]
+                                                 ["fn"
+                                                  ["e" "dispatch!"]
+                                                  ["dispatch!"
+                                                   ":collection/edit"
+                                                   ["{}"
+                                                    [":kind" ":ns"]
+                                                    [":ns" "ns-text"]
+                                                    [":extra" "nil"]
+                                                    [":focus" ["[]"]]]]]],
                                    "on-edit-def" ["defn"
                                                   "on-edit-def"
                                                   ["ns-text" "def-text"]
@@ -118,10 +149,9 @@
                                                      [":ns" "ns-text"]
                                                      [":extra" "def-text"]
                                                      [":focus" ["[]" "2"]]]]]],
-                                   "on-remove" ["defn"
-                                                "on-remove"
-                                                ["ns-text"]
-                                                ["fn" ["e" "d!" "m!"] ["d!" ":collection/remove-file" "ns-text"]]]},
+                                   "style-file" ["def"
+                                                 "style-file"
+                                                 ["{}" [":padding" "|16px"] [":font-size" "16"] [":line-height" "1.6"]]]},
                             :procs []},
          "comp.loading" {:ns ["ns"
                               "app.comp.loading"
@@ -2278,7 +2308,10 @@
          "comp.file-tree" {:ns ["ns"
                                 "app.comp.file-tree"
                                 [":require-macros"
-                                 ["[]" "respo.macros" ":refer" ["[]" "defcomp" "<>" "div" "button" "input" "span"]]]
+                                 ["[]"
+                                  "respo.macros"
+                                  ":refer"
+                                  ["[]" "defcomp" "cursor->" "<>" "div" "button" "input" "span"]]]
                                 [":require"
                                  ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
                                  ["[]" "respo.core" ":refer" ["[]" "create-comp"]]
@@ -2364,7 +2397,12 @@
                                                        ["=<" "64" "nil"]
                                                        ["if"
                                                         ["contains?" "files" "ns-text"]
-                                                        ["comp-brief-file" "ns-text" ["get" "files" "ns-text"]]]]]]],
+                                                        ["cursor->"
+                                                         "ns-text"
+                                                         "comp-brief-file"
+                                                         "states"
+                                                         "ns-text"
+                                                         ["get" "files" "ns-text"]]]]]]],
                                   "style-body" ["def" "style-body" ["{}" [":flex" "1"] [":overflow" ":auto"]]],
                                   "style-highlight" ["def"
                                                      "style-highlight"

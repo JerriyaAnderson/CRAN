@@ -1,6 +1,6 @@
 
 (ns app.comp.file-tree
-  (:require-macros [respo.macros :refer [defcomp <> div button input span]])
+  (:require-macros [respo.macros :refer [defcomp cursor-> <> div button input span]])
   (:require [hsl.core :refer [hsl]]
             [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]
@@ -99,4 +99,5 @@
                                   nil)])]
             (if (= path ns-path) next-children (recur next-children (conj path next-piece)))))))
      (=< 64 nil)
-     (if (contains? files ns-text) (comp-brief-file ns-text (get files ns-text)))))))
+     (if (contains? files ns-text)
+       (cursor-> ns-text comp-brief-file states ns-text (get files ns-text)))))))

@@ -4,7 +4,7 @@
                 [cumulo/shallow-diff  "0.1.3"]
                 [mvc-works/shell-page "0.1.2"]
                 [cirru/editor         "0.2.4"]
-                [respo                "0.5.12"]
+                [respo                "0.5.13"]
                 [respo/ui             "0.2.0"]
                 [cljs-ajax            "0.5.8"]]
  :builds {:browser {:output-dir "target/browser"
