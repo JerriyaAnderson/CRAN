@@ -7,8 +7,9 @@
             (respo.comp.text :refer (comp-text))
             (respo.comp.space :refer (comp-space))
             (app.comp.def :refer (comp-def))
-            (app.util.detect :refer (def-order))
-            (app.style.widget :as widget)))
+            (app.util.detect :refer (def-order =def?))
+            (app.style.widget :as widget)
+            (clojure.set :as set)))
 
 (def style-body {:flex 1, :overflow :auto})
 
@@ -41,25 +42,32 @@
  (div
   {:style (merge ui/fullscreen ui/column style-graph)}
   (render-toolbar)
-  (let [tree (get-in store [:graph :tree]), view-path (get-in store [:graph :path])]
+  (let [tree (get-in store [:graph :tree])
+        root-tree (assoc (get-in store [:collection :root]) :deps #{tree})
+        view-path (get-in store [:graph :path])]
     (div
      {:style (merge ui/row style-body)}
-     (loop [children [], path view-path]
-       (if (empty? path)
-         children
-         (let [path-cursor (first path)
-               rest-path (rest path)
-               next-cursor (first rest-path)
-               path-length (count children)
-               next-path (subvec view-path 0 (inc path-length))
-               next-children (conj
-                              children
-                              [path-length
-                               (div
-                                {:style style-column}
-                                (->> (:deps path-cursor)
-                                     (sort def-order)
-                                     (map-indexed
-                                      (fn [idx child-node]
-                                        [idx (comp-def child-node next-path next-cursor)]))))])]
-           (recur next-children rest-path))))))))
+     (loop [branch root-tree, children [], path []]
+       (let [next-path (conj path (get view-path (count path)))
+             next-pos (get view-path (count path))
+             next-children (conj
+                            children
+                            [(count children)
+                             (div
+                              {:style style-column}
+                              (->> (:deps branch)
+                                   (sort def-order)
+                                   (map-indexed
+                                    (fn [idx child-node]
+                                      [idx
+                                       (comp-def
+                                        child-node
+                                        path
+                                        (=def? next-pos child-node))]))))])]
+         (if (= path view-path)
+           next-children
+           (let [next-branch (->> (:deps branch)
+                                  (set/select
+                                   (fn [x] (=def? (get view-path (count path)) x)))
+                                  (first))]
+             (recur next-branch next-children next-path)))))))))

@@ -39,3 +39,5 @@
     (and (:external? x) (not (:external? y))) 1
     (and (:external? y) (not (:external? x))) -1
     :else (compare (str (:ns x) "/" (:def x)) (str (:ns y) "/" (:def y)))))
+
+(defn =def? [x y] (and (= (:ns x) (:ns y)) (= (:def x) (:def y))))

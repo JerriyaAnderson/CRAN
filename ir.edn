@@ -1144,8 +1144,9 @@
                              ["respo.comp.text" ":refer" ["comp-text"]]
                              ["respo.comp.space" ":refer" ["comp-space"]]
                              ["app.comp.def" ":refer" ["comp-def"]]
-                             ["app.util.detect" ":refer" ["def-order"]]
-                             ["app.style.widget" ":as" "widget"]]],
+                             ["app.util.detect" ":refer" ["def-order" "=def?"]]
+                             ["app.style.widget" ":as" "widget"]
+                             ["clojure.set" ":as" "set"]]],
                        :defs {"style-body" ["def" "style-body" ["{}" [":flex" "1"] [":overflow" ":auto"]]],
                               "style-graph" ["def"
                                              "style-graph"
@@ -1171,37 +1172,49 @@
                                              ["render-toolbar"]
                                              ["let"
                                               [["tree" ["get-in" "store" ["[]" ":graph" ":tree"]]]
+                                               ["root-tree"
+                                                ["assoc"
+                                                 ["get-in" "store" ["[]" ":collection" ":root"]]
+                                                 ":deps"
+                                                 ["#{}" "tree"]]]
                                                ["view-path" ["get-in" "store" ["[]" ":graph" ":path"]]]]
                                               ["div"
                                                ["{}" [":style" ["merge" "ui/row" "style-body"]]]
                                                ["loop"
-                                                ["[]" "children" ["[]"] "path" "view-path"]
-                                                ["if"
-                                                 ["empty?" "path"]
-                                                 "children"
-                                                 ["let"
-                                                  [["path-cursor" ["first" "path"]]
-                                                   ["rest-path" ["rest" "path"]]
-                                                   ["next-cursor" ["first" "rest-path"]]
-                                                   ["path-length" ["count" "children"]]
-                                                   ["next-path" ["subvec" "view-path" "0" ["inc" "path-length"]]]
-                                                   ["next-children"
-                                                    ["conj"
-                                                     "children"
-                                                     ["[]"
-                                                      "path-length"
-                                                      ["div"
-                                                       ["{}" [":style" "style-column"]]
-                                                       ["->>"
-                                                        [":deps" "path-cursor"]
-                                                        ["sort" "def-order"]
-                                                        ["map-indexed"
-                                                         ["fn"
-                                                          ["idx" "child-node"]
-                                                          ["[]"
-                                                           "idx"
-                                                           ["comp-def" "child-node" "next-path" "next-cursor"]]]]]]]]]]
-                                                  ["recur" "next-children" "rest-path"]]]]]]]],
+                                                ["[]" "branch" "root-tree" "children" ["[]"] "path" ["[]"]]
+                                                ["let"
+                                                 [["next-path" ["conj" "path" ["get" "view-path" ["count" "path"]]]]
+                                                  ["next-pos" ["get" "view-path" ["count" "path"]]]
+                                                  ["next-children"
+                                                   ["conj"
+                                                    "children"
+                                                    ["[]"
+                                                     ["count" "children"]
+                                                     ["div"
+                                                      ["{}" [":style" "style-column"]]
+                                                      ["->>"
+                                                       [":deps" "branch"]
+                                                       ["sort" "def-order"]
+                                                       ["map-indexed"
+                                                        ["fn"
+                                                         ["idx" "child-node"]
+                                                         ["[]"
+                                                          "idx"
+                                                          ["comp-def"
+                                                           "child-node"
+                                                           "path"
+                                                           ["=def?" "next-pos" "child-node"]]]]]]]]]]]
+                                                 ["if"
+                                                  ["=" "path" "view-path"]
+                                                  "next-children"
+                                                  ["let"
+                                                   [["next-branch"
+                                                     ["->>"
+                                                      [":deps" "branch"]
+                                                      ["set/select"
+                                                       ["fn" ["x"] ["=def?" ["get" "view-path" ["count" "path"]] "x"]]]
+                                                      ["first"]]]]
+                                                   ["recur" "next-branch" "next-children" "next-path"]]]]]]]]],
                               "render-toolbar" ["defn"
                                                 "render-toolbar"
                                                 []
@@ -1262,12 +1275,7 @@
                                                  ["pick-def-deps" "def-expr" "internal-ns" "this-file" "pkg"]]
                                                 ["--" "println" "ns-deps"]
                                                 ["println"]
-                                                ["->"
-                                                 "store"
-                                                 ["assoc-in" ["[]" ":graph" ":tree"] "deps-tree"]
-                                                 ["assoc-in"
-                                                  ["[]" ":graph" ":path"]
-                                                  ["[]" ["{}" [":deps" ["#{}" "deps-tree"]]]]]]]],
+                                                ["->" "store" ["assoc-in" ["[]" ":graph" ":tree"] "deps-tree"]]]],
                                  "view-path" ["defn"
                                               "view-path"
                                               ["store" "op-data"]
@@ -1377,15 +1385,15 @@
                            ["respo.comp.space" ":refer" ["comp-space"]]]],
                      :defs {"comp-def" ["defcomp"
                                         "comp-def"
-                                        ["child-node" "next-path" "next-cursor"]
+                                        ["child-node" "path" "selected?"]
                                         ["div"
                                          ["{}"
-                                          [":event" ["{}" [":click" ["on-view" "next-path" "child-node"]]]]
+                                          [":event" ["{}" [":click" ["on-view" "path" "child-node"]]]]
                                           [":style"
                                            ["merge"
                                             "style-def"
                                             ["if" [":external?" "child-node"] "style-external"]
-                                            ["if" ["=" "child-node" "next-cursor"] "style-highlight"]
+                                            ["if" "selected?" "style-highlight"]
                                             ["if" [":circular?" "child-node"] "style-circular"]]]]
                                          ["comp-text" ["str" [":ns" "child-node"] "| / " [":def" "child-node"]] "nil"]
                                          ["comp-space" "4" "nil"]
@@ -1406,7 +1414,11 @@
                                            [":ns" [":ns" "child-node"]]
                                            [":extra" [":def" "child-node"]]
                                            [":focus" ["[]"]]]]
-                                         ["dispatch!" ":graph/view-path" ["conj" "path" "child-node"]]]]],
+                                         ["dispatch!"
+                                          ":graph/view-path"
+                                          ["conj"
+                                           "path"
+                                           ["{}" [":ns" [":ns" "child-node"]] [":def" [":def" "child-node"]]]]]]]],
                             "style-circular" ["def" "style-circular" ["{}" [":text-decoration" ":underline"]]],
                             "style-def" ["def"
                                          "style-def"
@@ -2370,7 +2382,11 @@
                                              [":else"
                                               ["compare"
                                                ["str" [":ns" "x"] "|/" [":def" "x"]]
-                                               ["str" [":ns" "y"] "|/" [":def" "y"]]]]]]},
+                                               ["str" [":ns" "y"] "|/" [":def" "y"]]]]]],
+                               "=def?" ["defn"
+                                        "=def?"
+                                        ["x" "y"]
+                                        ["and" ["=" [":ns" "x"] [":ns" "y"]] ["=" [":def" "x"] [":def" "y"]]]]},
                         :procs []},
          "updater.modal" {:ns ["ns" "app.updater.modal"],
                           :defs {"mould" ["defn"

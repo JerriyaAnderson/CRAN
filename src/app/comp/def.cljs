@@ -13,7 +13,9 @@
       (dispatch!
        :collection/edit
        {:kind :defs, :ns (:ns child-node), :extra (:def child-node), :focus []})
-      (dispatch! :graph/view-path (conj path child-node)))))
+      (dispatch!
+       :graph/view-path
+       (conj path {:ns (:ns child-node), :def (:def child-node)})))))
 
 (def style-circular {:text-decoration :underline})
 
@@ -28,13 +30,13 @@
 
 (defcomp
  comp-def
- (child-node next-path next-cursor)
+ (child-node path selected?)
  (div
-  {:event {:click (on-view next-path child-node)},
+  {:event {:click (on-view path child-node)},
    :style (merge
            style-def
            (if (:external? child-node) style-external)
-           (if (= child-node next-cursor) style-highlight)
+           (if selected? style-highlight)
            (if (:circular? child-node) style-circular))}
   (comp-text (str (:ns child-node) " / " (:def child-node)) nil)
   (comp-space 4 nil)
