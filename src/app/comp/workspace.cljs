@@ -1,11 +1,10 @@
 
 (ns app.comp.workspace
-  (:require-macros [respo.macros :refer [defcomp cursor-> <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
+            [respo.core :refer [defcomp div <> >> span input]]
             [respo.comp.space :refer [=<]]
             [respo.comp.inspect :refer [comp-inspect]]
-            [respo-ui.style :as ui]
+            [respo-ui.core :as ui]
             [app.comp.hot-corner :refer [comp-hot-corner]]
             [app.comp.stack :refer [comp-stack]]
             [cirru-editor.comp.editor :refer [comp-editor]]
@@ -87,10 +86,8 @@
     (if (some? tree)
       (div
        {:style (merge ui/column ui/flex)}
-       (cursor->
-        :editor
-        comp-editor
-        states
+       (comp-editor
+        (>> states :editor)
         {:tree tree, :focus (:focus code-path), :clipboard (:clipboard writer)}
         on-update
         (on-command store))
@@ -100,13 +97,13 @@
          {:inner-text "Rename",
           :class-name "is-unremarkable",
           :style widget/clickable-text,
-          :event {:click (on-rename code-path)}})
+          :on-click (on-rename code-path)})
         (=< 8 nil)
         (div
          {:inner-text "Delete",
           :class-name "is-unremarkable",
           :style widget/clickable-text,
-          :event {:click on-remove}})))
+          :on-click on-remove})))
       (div
        {:style (merge ui/column ui/flex)}
        (div {:style style-removed} (<> span "No expression" nil)))))))

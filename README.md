@@ -1,5 +1,5 @@
 
-[Deprecated, use Cumulo Editor instead!](https://github.com/Cirru/cumulo-editor).
+[Deprecated, use Calcit Editor instead!](https://github.com/Cirru/calcit-editor).
 ----
 
 Stack Editor

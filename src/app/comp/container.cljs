@@ -1,20 +1,19 @@
 
 (ns app.comp.container
-  (:require-macros [respo.macros :refer [defcomp cursor-> <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
             [respo.comp.inspect :refer [comp-inspect]]
-            [respo-ui.style :as ui]
+            [respo.core :refer [defcomp div >> <> span input]]
+            [respo-ui.core :as ui]
             [app.comp.loading :refer [comp-loading]]
             [app.comp.workspace :refer [comp-workspace]]
             [app.comp.notifications :refer [comp-notifications]]
             [app.comp.palette :refer [comp-palette]]
             [app.comp.modal-stack :refer [comp-modal-stack]]
-            (app.comp.graph :refer (comp-graph))
+            [app.comp.graph :refer [comp-graph]]
             [app.util.keycode :as keycode]
             [app.util.dom :as dom]
             [app.style.widget :as widget]
-            (app.comp.file-tree :refer (comp-file-tree))))
+            [app.comp.file-tree :refer [comp-file-tree]]))
 
 (defcomp
  comp-container
@@ -27,8 +26,8 @@
       :loading (comp-loading)
       :workspace (comp-workspace store)
       :graph (comp-graph store)
-      :file-tree (cursor-> :file-tree comp-file-tree states store)
-      (<> span router nil))
+      :file-tree (comp-file-tree (>> states :file-tree) store)
+      (<> (str router) nil))
     (comp-notifications (:notifications store))
     (comment
      comp-inspect
@@ -36,5 +35,5 @@
      store
      {:bottom 0, :background-color (hsl 0 0 0), :opacity 1, :color :white})
     (if (:show-palette? router)
-      (cursor-> :palette comp-palette states (:files (:collection store))))
+      (comp-palette (>> states :palette) (:files (:collection store))))
     (comp-modal-stack states (:modal-stack store)))))

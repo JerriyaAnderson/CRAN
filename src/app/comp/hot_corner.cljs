@@ -1,10 +1,9 @@
 
 (ns app.comp.hot-corner
-  (:require-macros [respo.macros :refer [defcomp <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
+            [respo.core :refer [defcomp <> div span]]
             [respo.comp.space :refer [=<]]
-            [respo-ui.style :as ui]))
+            [respo-ui.core :as ui]))
 
 (defn on-switch [router writer]
   (fn [e dispatch!]
@@ -18,5 +17,5 @@
  (router writer)
  (div
   {:style {:font-size "24px", :font-weight "300", :text-align "center", :cursor "pointer"},
-   :event {:click (on-switch router writer)}}
+   :on-click (on-switch router writer)}
   (<> span "Stack Editor" {:font-family "Josefin Sans"})))

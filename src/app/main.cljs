@@ -4,7 +4,7 @@
             [app.schema :as schema]
             [app.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
-            [app.updater.core :refer [updater]]
+            [app.updater :refer [updater]]
             [app.util.keycode :as keycode]
             [app.util.dom :as dom]
             [app.util :refer [now!]]
@@ -73,5 +73,3 @@
   (load-collection! dispatch! true))
 
 (defn reload! [] (clear-cache!) (render-app! render!) (println "Code updated."))
-
-(set! js/window.onload main!)

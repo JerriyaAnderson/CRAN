@@ -1,9 +1,8 @@
 
 (ns app.comp.file-tree
-  (:require-macros [respo.macros :refer [defcomp cursor-> <> div button input span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]
+            [respo.core :refer [defcomp div list-> >> <> span input button]]
+            [respo-ui.core :as ui]
             [clojure.string :as string]
             [app.util :refer [segments->tree]]
             [respo.comp.space :refer [=<]]
@@ -42,15 +41,16 @@
 (defn render-toolbar [state cursor]
   (div
    {:style style-toolbar}
-   (button {:inner-text "Graph", :style widget/button, :event {:click on-graph}})
+   (button {:inner-text "Graph", :style widget/button, :on-click on-graph})
    (=< 8 nil)
-   (button {:inner-text "Stack", :style widget/button, :event {:click on-stack}})
+   (button {:inner-text "Stack", :style widget/button, :on-click on-stack})
    (=< 8 nil)
    (input
     {:value state,
      :placeholder "ns/def or ns",
      :style widget/input,
-     :event {:input (on-change cursor), :keydown (on-keydown state cursor)}})))
+     :on-input (on-change cursor),
+     :on-keydown (on-keydown state cursor)})))
 
 (def style-file
   {:cursor :pointer, :color (hsl 0 0 100 0.5), :white-space :nowrap, :font-size 16})
@@ -58,7 +58,8 @@
 (defcomp
  comp-file-tree
  (states store)
- (let [state (:data states)
+ (let [cursor (:cursor states)
+       state (:data states)
        ns-path (get-in store [:graph :ns-path])
        ns-text (string/join "." ns-path)
        files (get-in store [:collection :files])]
@@ -67,7 +68,7 @@
     (render-toolbar state cursor)
     (div
      {:style (merge ui/row style-body)}
-     (div
+     (list->
       {:style ui/row}
       (let [ns-names (keys files)
             segments (->> ns-names (map (fn [x] (string/split x "."))))
@@ -79,7 +80,7 @@
                                children
                                [(string/join "/" path)
                                 (if (map? dict)
-                                  (div
+                                  (list->
                                    {:style style-column}
                                    (->> dict
                                         (sort compare)
@@ -92,7 +93,7 @@
                                                         style-file
                                                         (if (= ns-piece next-piece)
                                                           style-highlight)),
-                                                :event {:click (on-view path ns-piece)}}
+                                                :on-click (on-view path ns-piece)}
                                                (<> span ns-piece nil)
                                                (=< 8 nil)
                                                (let [info (get dict ns-piece)]
@@ -100,8 +101,8 @@
                                                    (map? info) (<> span (count info) nil)
                                                    (= :file info) (<> span "." nil)
                                                    :else nil)))])))))
-                                  nil)])]
+                                  (span {}))])]
             (if (= path ns-path) next-children (recur next-children (conj path next-piece)))))))
      (=< 64 nil)
      (if (contains? files ns-text)
-       (cursor-> ns-text comp-brief-file states ns-text (get files ns-text)))))))
+       (comp-brief-file (>> states ns-text) ns-text (get files ns-text)))))))

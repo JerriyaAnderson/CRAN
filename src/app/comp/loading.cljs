@@ -1,9 +1,8 @@
 
 (ns app.comp.loading
-  (:require-macros [respo.macros :refer [defcomp <> span div]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]))
+            [respo.core :refer [defcomp div <> span input]]
+            [respo-ui.core :as ui]))
 
 (def style-loading
   {:background-color (hsl 200 40 10),

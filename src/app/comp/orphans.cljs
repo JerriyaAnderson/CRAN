@@ -1,9 +1,8 @@
 
 (ns app.comp.orphans
-  (:require-macros [respo.macros :refer [defcomp <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]))
+            [respo.core :refer [defcomp div list-> <> span input]]
+            [respo-ui.core :as ui]))
 
 (def style-container
   {:width 800, :height 400, :overflow :auto, :padding 16, :background (hsl 0 0 0 0.9)})
@@ -25,12 +24,11 @@
  (div
   {:style style-container}
   (div {} (<> span "Orphans:" style-title))
-  (div
+  (list->
    {}
    (->> orphans
         (map
          (fn [def-info]
            (let [def-id (str (:ns def-info) "/" (:def def-info))]
              [def-id
-              (div
-               {:inner-text def-id, :style style-def, :event {:click (on-edit def-info)}})])))))))
+              (div {:inner-text def-id, :style style-def, :on-click (on-edit def-info)})])))))))

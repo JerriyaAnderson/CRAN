@@ -1,5 +1,5 @@
 
-(ns app.style.widget (:require [hsl.core :refer [hsl]] [respo-ui.style :as ui]))
+(ns app.style.widget (:require [hsl.core :refer [hsl]] [respo-ui.core :as ui]))
 
 (def var-entry
   {:color (hsl 0 0 80),

@@ -1,9 +1,8 @@
 
 (ns app.comp.modal-stack
-  (:require-macros [respo.macros :refer [defcomp cursor-> <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.core :refer [create-comp]]
-            [respo-ui.style :as ui]
+            [respo.core :refer [defcomp list-> div <> >> span input]]
+            [respo-ui.core :as ui]
             [app.style.widget :as widget]
             [app.comp.rename-path :refer [comp-rename-path]]
             [app.comp.hydrate :refer [comp-hydrate]]
@@ -28,15 +27,15 @@
   (div
    {}
    (case title
-     :rename-path (cursor-> :rename-path comp-rename-path states data)
-     :hydrate (cursor-> :hydrate comp-hydrate states)
+     :rename-path (comp-rename-path (>> states :rename-path) data)
+     :hydrate (comp-hydrate (>> states :hydrate))
      :orphans (comp-orphans data)
      (<> span title nil))))
 
 (defcomp
  comp-modal-stack
  (states modal-stack)
- (div
+ (list->
   {}
   (->> modal-stack
        (map-indexed
@@ -44,5 +43,5 @@
           (let [kind (:kind modal), title (:title modal), data (:data modal)]
             [idx
              (div
-              {:style style-modal, :event {:click on-recycle}}
-              (div {:event {:click on-tip}} (renderer states kind title data)))]))))))
+              {:style style-modal, :on-click on-recycle}
+              (div {:on-click on-tip} (renderer states kind title data)))]))))))
