@@ -10,9 +10,9 @@
    :color (hsl 0 0 80),
    :font-size "32px",
    :font-weight "100",
-   :font-family "Josefin Sans"})
+   :font-family ui/font-fancy})
 
 (defcomp
  comp-loading
  ()
- (div {:style (merge ui/fullscreen ui/row-center style-loading)} (<> span "Loading..." nil)))
+ (div {:style (merge ui/fullscreen ui/row-center style-loading)} (<> "Loading..." nil)))

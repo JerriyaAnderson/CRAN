@@ -5,7 +5,6 @@
             [respo.comp.space :refer [=<]]
             [respo.comp.inspect :refer [comp-inspect]]
             [respo-ui.core :as ui]
-            [app.comp.hot-corner :refer [comp-hot-corner]]
             [app.comp.stack :refer [comp-stack]]
             [cirru-editor.comp.editor :refer [comp-editor]]
             [app.util.keycode :as keycode]
@@ -79,11 +78,8 @@
        code-path (get stack pointer)
        tree (if (some? code-path) (get-in store (make-path code-path)) nil)]
    (div
-    {:style (merge ui/fullscreen ui/row style-container)}
-    (div
-     {:style (merge ui/column style-sidebar)}
-     (comp-hot-corner router (:writer store))
-     (comp-stack stack pointer))
+    {:style (merge ui/expand ui/row style-container)}
+    (div {:style (merge ui/column style-sidebar)} (comp-stack stack pointer))
     (comment comp-inspect writer style-debugger)
     (if (some? tree)
       (div

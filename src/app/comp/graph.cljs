@@ -9,10 +9,6 @@
             [app.style.widget :as widget]
             [clojure.set :as set]))
 
-(defn on-edit [e dispatch!] (dispatch! :graph/edit-current nil))
-
-(defn on-files [e dispatch!] (dispatch! :router/route {:name :file-tree, :data nil}))
-
 (defn on-load [e dispatch!] (dispatch! :graph/load-graph nil))
 
 (defn on-orphans [e dispatch!] (dispatch! :graph/show-orphans nil))
@@ -24,10 +20,6 @@
    {:style style-toolbar}
    (div
     {}
-    (button {:inner-text "Files", :style widget/button, :on-click on-files})
-    (=< 8 nil)
-    (button {:inner-text "Edit", :style widget/button, :on-click on-edit})
-    (=< 64 nil)
     (button {:inner-text "Build tree", :style widget/button, :on-click on-load})
     (=< 8 nil)
     (button {:inner-text "Find orphans", :style widget/button, :on-click on-orphans}))))
@@ -42,12 +34,11 @@
  comp-graph
  (store)
  (div
-  {:style (merge ui/fullscreen ui/column style-graph)}
+  {:style (merge ui/expand ui/column style-graph)}
   (render-toolbar)
   (let [tree (get-in store [:graph :tree])
         root-tree (assoc (get-in store [:collection :root]) :deps #{tree})
         view-path (get-in store [:graph :path])]
-    (println "tree" tree)
     (if (some? tree)
       (list->
        {:style (merge ui/row style-body)}

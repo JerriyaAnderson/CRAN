@@ -40,5 +40,5 @@
    {:background-color (hsl 0 0 100 0.14),
     :color (hsl 0 0 100),
     :font-family "Source Code Pro,Menlo,monospace",
-    :width "320px",
+    :width "200px",
     :border :none}))

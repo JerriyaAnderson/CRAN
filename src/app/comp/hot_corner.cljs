@@ -4,18 +4,3 @@
             [respo.core :refer [defcomp <> div span]]
             [respo.comp.space :refer [=<]]
             [respo-ui.core :as ui]))
-
-(defn on-switch [router writer]
-  (fn [e dispatch!]
-    (if (= (:name router) :workspace)
-      (dispatch! :router/open-file-tree nil)
-      (if (not (empty? (:stack writer)))
-        (dispatch! :router/route {:name :workspace, :data nil})))))
-
-(defcomp
- comp-hot-corner
- (router writer)
- (div
-  {:style {:font-size "24px", :font-weight "300", :text-align "center", :cursor "pointer"},
-   :on-click (on-switch router writer)}
-  (<> span "Stack Editor" {:font-family "Josefin Sans"})))
