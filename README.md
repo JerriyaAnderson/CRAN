@@ -23,9 +23,10 @@ Demo of `ir.edn`
  :files {}}
 ```
 
-![Command Line](https://pbs.twimg.com/media/C_6W98iUQAQOn7Y.png:large)
-![Definitions](https://pbs.twimg.com/media/C9yqb_aUAAEVE-N.png:large)
-![Workspace](https://pbs.twimg.com/media/C9yqd79UAAABjvD.png:large)
+![Command Line](https://pbs.twimg.com/media/DClMKBMUIAAL5X5.png:large)
+![Workspace](https://pbs.twimg.com/media/DClL_EXVwAEATYj.png:large)
+![Dependency tree](https://pbs.twimg.com/media/DClL4oMUMAA1iIu.png:large)
+![Finder](https://pbs.twimg.com/media/DClMRUeVoAEl8Jz.png:large)
 
 ### Options
 

@@ -1460,7 +1460,6 @@
                         "main!" ["defn"
                                  "main!"
                                  []
-                                 ["enable-console-print!"]
                                  ["if"
                                   "server-rendered?"
                                   ["falsify-stage!"

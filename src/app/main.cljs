@@ -44,7 +44,6 @@
   (if @*focus-moved? (do (reset! *focus-moved? false) (focus!))))
 
 (defn main! []
-  (enable-console-print!)
   (if server-rendered?
     (falsify-stage! mount-target (render-element (comp-container @*store)) dispatch!))
   (render-app!)
