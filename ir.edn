@@ -27,7 +27,7 @@
                                                        ["div"
                                                         ["{}" [":style" "ui/row"]]
                                                         ["comp-text" "ns-text" "nil"]
-                                                        ["comp-space" "8" "nil"]
+                                                        ["comp-space" "16" "nil"]
                                                         ["div"
                                                          ["{}"
                                                           [":inner-text" "|ns"]
@@ -43,6 +43,7 @@
                                                         ["{}"]
                                                         ["->>"
                                                          [":defs" "file"]
+                                                         ["sort" "compare"]
                                                          ["map"
                                                           ["fn"
                                                            ["entry"]
@@ -52,11 +53,13 @@
                                                              "def-text"
                                                              ["div"
                                                               ["{}"
-                                                               [":inner-text" "def-text"]
+                                                               [":inner-text" ["str" "def-text" "|↗"]]
                                                                [":style" "style-link"]
                                                                [":event"
                                                                 ["{}" [":click" ["on-edit-def" "ns-text" "def-text"]]]]]]]]]]]]]],
-                                   "style-file" ["def" "style-file" ["{}" [":padding" "|16px"] [":line-height" "1.6"]]],
+                                   "style-file" ["def"
+                                                 "style-file"
+                                                 ["{}" [":padding" "|16px"] [":font-size" "16"] [":line-height" "1.6"]]],
                                    "on-edit-ns" ["defn"
                                                  "on-edit-ns"
                                                  ["ns-text"]
@@ -1153,6 +1156,10 @@
                                              ["{}" [":background-color" ["hsl" "0" "0" "0"]] [":overflow" ":auto"]]],
                               "on-load" ["defn" "on-load" ["e" "dispatch!"] ["dispatch!" ":graph/load-graph" "nil"]],
                               "style-toolbar" ["def" "style-toolbar" ["{}" [":padding" "16"]]],
+                              "on-files" ["defn"
+                                          "on-files"
+                                          ["e" "dispatch!"]
+                                          ["dispatch!" ":router/route" ["{}" [":name" ":file-tree"] [":data" "nil"]]]],
                               "style-column" ["def"
                                               "style-column"
                                               ["{}"
@@ -1214,20 +1221,24 @@
                                                   ["comp-space" "8" "nil"]
                                                   ["button"
                                                    ["{}"
-                                                    [":inner-text" "|Expand"]
+                                                    [":inner-text" "|Edit"]
+                                                    [":style" "widget/button"]
+                                                    [":event" ["{}" [":click" "on-edit"]]]]]
+                                                  ["comp-space" "64" "nil"]
+                                                  ["button"
+                                                   ["{}"
+                                                    [":inner-text" "|Build tree"]
                                                     [":style" "widget/button"]
                                                     [":event" ["{}" [":click" "on-load"]]]]]]]],
-                              "on-files" ["defn"
-                                          "on-files"
-                                          ["e" "dispatch!"]
-                                          ["dispatch!" ":router/route" ["{}" [":name" ":file-tree"] [":data" "nil"]]]]},
+                              "on-edit" ["defn" "on-edit" ["e" "dispatch!"] ["dispatch!" ":graph/edit-current" "nil"]]},
                        :procs []},
          "updater.graph" {:ns ["ns"
                                "app.updater.graph"
                                [":require"
                                 ["app.util.analyze"
                                  ":refer"
-                                 ["parse-ns-deps" "pick-dep" "pick-def-deps" "expand-deps-tree"]]]],
+                                 ["parse-ns-deps" "pick-dep" "pick-def-deps" "expand-deps-tree"]]
+                                ["app.util" ":refer" ["helper-put-path"]]]],
                           :defs {"load-graph" ["defn"
                                                "load-graph"
                                                ["store" "op-data"]
@@ -1268,7 +1279,24 @@
                                  "view-ns" ["defn"
                                             "view-ns"
                                             ["store" "op-data"]
-                                            ["assoc-in" "store" ["[]" ":graph" ":ns-path"] "op-data"]]},
+                                            ["assoc-in" "store" ["[]" ":graph" ":ns-path"] "op-data"]],
+                                 "edit-current" ["defn"
+                                                 "edit-current"
+                                                 ["store" "op"]
+                                                 ["let"
+                                                  [["maybe-path" ["last" ["get-in" "store" ["[]" ":graph" ":path"]]]]]
+                                                  ["if"
+                                                   ["some?" "maybe-path"]
+                                                   ["->"
+                                                    "store"
+                                                    ["update"
+                                                     ":writer"
+                                                     ["helper-put-path"
+                                                      [":ns" "maybe-path"]
+                                                      [":def" "maybe-path"]
+                                                      ["[]"]]]
+                                                    ["assoc" ":router" ["{}" [":name" ":workspace"] [":data" "nil"]]]]
+                                                   "store"]]]},
                           :procs []},
          "schema" {:ns ["ns" "app.schema"],
                    :defs {"store" ["def"
@@ -2163,6 +2191,7 @@
                                                [":graph/load-graph" "graph/load-graph"]
                                                [":graph/view-path" "graph/view-path"]
                                                [":graph/view-ns" "graph/view-ns"]
+                                               [":graph/edit-current" "graph/edit-current"]
                                                "default-handler"]]]
                                             ["handler" "store" "op-data" "op-id"]]],
                                 "default-handler" ["defn" "default-handler" ["store" "op-data"] "store"]},
@@ -2718,21 +2747,22 @@
                                                                        ["comp-text" "ns-piece" "nil"]
                                                                        ["comp-space" "8" "nil"]
                                                                        ["let"
-                                                                        [["info"
-                                                                          ["get-in" "dict" ["conj" "path" "ns-piece"]]]]
-                                                                        ["if"
-                                                                         ["map?" "info"]
-                                                                         ["comp-text" ["count" "info"] "nil"]]]]]]]]]]
+                                                                        [["info" ["get" "dict" "ns-piece"]]]
+                                                                        ["cond"
+                                                                         [["map?" "info"]
+                                                                          ["comp-text" ["count" "info"] "nil"]]
+                                                                         [["=" ":file" "info"] ["comp-text" "|." "nil"]]
+                                                                         [":else" "nil"]]]]]]]]]]
                                                                 "nil"]]]]]
                                                            ["if"
                                                             ["=" "path" "ns-path"]
                                                             "next-children"
                                                             ["recur" "next-children" ["conj" "path" "next-piece"]]]]]]]
-                                                       ["comp-space" "16" "nil"]
+                                                       ["comp-space" "64" "nil"]
                                                        ["if"
                                                         ["contains?" "files" "ns-text"]
                                                         ["comp-brief-file" "ns-text" ["get" "files" "ns-text"]]]]]]],
-                                  "style-body" ["def" "style-body" ["{}" [":flex" "1"]]],
+                                  "style-body" ["def" "style-body" ["{}" [":flex" "1"] [":overflow" ":auto"]]],
                                   "style-highlight" ["def"
                                                      "style-highlight"
                                                      ["{}" [":color" ["hsl" "0" "0" "100" "0.9"]]]],
@@ -2769,7 +2799,11 @@
                                               ["dispatch!" ":router/route" ["{}" [":name" ":graph"] [":data" "nil"]]]],
                                   "style-file" ["def"
                                                 "style-file"
-                                                ["{}" [":cursor" ":pointer"] [":color" ["hsl" "0" "0" "100" "0.5"]]]]},
+                                                ["{}"
+                                                 [":cursor" ":pointer"]
+                                                 [":color" ["hsl" "0" "0" "100" "0.5"]]
+                                                 [":white-space" ":nowrap"]
+                                                 [":font-size" "16"]]]},
                            :procs []},
          "updater.collection" {:ns ["ns"
                                     "app.updater.collection"
@@ -3180,7 +3214,7 @@
                           ["[]" "shallow-diff.diff" ":refer" ["[]" "diff"]]]],
                     :defs {"load-collection!" ["defn"
                                                "load-collection!"
-                                               ["dispatch!" "open-analyzer?"]
+                                               ["dispatch!" "open-graph?"]
                                                ["println" ["pr-str" "options"]]
                                                ["GET"
                                                 ["str"
@@ -3199,10 +3233,12 @@
                                                      ["js/alert" "|Cannot find a :package field"]]
                                                     ["dispatch!" ":collection/load" "sepal-data"]
                                                     ["if"
-                                                     "open-analyzer?"
-                                                     ["dispatch!"
-                                                      ":router/route"
-                                                      ["{}" [":name" ":analyzer"] [":data" "nil"]]]]
+                                                     "open-graph?"
+                                                     ["do"
+                                                      ["dispatch!"
+                                                       ":router/route"
+                                                       ["{}" [":name" ":graph"] [":data" "nil"]]]
+                                                      ["dispatch!" ":graph/load-graph" "nil"]]]
                                                     ["reset!" "*remote-sepal" "sepal-data"]]]]
                                                  [":error-handler"
                                                   ["fn"

@@ -40,5 +40,6 @@
                   :graph/load-graph graph/load-graph
                   :graph/view-path graph/view-path
                   :graph/view-ns graph/view-ns
+                  :graph/edit-current graph/edit-current
                   default-handler)]
     (handler store op-data op-id)))

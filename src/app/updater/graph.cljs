@@ -1,6 +1,7 @@
 
 (ns app.updater.graph
-  (:require (app.util.analyze :refer (parse-ns-deps pick-dep pick-def-deps expand-deps-tree))))
+  (:require (app.util.analyze :refer (parse-ns-deps pick-dep pick-def-deps expand-deps-tree))
+            (app.util :refer (helper-put-path))))
 
 (defn load-graph [store op-data]
   (let [root-info (get-in store [:collection :root])
@@ -21,3 +22,11 @@
 (defn view-path [store op-data] (assoc-in store [:graph :path] op-data))
 
 (defn view-ns [store op-data] (assoc-in store [:graph :ns-path] op-data))
+
+(defn edit-current [store op]
+  (let [maybe-path (last (get-in store [:graph :path]))]
+    (if (some? maybe-path)
+      (-> store
+          (update :writer (helper-put-path (:ns maybe-path) (:def maybe-path) []))
+          (assoc :router {:name :workspace, :data nil}))
+      store)))

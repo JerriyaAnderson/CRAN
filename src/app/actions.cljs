@@ -11,7 +11,7 @@
 (def options
   (merge {"port" "7010", "host" "localhost"} (parse-query (.-search js/location))))
 
-(defn load-collection! [dispatch! open-analyzer?]
+(defn load-collection! [dispatch! open-graph?]
   (println (pr-str options))
   (GET
    (str "http://" (get options "host") ":" (get options "port"))
@@ -19,7 +19,10 @@
       (let [sepal-data (read-string response)]
         (if (not (contains? sepal-data :package)) (js/alert "Cannot find a :package field"))
         (dispatch! :collection/load sepal-data)
-        (if open-analyzer? (dispatch! :router/route {:name :analyzer, :data nil}))
+        (if open-graph?
+          (do
+           (dispatch! :router/route {:name :graph, :data nil})
+           (dispatch! :graph/load-graph nil)))
         (reset! *remote-sepal sepal-data))),
     :error-handler (fn [error]
       (println error)

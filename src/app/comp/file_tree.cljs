@@ -11,7 +11,7 @@
             (app.comp.brief-file :refer (comp-brief-file))
             (app.style.widget :as widget)))
 
-(def style-body {:flex 1})
+(def style-body {:flex 1, :overflow :auto})
 
 (def style-highlight {:color (hsl 0 0 100 0.9)})
 
@@ -31,7 +31,8 @@
    {:style style-toolbar}
    (button {:inner-text "Graph", :style widget/button, :event {:click on-graph}})))
 
-(def style-file {:cursor :pointer, :color (hsl 0 0 100 0.5)})
+(def style-file
+  {:cursor :pointer, :color (hsl 0 0 100 0.5), :white-space :nowrap, :font-size 16})
 
 (defcomp
  comp-file-tree
@@ -72,9 +73,12 @@
                                                 :event {:click (on-view path ns-piece)}}
                                                (comp-text ns-piece nil)
                                                (comp-space 8 nil)
-                                               (let [info (get-in dict (conj path ns-piece))]
-                                                 (if (map? info) (comp-text (count info) nil))))])))))
+                                               (let [info (get dict ns-piece)]
+                                                 (cond
+                                                   (map? info) (comp-text (count info) nil)
+                                                   (= :file info) (comp-text "." nil)
+                                                   :else nil)))])))))
                                   nil)])]
             (if (= path ns-path) next-children (recur next-children (conj path next-piece)))))))
-     (comp-space 16 nil)
+     (comp-space 64 nil)
      (if (contains? files ns-text) (comp-brief-file ns-text (get files ns-text)))))))

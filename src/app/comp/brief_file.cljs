@@ -7,7 +7,7 @@
             [respo-ui.style :as ui]
             (respo.comp.space :refer (comp-space))))
 
-(def style-file {:padding "16px", :line-height 1.6})
+(def style-file {:padding "16px", :font-size 16, :line-height 1.6})
 
 (defn on-edit-ns [ns-text]
   (fn [e dispatch!]
@@ -31,18 +31,19 @@
   (div
    {:style ui/row}
    (comp-text ns-text nil)
-   (comp-space 8 nil)
+   (comp-space 16 nil)
    (div {:inner-text "ns", :style style-link, :event {:click (on-edit-ns ns-text)}})
    (comp-space 16 nil)
    (div {:inner-text "procs", :style style-link, :event {:click (on-edit-procs ns-text)}}))
   (div
    {}
    (->> (:defs file)
+        (sort compare)
         (map
          (fn [entry]
            (let [def-text (key entry)]
              [def-text
               (div
-               {:inner-text def-text,
+               {:inner-text (str def-text "↗"),
                 :style style-link,
                 :event {:click (on-edit-def ns-text def-text)}})])))))))

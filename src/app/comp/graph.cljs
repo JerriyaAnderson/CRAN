@@ -18,9 +18,11 @@
 
 (def style-toolbar {:padding 16})
 
+(defn on-files [e dispatch!] (dispatch! :router/route {:name :file-tree, :data nil}))
+
 (def style-column {:min-width 80, :overflow :auto, :padding "16px 16px", :flex-shrink 0})
 
-(defn on-files [e dispatch!] (dispatch! :router/route {:name :file-tree, :data nil}))
+(defn on-edit [e dispatch!] (dispatch! :graph/edit-current nil))
 
 (defn render-toolbar []
   (div
@@ -29,7 +31,9 @@
     {}
     (button {:inner-text "Files", :style widget/button, :event {:click on-files}})
     (comp-space 8 nil)
-    (button {:inner-text "Expand", :style widget/button, :event {:click on-load}}))))
+    (button {:inner-text "Edit", :style widget/button, :event {:click on-edit}})
+    (comp-space 64 nil)
+    (button {:inner-text "Build tree", :style widget/button, :event {:click on-load}}))))
 
 (defcomp
  comp-graph
