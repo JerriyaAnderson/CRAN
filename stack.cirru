@@ -135,7 +135,7 @@
         |default-handler $ [] |defn |default-handler ([] |store |op-data) (, |store)
       :procs $ []
     |util.keycode $ {} (:ns $ [] |ns |app.util.keycode)
-      :defs $ {} (|key-esc $ [] |def |key-esc |27) (|key-u $ [] |def |key-u |85) (|key-down $ [] |def |key-down |40) (|key-s $ [] |def |key-s |83) (|key-d $ [] |def |key-d |68) (|key-j $ [] |def |key-j |74) (|key-a $ [] |def |key-a |65) (|key-k $ [] |def |key-k |75) (|key-p $ [] |def |key-p |80) (|key-enter $ [] |def |key-enter |13) (|key-b $ [] |def |key-b |66) (|key-up $ [] |def |key-up |38) (|key-e $ [] |def |key-e |69)
+      :defs $ {} (|key-esc $ [] |def |key-esc |27) (|key-u $ [] |def |key-u |85) (|key-down $ [] |def |key-down |40) (|key-s $ [] |def |key-s |83) (|key-d $ [] |def |key-d |68) (|key-j $ [] |def |key-j |74) (|key-a $ [] |def |key-a |65) (|key-k $ [] |def |key-k |75) (|key-p $ [] |def |key-p |80) (|key-enter $ [] |def |key-enter |13) (|key-i $ [] |def |key-i |73) (|key-b $ [] |def |key-b |66) (|key-up $ [] |def |key-up |38) (|key-e $ [] |def |key-e |69)
       :procs $ []
     |updater.stack $ {}
       :ns $ [] |ns |app.updater.stack
@@ -183,7 +183,7 @@
                                   [] $ [] |def-deps
                                     [] |extract-deps
                                       [] |subvec ([] |val |entry) (, |2)
-                                      , |ns-part |file |pkg
+                                      , |ns-part|file |pkg
                                   [] |contains? |def-deps |def-as-dep
                               [] |map $ [] |fn ([] |entry)
                                 [] |{} ([] |:kind |:defs) ([] |:ns |ns-text) ([] |:extra $ [] |first |entry) ([] |:focus $ [] |[] |2)
@@ -509,8 +509,10 @@
                   [] |do ([] |.preventDefault |event) ([] |dispatch! |:stack/goto-definition |shift?)
                 [] ([] |= |code |keycode/key-u)
                   [] |do ([] |.preventDefault |event) ([] |dispatch! |:stack/dependents |nil)
-                [] ([] |= |code |keycode/key-k)
+                [] ([] |= |code |keycode/key-i)
                   [] |do ([] |.preventDefault |event) ([] |dispatch! |:stack/go-back |nil)
+                [] ([] |= |code |keycode/key-k)
+                  [] |do ([] |.preventDefault |event) ([] |dispatch! |:stack/shift $ [] |-> |store |:writer |:pointer)
                 [] ([] |= |code |keycode/key-j)
                   [] |do ([] |.preventDefault |event) ([] |dispatch! |:stack/go-next |nil)
                 [] ([] |= |code |keycode/key-s)

@@ -15,6 +15,8 @@
 
 (def key-esc 27)
 
+(def key-i 73)
+
 (def key-j 74)
 
 (def key-k 75)
