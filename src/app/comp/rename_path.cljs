@@ -1,9 +1,8 @@
 
 (ns app.comp.rename-path
-  (:require-macros (respo.macros :refer (defcomp)))
-  (:require [respo.alias :refer [div input]]
-            [respo.comp.text :refer [comp-text]]
-            [respo.comp.space :refer [comp-space]]
+  (:require-macros [respo.macros :refer [defcomp <> div input span]])
+  (:require [respo.core :refer [create-comp]]
+            [respo.comp.space :refer [=<]]
             [respo-ui.style :as ui]
             [app.style.widget :as widget]))
 
@@ -25,15 +24,15 @@
  (let [state (or (:data states) (init-state code-path))]
    (div
     {}
-    (div {} (comp-text (str "Rename in " (first code-path)) nil))
-    (div {} (comp-text (last code-path) nil))
+    (div {} (<> span (str "Rename in " (first code-path)) nil))
+    (div {} (<> span (last code-path) nil))
     (div
      {}
      (input
       {:style (merge ui/input {:width 400}),
        :attrs {:value state},
        :event {:input (on-input cursor)}})
-     (comp-space 16 nil)
+     (=< 16 nil)
      (div
       {:style widget/button,
        :attrs {:inner-text "Rename"},

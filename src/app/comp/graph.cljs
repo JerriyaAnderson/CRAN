@@ -1,15 +1,14 @@
 
 (ns app.comp.graph
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp cursor-> div button span <>]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div button]]
-            (respo-ui.style :as ui)
-            (respo.comp.text :refer (comp-text))
-            (respo.comp.space :refer (comp-space))
-            (app.comp.def :refer (comp-def))
-            (app.util.detect :refer (def-order =def?))
-            (app.style.widget :as widget)
-            (clojure.set :as set)))
+            [respo.core :refer [create-comp]]
+            [respo-ui.style :as ui]
+            [app.comp.def :refer [comp-def]]
+            [app.util.detect :refer [def-order =def?]]
+            [respo.comp.space :refer [=<]]
+            [app.style.widget :as widget]
+            [clojure.set :as set]))
 
 (def style-body {:flex 1, :overflow :auto})
 
@@ -33,11 +32,11 @@
    (div
     {}
     (button {:inner-text "Files", :style widget/button, :event {:click on-files}})
-    (comp-space 8 nil)
+    (=< 8 nil)
     (button {:inner-text "Edit", :style widget/button, :event {:click on-edit}})
-    (comp-space 64 nil)
+    (=< 64 nil)
     (button {:inner-text "Build tree", :style widget/button, :event {:click on-load}})
-    (comp-space 8 nil)
+    (=< 8 nil)
     (button {:inner-text "Find orphans", :style widget/button, :event {:click on-orphans}}))))
 
 (defcomp

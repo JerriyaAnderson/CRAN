@@ -1,6 +1,6 @@
 
 (ns app.main
-  (:require [respo.core :refer [render! clear-cache! render-element falsify-stage!]]
+  (:require [respo.core :refer [render! clear-cache! render-element realize-ssr!]]
             [app.schema :as schema]
             [app.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
@@ -12,6 +12,8 @@
              :refer
              [load-collection! submit-collection! submit-changes! display-code!]]
             [cirru-editor.util.dom :refer [focus!]]))
+
+(def ssr? (some? (.querySelector js/document "meta.server-rendered")))
 
 (def *focus-moved? (atom false))
 
@@ -35,19 +37,16 @@
              (identical? (:writer @*store) (:writer new-store)))))
       (reset! *store new-store))))
 
-(def server-rendered? (some? (.querySelector js/document "meta#server-rendered")))
-
 (def mount-target (.querySelector js/document ".app"))
 
-(defn render-app! []
-  (render! (comp-container @*store) mount-target dispatch!)
+(defn render-app! [renderer]
+  (renderer mount-target (comp-container @*store) dispatch!)
   (if @*focus-moved? (do (reset! *focus-moved? false) (focus!))))
 
 (defn main! []
-  (if server-rendered?
-    (falsify-stage! mount-target (render-element (comp-container @*store)) dispatch!))
-  (render-app!)
-  (add-watch *store :changes render-app!)
+  (if ssr? (render-app! realize-ssr!))
+  (render-app! render!)
+  (add-watch *store :changes (fn [] (render-app! render!)))
   (.addEventListener
    js/window
    "keydown"
@@ -73,6 +72,6 @@
   (println "app started!")
   (load-collection! dispatch! true))
 
-(defn reload! [] (clear-cache!) (render-app!) (println "Code updated."))
+(defn reload! [] (clear-cache!) (render-app! render!) (println "Code updated."))
 
 (set! js/window.onload main!)

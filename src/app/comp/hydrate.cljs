@@ -1,11 +1,9 @@
 
 (ns app.comp.hydrate
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp <> div textarea button span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div textarea button]]
-            [respo.comp.text :refer [comp-text]]
-            [respo.comp.space :refer [comp-space]]
-            [respo.comp.debug :refer [comp-debug]]
+            [respo.core :refer [create-comp]]
+            [respo.comp.space :refer [=<]]
             [respo-ui.style :as ui]
             [app.style.widget :as widget]
             [cljs.reader :refer [read-string]]
@@ -39,16 +37,16 @@
  (let [state (:data states)]
    (div
     {}
-    (div {:style style-hint} (comp-text "EDN Cirru code to hydrate:" nil))
+    (div {:style style-hint} (<> span "EDN Cirru code to hydrate:" nil))
     (div
      {}
      (textarea
       {:style (merge ui/textarea style-textarea),
        :attrs {:value state},
        :event {:input (on-change cursor)}}))
-    (comp-space nil 8)
+    (=< nil 8)
     (div
      {:style (merge ui/row style-toolbar)}
      (button
       {:style widget/button, :event {:click (on-hydrate state)}}
-      (comp-text "Hydrate" nil))))))
+      (<> span "Hydrate" nil))))))

@@ -1,16 +1,15 @@
 
 (ns app.comp.file-tree
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp <> div button input span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div button input]]
-            [respo.comp.text :refer [comp-text]]
+            [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]
-            (clojure.string :as string)
-            (app.util :refer (segments->tree))
-            (respo.comp.space :refer (comp-space))
-            (app.comp.brief-file :refer (comp-brief-file))
-            (app.style.widget :as widget)
-            (app.util.keycode :as keycode)))
+            [clojure.string :as string]
+            [app.util :refer [segments->tree]]
+            [respo.comp.space :refer [=<]]
+            [app.comp.brief-file :refer [comp-brief-file]]
+            [app.style.widget :as widget]
+            [app.util.keycode :as keycode]))
 
 (def style-body {:flex 1, :overflow :auto})
 
@@ -42,7 +41,7 @@
   (div
    {:style style-toolbar}
    (button {:inner-text "Graph", :style widget/button, :event {:click on-graph}})
-   (comp-space 8 nil)
+   (=< 8 nil)
    (input
     {:value state,
      :placeholder "ns/def or ns",
@@ -90,14 +89,14 @@
                                                         (if (= ns-piece next-piece)
                                                           style-highlight)),
                                                 :event {:click (on-view path ns-piece)}}
-                                               (comp-text ns-piece nil)
-                                               (comp-space 8 nil)
+                                               (<> span ns-piece nil)
+                                               (=< 8 nil)
                                                (let [info (get dict ns-piece)]
                                                  (cond
-                                                   (map? info) (comp-text (count info) nil)
-                                                   (= :file info) (comp-text "." nil)
+                                                   (map? info) (<> span (count info) nil)
+                                                   (= :file info) (<> span "." nil)
                                                    :else nil)))])))))
                                   nil)])]
             (if (= path ns-path) next-children (recur next-children (conj path next-piece)))))))
-     (comp-space 64 nil)
+     (=< 64 nil)
      (if (contains? files ns-text) (comp-brief-file ns-text (get files ns-text)))))))

@@ -6,9 +6,8 @@
   "scripts": {
     "tiye": "rsync -r dist/ cirru.org:repo/Cirru/stack-editor",
     "release": "shadow-cljs release release",
-    "watch": "shadow-cljs watch dev",
-    "compile": "shadow-cljs compile npm",
-    "watch-npm": "shadow-cljs watch npm",
+    "watch": "shadow-cljs watch browser",
+    "compile-ssr": "shadow-cljs compile ssr",
     "html-dev": "env=dev node target/app.render.js",
     "html": "node target/app.render.js",
     "hmr": "webpack-dev-server --config webpack.dev.coffee --hot-only",
@@ -16,7 +15,7 @@
     "dev": "yarn compile && yarn html-dev && yarn hmr",
     "del": "rm -rf dist/*",
     "serve": "http-server dist",
-    "build": "yarn del && yarn release && yarn webpack && yarn compile && yarn html"
+    "build": "yarn del && yarn release && yarn webpack && yarn compile-ssr && yarn html"
   },
   "repository": {
     "type": "git",
@@ -30,7 +29,7 @@
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
     "respo-ui": "^0.1.2",
-    "shadow-cljs": "^0.12.0",
+    "shadow-cljs": "^0.14.0",
     "source-map-loader": "^0.2.1",
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",

@@ -1,9 +1,8 @@
 
 (ns app.comp.orphans
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div]]
-            [respo.comp.text :refer [comp-text]]
+            [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]))
 
 (def style-container
@@ -25,7 +24,7 @@
  (orphans)
  (div
   {:style style-container}
-  (div {} (comp-text "Orphans:" style-title))
+  (div {} (<> span "Orphans:" style-title))
   (div
    {}
    (->> orphans

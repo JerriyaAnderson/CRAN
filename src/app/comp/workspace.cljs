@@ -1,12 +1,10 @@
 
 (ns app.comp.workspace
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp cursor-> <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div]]
-            [respo.cursor :refer [with-cursor]]
-            [respo.comp.text :refer [comp-text]]
-            [respo.comp.space :refer [comp-space]]
-            [respo.comp.debug :refer [comp-debug]]
+            [respo.core :refer [create-comp]]
+            [respo.comp.space :refer [=<]]
+            [respo.comp.inspect :refer [comp-inspect]]
             [respo-ui.style :as ui]
             [app.comp.hot-corner :refer [comp-hot-corner]]
             [app.comp.stack :refer [comp-stack]]
@@ -84,26 +82,26 @@
      {:style (merge ui/column style-sidebar)}
      (comp-hot-corner router (:writer store))
      (comp-stack stack pointer))
-    (comment comp-debug writer style-debugger)
+    (comment comp-inspect writer style-debugger)
     (if (some? tree)
       (div
        {:style (merge ui/column ui/flex)}
-       (with-cursor
+       (cursor->
         :editor
-        (comp-editor
-         (:editor states)
-         {:tree tree, :focus (:focus code-path), :clipboard (:clipboard writer)}
-         on-update
-         (on-command store)))
+        comp-editor
+        states
+        {:tree tree, :focus (:focus code-path), :clipboard (:clipboard writer)}
+        on-update
+        (on-command store))
        (div
         {:style (merge ui/row style-toolbar)}
         (div
          {:style widget/button,
           :event {:click (on-rename code-path)},
           :attrs {:inner-text "Rename"}})
-        (comp-space 8 nil)
+        (=< 8 nil)
         (div
          {:style widget/button, :event {:click on-remove}, :attrs {:inner-text "Remove"}})))
       (div
        {:style (merge ui/column ui/flex)}
-       (div {:style style-removed} (comp-text "Tree is be removed." nil)))))))
+       (div {:style style-removed} (<> span "Tree is be removed." nil)))))))

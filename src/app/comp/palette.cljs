@@ -1,11 +1,10 @@
 
 (ns app.comp.palette
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp div input]])
   (:require [clojure.string :as string]
             [hsl.core :refer [hsl]]
-            [respo.alias :refer [div input]]
+            [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]
-            [respo.comp.text :refer [comp-text]]
             [cirru-editor.util.dom :refer [focus!]]
             [app.comp.command :refer [comp-command]]
             [app.util.keycode :as keycode]

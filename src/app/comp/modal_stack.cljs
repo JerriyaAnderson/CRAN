@@ -1,16 +1,13 @@
 
 (ns app.comp.modal-stack
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp cursor-> <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div span]]
-            [respo.cursor :refer [with-cursor]]
-            [respo.comp.text :refer [comp-text]]
-            [respo.comp.debug :refer [comp-debug]]
+            [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]
             [app.style.widget :as widget]
             [app.comp.rename-path :refer [comp-rename-path]]
             [app.comp.hydrate :refer [comp-hydrate]]
-            (app.comp.orphans :refer (comp-orphans))))
+            [app.comp.orphans :refer [comp-orphans]]))
 
 (defn on-tip [e dispatch!] )
 
@@ -31,10 +28,10 @@
   (div
    {}
    (case title
-     :rename-path (with-cursor :rename-path (comp-rename-path (:rename-path states) data))
-     :hydrate (with-cursor :hydrate (comp-hydrate (:hydrate states)))
+     :rename-path (cursor-> :rename-path comp-rename-path states data)
+     :hydrate (cursor-> :hydrate comp-hydrate states)
      :orphans (comp-orphans data)
-     (comp-text title nil))))
+     (<> span title nil))))
 
 (defcomp
  comp-modal-stack

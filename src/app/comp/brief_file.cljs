@@ -1,11 +1,10 @@
 
 (ns app.comp.brief-file
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp div <> span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div]]
-            [respo.comp.text :refer [comp-text]]
+            [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]
-            (respo.comp.space :refer (comp-space))))
+            [respo.comp.space :refer [=<]]))
 
 (def style-file {:padding "16px", :font-size 16, :line-height 1.6})
 
@@ -30,10 +29,10 @@
   {:style style-file}
   (div
    {:style ui/row}
-   (comp-text ns-text nil)
-   (comp-space 16 nil)
+   (<> span ns-text nil)
+   (=< 16 nil)
    (div {:inner-text "ns", :style style-link, :event {:click (on-edit-ns ns-text)}})
-   (comp-space 16 nil)
+   (=< 16 nil)
    (div {:inner-text "procs", :style style-link, :event {:click (on-edit-procs ns-text)}}))
   (div
    {}

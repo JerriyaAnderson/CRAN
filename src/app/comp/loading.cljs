@@ -1,9 +1,8 @@
 
 (ns app.comp.loading
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp <> span div]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div]]
-            [respo.comp.text :refer [comp-text]]
+            [respo.core :refer [create-comp]]
             [respo-ui.style :as ui]))
 
 (def style-loading
@@ -17,6 +16,4 @@
 (defcomp
  comp-loading
  ()
- (div
-  {:style (merge ui/fullscreen ui/row-center style-loading)}
-  (comp-text "Loading..." nil)))
+ (div {:style (merge ui/fullscreen ui/row-center style-loading)} (<> span "Loading..." nil)))

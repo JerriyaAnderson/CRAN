@@ -1,11 +1,10 @@
 
 (ns app.comp.def
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp div button span <>]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div button]]
-            (respo-ui.style :as ui)
-            (respo.comp.text :refer (comp-text))
-            (respo.comp.space :refer (comp-space))))
+            [respo.core :refer [create-comp]]
+            [respo-ui.style :as ui]
+            [respo.comp.space :refer [=<]]))
 
 (defn on-view [path child-node]
   (fn [e dispatch!]
@@ -38,7 +37,7 @@
            (if (:external? child-node) style-external)
            (if selected? style-highlight)
            (if (:circular? child-node) style-circular))}
-  (comp-text (str (:ns child-node) " / " (:def child-node)) nil)
-  (comp-space 4 nil)
+  (<> span (str (:ns child-node) " / " (:def child-node)) nil)
+  (=< 4 nil)
   (let [many-deps (count (:deps child-node))]
-    (if (pos? many-deps) (comp-text many-deps style-count)))))
+    (if (pos? many-deps) (<> span many-deps style-count)))))

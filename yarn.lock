@@ -2786,17 +2786,17 @@ sha.js@^2.3.6:
   dependencies:
     inherits "^2.0.1"
 
-shadow-cljs-jar@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/shadow-cljs-jar/-/shadow-cljs-jar-0.7.0.tgz#a2b35c680be6420c20600402db791790d0e116ae"
+shadow-cljs-jar@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/shadow-cljs-jar/-/shadow-cljs-jar-0.10.0.tgz#9895e6e5ccfde1c7b673737b1dfd9149194b644f"
 
-shadow-cljs@^0.12.0:
-  version "0.12.0"
-  resolved "https://registry.yarnpkg.com/shadow-cljs/-/shadow-cljs-0.12.0.tgz#7f896a92bb67fed45eeb2f2dd202a918ae4ff264"
+shadow-cljs@^0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/shadow-cljs/-/shadow-cljs-0.14.0.tgz#815aa56e248bf544cf07738c8121c80d0987656e"
   dependencies:
     mkdirp "^0.5.1"
     readline-sync "^1.4.7"
-    shadow-cljs-jar "^0.7.0"
+    shadow-cljs-jar "^0.10.0"
     source-map-support "^0.4.15"
     ws "^3.0.0"
 

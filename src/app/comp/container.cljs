@@ -1,11 +1,9 @@
 
 (ns app.comp.container
-  (:require-macros (respo.macros :refer (defcomp)))
+  (:require-macros [respo.macros :refer [defcomp cursor-> <> div span]])
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [div span]]
-            [respo.cursor :refer [with-cursor]]
-            [respo.comp.text :refer [comp-text]]
-            [respo.comp.debug :refer [comp-debug]]
+            [respo.core :refer [create-comp]]
+            [respo.comp.inspect :refer [comp-inspect]]
             [respo-ui.style :as ui]
             [app.comp.loading :refer [comp-loading]]
             [app.comp.workspace :refer [comp-workspace]]
@@ -29,10 +27,10 @@
       :loading (comp-loading)
       :workspace (comp-workspace store)
       :graph (comp-graph store)
-      :file-tree (with-cursor :file-tree (comp-file-tree (:file-tree states) store))
-      (comp-text router nil))
+      :file-tree (cursor-> :file-tree comp-file-tree states store)
+      (<> span router nil))
     (comp-notifications (:notifications store))
     (comment comp-debug (:writer store) {:bottom 0})
     (if (:show-palette? router)
-      (with-cursor :palette (comp-palette (:palette states) (:files (:collection store)))))
+      (cursor-> :palette comp-palette states (:files (:collection store))))
     (comp-modal-stack states (:modal-stack store)))))
