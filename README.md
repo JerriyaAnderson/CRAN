@@ -9,6 +9,14 @@ Stack Editor
 * [Code Shortcuts](https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts)
 * [Video Introduction](https://youtu.be/PdP7DHlQBoQ)
 
+### Deprecated
+
+Stack Editor has been evolved into [Cumulo Editor](https://github.com/Cirru/cumulo-editor).
+So that this project is no longer maintained.
+Cumulo Editor implements most features of Stack Editor, and provides more.
+
+### Usage
+
 [Server part](https://github.com/Cirru/stack-server):
 
 ```bash
