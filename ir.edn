@@ -2709,7 +2709,7 @@
                                                   ["=" [":name" "router"] ":workspace"]
                                                   ["dispatch!"
                                                    ":router/route"
-                                                   ["{}" [":name" ":graph"] [":data" "nil"]]]
+                                                   ["{}" [":name" ":file-tree"] [":data" "nil"]]]
                                                   ["if"
                                                    ["not" ["empty?" [":stack" "writer"]]]
                                                    ["dispatch!"
@@ -2726,7 +2726,7 @@
                           ["[]" "shallow-diff.diff" ":refer" ["[]" "diff"]]]],
                     :defs {"load-collection!" ["defn"
                                                "load-collection!"
-                                               ["dispatch!" "open-graph?"]
+                                               ["dispatch!" "file-tree?"]
                                                ["println" ["pr-str" "options"]]
                                                ["GET"
                                                 ["str"
@@ -2745,12 +2745,12 @@
                                                      ["js/alert" "|Cannot find a :package field"]]
                                                     ["dispatch!" ":collection/load" "sepal-data"]
                                                     ["if"
-                                                     "open-graph?"
+                                                     "file-tree?"
                                                      ["do"
                                                       ["dispatch!"
                                                        ":router/route"
-                                                       ["{}" [":name" ":graph"] [":data" "nil"]]]
-                                                      ["dispatch!" ":graph/load-graph" "nil"]]]
+                                                       ["{}" [":name" ":file-tree"] [":data" "nil"]]]
+                                                      ["--" "dispatch!" ":graph/load-graph" "nil"]]]
                                                     ["reset!" "*remote-sepal" "sepal-data"]]]]
                                                  [":error-handler"
                                                   ["fn"

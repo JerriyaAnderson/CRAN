@@ -12,7 +12,7 @@
     "html": "node target/app.render.js",
     "hmr": "webpack-dev-server --config webpack.dev.coffee --hot-only",
     "webpack": "webpack --config webpack.release.coffee --hide-modules --progress",
-    "dev": "yarn compile && yarn html-dev && yarn hmr",
+    "dev": "yarn compile-ssr && yarn html-dev && yarn hmr",
     "del": "rm -rf dist/*",
     "serve": "http-server dist",
     "build": "yarn del && yarn release && yarn webpack && yarn compile-ssr && yarn html"
