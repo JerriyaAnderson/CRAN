@@ -10,8 +10,7 @@
             [app.style.widget :as widget]
             [app.util.detect :refer [fuzzy-search]]))
 
-(defn on-input [cursor state]
-  (fn [e dispatch!] (dispatch! :states [cursor (merge state {:text (:value e), :cursor 0})])))
+(def basic-commands [[:save] [:load] [:hydrate] [:dehydrate] [:graph]])
 
 (defn handle-command [cursor commands files dispatch!]
   (let [command (get (into [] commands) cursor)]
@@ -37,18 +36,12 @@
         (do
          (dispatch!
           :collection/edit
-          {:ns (get command 1), :kind :procs, :extra nil, :focus [0]}))
-      nil)))
-
-(def style-container
-  {:position "fixed", :background-color (hsl 200 40 10 0.8), :justify-content "center"})
-
-(defn on-select [cursor commands files]
-  (fn [dispatch!] (handle-command cursor commands files dispatch!)))
+          {:ns (get command 1), :kind :procs, :extra nil, :focus [0]})))))
 
 (def initial-state {:text "", :cursor 0})
 
-(def basic-commands [[:save] [:load] [:hydrate] [:dehydrate] [:graph]])
+(defn on-input [cursor state]
+  (fn [e dispatch!] (dispatch! :states [cursor (merge state {:text (:value e), :cursor 0})])))
 
 (defn on-keydown [respo-cursor state commands cursor collection]
   (fn [e dispatch!]
@@ -70,6 +63,12 @@
            (dispatch! :states [respo-cursor (merge state {:text ""})])
            (handle-command cursor commands collection dispatch!))
         :else nil))))
+
+(defn on-select [cursor commands files]
+  (fn [dispatch!] (handle-command cursor commands files dispatch!)))
+
+(def style-container
+  {:position "fixed", :background-color (hsl 200 40 10 0.8), :justify-content "center"})
 
 (defcomp
  comp-palette

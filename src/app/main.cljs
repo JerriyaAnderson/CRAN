@@ -13,8 +13,6 @@
              [load-collection! submit-collection! submit-changes! display-code!]]
             [cirru-editor.util.dom :refer [focus!]]))
 
-(def ssr? (some? (.querySelector js/document "meta.server-rendered")))
-
 (def *focus-moved? (atom false))
 
 (defonce *store (atom schema/store))
@@ -42,6 +40,8 @@
 (defn render-app! [renderer]
   (renderer mount-target (comp-container @*store) dispatch!)
   (if @*focus-moved? (do (reset! *focus-moved? false) (focus!))))
+
+(def ssr? (some? (.querySelector js/document "meta.server-rendered")))
 
 (defn main! []
   (if ssr? (render-app! realize-ssr!))

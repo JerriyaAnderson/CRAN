@@ -9,21 +9,15 @@
             [app.style.widget :as widget]
             [clojure.set :as set]))
 
-(def style-body {:flex 1, :overflow :auto})
-
-(def style-graph {:background-color (hsl 0 0 0), :overflow :auto})
-
-(defn on-load [e dispatch!] (dispatch! :graph/load-graph nil))
-
-(def style-toolbar {:padding 16})
+(defn on-edit [e dispatch!] (dispatch! :graph/edit-current nil))
 
 (defn on-files [e dispatch!] (dispatch! :router/route {:name :file-tree, :data nil}))
 
-(def style-column {:min-width 80, :overflow :auto, :padding "16px 16px", :flex-shrink 0})
+(defn on-load [e dispatch!] (dispatch! :graph/load-graph nil))
 
 (defn on-orphans [e dispatch!] (dispatch! :graph/show-orphans nil))
 
-(defn on-edit [e dispatch!] (dispatch! :graph/edit-current nil))
+(def style-toolbar {:padding 16})
 
 (defn render-toolbar []
   (div
@@ -37,6 +31,12 @@
     (button {:inner-text "Build tree", :style widget/button, :on-click on-load})
     (=< 8 nil)
     (button {:inner-text "Find orphans", :style widget/button, :on-click on-orphans}))))
+
+(def style-body {:flex 1, :overflow :auto})
+
+(def style-column {:min-width 80, :overflow :auto, :padding "16px 16px", :flex-shrink 0})
+
+(def style-graph {:background-color (hsl 0 0 0), :overflow :auto})
 
 (defcomp
  comp-graph

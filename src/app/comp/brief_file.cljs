@@ -8,15 +8,19 @@
             [app.style.widget :as widget]
             [app.util.keycode :as keycode]))
 
-(defn on-input [e d! m!] (m! (:value e)))
+(defn on-edit-def [ns-text def-text]
+  (fn [e dispatch!]
+    (dispatch! :collection/edit {:kind :defs, :ns ns-text, :extra def-text, :focus [2]})))
+
+(defn on-edit-ns [ns-text]
+  (fn [e dispatch!]
+    (dispatch! :collection/edit {:kind :ns, :ns ns-text, :extra nil, :focus []})))
 
 (defn on-edit-procs [ns-text]
   (fn [e dispatch!]
     (dispatch! :collection/edit {:kind :procs, :ns ns-text, :extra nil, :focus []})))
 
-(def style-link {:cursor :pointer})
-
-(defn on-remove [ns-text] (fn [e d! m!] (d! :collection/remove-file ns-text)))
+(defn on-input [e d! m!] (m! (:value e)))
 
 (defn on-keydown [ns-text def-text]
   (fn [e d! m!]
@@ -25,15 +29,11 @@
       (if (not (string/blank? def-text))
         (do (d! :collection/add-definition [ns-text def-text]) (m! ""))))))
 
-(defn on-edit-ns [ns-text]
-  (fn [e dispatch!]
-    (dispatch! :collection/edit {:kind :ns, :ns ns-text, :extra nil, :focus []})))
-
-(defn on-edit-def [ns-text def-text]
-  (fn [e dispatch!]
-    (dispatch! :collection/edit {:kind :defs, :ns ns-text, :extra def-text, :focus [2]})))
+(defn on-remove [ns-text] (fn [e d! m!] (d! :collection/remove-file ns-text)))
 
 (def style-file {:padding "16px", :font-size 16, :line-height 1.6})
+
+(def style-link {:cursor :pointer})
 
 (defcomp
  comp-brief-file

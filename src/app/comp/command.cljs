@@ -4,14 +4,14 @@
             [respo.core :refer [defcomp div <> span input]]
             [hsl.core :refer [hsl]]))
 
+(defn on-click [on-select] (fn [e dispatch!] (on-select dispatch!)))
+
 (def style-command
   {:backgroud-color (hsl 0 0 0),
    :padding "0 8px",
    :line-height 2.4,
    :font-family "Source Code Pro, Menlo,monospace",
    :cursor "pointer"})
-
-(defn on-click [on-select] (fn [e dispatch!] (on-select dispatch!)))
 
 (defcomp
  comp-command

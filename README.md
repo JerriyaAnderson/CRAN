@@ -19,7 +19,7 @@ Stack Editor
 npm install -g stack-editor
 ```
 
-Create `ir.edn`:
+Create `stack.cirru`:
 
 ```clojure
 {:package "demo"
@@ -29,7 +29,7 @@ Create `ir.edn`:
 Run editor:
 
 ```bash
-stack-editor ir.edn
+stack-editor stack.cirru
 ```
 
 ![Command Line](https://pbs.twimg.com/media/DClMKBMUIAAL5X5.png:large)
@@ -49,7 +49,7 @@ For the UI part of the editor, it's based on the address:
 For the [server part](https://github.com/Cirru/stack-server), is an npm command line:
 
 ```bash
-op=watch port=7010 extension=.cljs out=src/ stack-editor ir.edn
+op=watch port=7010 extension=.cljs out=src/ stack-editor stack.cirru
 ```
 
 * `port`, defaults to `7010`, server port corresponding to the UI part
