@@ -184,7 +184,10 @@
                                   (:focus code-path))))))]
           (-> store
               (touch-def)
-              (update :writer (helper-put-path shorten-ns (:def dep-info) [2]))))
+              (update
+               :writer
+               (helper-put-path
+                {:kind :defs, :ns shorten-ns, :extra (:def dep-info), :focus [2]}))))
         (-> store
             (update
              :notifications

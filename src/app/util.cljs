@@ -1,6 +1,7 @@
 
 (ns app.util
-  (:require [app.util.detect :refer [contains-def? =path?]] (clojure.string :as string)))
+  (:require [app.util.detect :refer [contains-def? =path? find-by]]
+            (clojure.string :as string)))
 
 (defn remove-idx [xs idx]
   (let [xs-size (count xs)]
@@ -24,31 +25,25 @@
         code-path (get stack pointer)]
     (concat (make-path code-path) (:focus code-path))))
 
-(defn helper-put-ns [ns-name]
+(defn helper-put-path [code-path]
   (fn [writer]
-    (-> writer
-        (update :pointer inc)
-        (update
-         :stack
-         (fn [stack]
-           (conj
-            (subvec stack 0 (inc (:pointer writer)))
-            {:ns ns-name, :kind :ns, :extra nil, :focus []}))))))
-
-(defn helper-put-path [ns-part name-part focus]
-  (fn [writer]
-    (-> writer
-        (update
-         :stack
-         (fn [stack]
-           (let [next-pointer (inc (:pointer writer))
-                 code-path {:ns ns-part, :kind :defs, :extra name-part, :focus focus}]
-             (if (< (dec (count stack)) next-pointer)
-               (conj stack code-path)
-               (if (=path? code-path (get stack next-pointer))
-                 stack
-                 (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
-        (update :pointer inc))))
+    (let [next-pointer (inc (:pointer writer))
+          stack (:stack writer)
+          matched-idx (find-by (fn [x] (=path? x code-path)) stack)]
+      (if (>= matched-idx 0)
+        (-> writer (assoc :pointer matched-idx))
+        (if (empty? stack)
+          (assoc writer :stack [code-path] :pointer 0)
+          (-> writer
+              (update :pointer inc)
+              (update
+               :stack
+               (fn [stack]
+                 (if (>= next-pointer (dec (count stack)))
+                   (conj stack code-path)
+                   (if (=path? code-path (get stack next-pointer))
+                     stack
+                     (conj (into [] (subvec stack 0 next-pointer)) code-path)))))))))))
 
 (defn drop-pkg [x pkg] (if (string? x) (string/replace x (str pkg ".") "") x))
 

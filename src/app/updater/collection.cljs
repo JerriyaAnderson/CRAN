@@ -3,7 +3,7 @@
   (:require [clojure.string :as string]
             [app.util
              :refer
-             [helper-notify helper-put-ns make-path view-focused make-focus-path]]
+             [helper-notify helper-put-path make-path view-focused make-focus-path]]
             [app.util.detect :refer [=path?]]))
 
 (defn rename [store op-data op-id]
@@ -92,27 +92,7 @@
 (defn edit [store op-data]
   (let [path op-data]
     (-> store
-        (update
-         :writer
-         (fn [writer]
-           (let [stack (:stack writer)
-                 pos (loop [xs stack, x 0]
-                       (if (empty? xs)
-                         -1
-                         (do
-                          (println path (first xs))
-                          (if (=path? path (first xs)) x (recur (rest xs) (inc x))))))]
-             (if (neg? pos)
-               (-> writer
-                   (assoc :focus [2])
-                   (update :pointer (fn [p] (if (empty? stack) p (inc p))))
-                   (update
-                    :stack
-                    (fn [stack]
-                      (if (empty? stack)
-                        [path]
-                        (conj (subvec stack 0 (inc (:pointer writer))) path)))))
-               (-> writer (assoc :pointer pos))))))
+        (update :writer (helper-put-path op-data))
         (assoc :router {:name :workspace, :data nil}))))
 
 (defn add-definition [store op-data]
@@ -132,13 +112,19 @@
       (let [guess-ns (view-focused store)
             ns-name (if (some? guess-ns) (string/replace guess-ns (str pkg ".") "") nil)]
         (if (and (some? ns-name) (some? (get-in store [:collection :files ns-name])))
-          (update store :writer (helper-put-ns ns-name))
+          (update
+           store
+           :writer
+           (helper-put-path {:ns ns-name, :kind :ns, :extra nil, :focus []}))
           (update
            store
            :notifications
            (fn [notifications]
              (into [] (cons [op-id (str "\"" ns-name "\" not found")] notifications))))))
-      (update store :writer (helper-put-ns (:ns code-path))))))
+      (update
+       store
+       :writer
+       (helper-put-path {:ns (:ns code-path), :kind :ns, :extra nil, :focus []})))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]

@@ -25,6 +25,9 @@
   (let [maybe-path (last (get-in store [:graph :path]))]
     (if (some? maybe-path)
       (-> store
-          (update :writer (helper-put-path (:ns maybe-path) (:def maybe-path) []))
+          (update
+           :writer
+           (helper-put-path
+            {:ns (:ns maybe-path), :kind :defs, :extra (:def maybe-path), :focus []}))
           (assoc :router {:name :workspace, :data nil}))
       store)))
