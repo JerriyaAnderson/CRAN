@@ -1,0 +1,42 @@
+name: npm publish
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker://timbru31/java-node:latest
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+
+      - name: Get yarn cache
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        name: Cache node modules of yarn
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache Clojars
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-clojars
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('shadow-cljs.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-clojars
+
+      - run: yarn && yarn shadow-cljs release server && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}

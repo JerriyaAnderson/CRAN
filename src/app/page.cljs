@@ -5,7 +5,8 @@
             [respo.render.html :refer [make-string]]
             [app.comp.container :refer [comp-container]]
             [shell-page.core :refer [make-page slurp spit]]
-            [app.schema :as schema]))
+            [app.schema :as schema]
+            [cljs.reader :refer [read-string]]))
 
 (def base-info
   {:title "Stack Editor",
@@ -16,13 +17,10 @@
 
 (defn prod-page []
   (let [html-content (make-string (comp-container schema/store))
-        manifest (js/JSON.parse (slurp "dist/manifest.json"))]
+        assets (read-string (slurp "dist/assets.edn"))]
     (make-page
      html-content
-     (merge
-      base-info
-      {:styles [(aget manifest "main.css")],
-       :scripts [(aget manifest "vendor.js") (aget manifest "main.js")]}))))
+     (merge base-info {:styles [], :scripts (map (fn [x] (:output-name x)) assets)}))))
 
 (defn dev-page [] (make-page "" (merge base-info {:scripts ["/client.js"]})))
 
