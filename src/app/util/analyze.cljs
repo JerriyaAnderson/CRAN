@@ -86,27 +86,31 @@
 (defn expand-deps-tree [internal-ns def-text files pkg parents]
   (let [this-file (get files internal-ns)
         def-expr (get-in this-file [:defs def-text])
-        def-deps (extract-deps (subvec def-expr 2) internal-ns this-file pkg)
         stamp {:ns internal-ns, :def def-text}
         base-dep {:ns internal-ns, :def def-text, :external? false, :circular? false}]
-    (if (contains? parents stamp)
-      (assoc base-dep :circular? true)
-      (assoc
-       base-dep
-       :deps
-       (->> def-deps
-            (map
-             (fn [dep-info]
-               (if (:external? dep-info)
-                 dep-info
-                 (let [child-internal-ns (string/replace-first
-                                          (:ns dep-info)
-                                          (str pkg ".")
-                                          "")
-                       child-def (:def dep-info)
-                       next-parents (conj parents stamp)]
-                   (expand-deps-tree child-internal-ns child-def files pkg next-parents)))))
-            (into #{}))))))
+    (if (nil? def-expr)
+      (assoc base-dep :external? true)
+      (if (contains? parents stamp)
+        (assoc base-dep :circular? true)
+        (assoc
+         base-dep
+         :deps
+         (let [def-deps (if (some? def-expr)
+                          (extract-deps (subvec def-expr 2) internal-ns this-file pkg)
+                          nil)]
+           (->> def-deps
+                (map
+                 (fn [dep-info]
+                   (if (:external? dep-info)
+                     dep-info
+                     (let [child-internal-ns (string/replace-first
+                                              (:ns dep-info)
+                                              (str pkg ".")
+                                              "")
+                           child-def (:def dep-info)
+                           next-parents (conj parents stamp)]
+                       (expand-deps-tree child-internal-ns child-def files pkg next-parents)))))
+                (into #{}))))))))
 
 (defn list-dependent-ns [ns-name files pkg]
   (let [full-ns (str pkg "." ns-name)
