@@ -2,7 +2,7 @@
 {:source-paths ["src"]
  :dependencies [[mvc-works/hsl        "0.1.2"]
                 [cumulo/shallow-diff  "0.1.3"]
-                [cirru/editor         "0.2.0"]
+                [cirru/editor         "0.2.1"]
                 [respo                "0.4.5"]
                 [respo/ui             "0.2.0"]
                 [respo/border         "0.1.0"]

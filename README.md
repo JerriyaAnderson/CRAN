@@ -2,7 +2,7 @@
 Stack Editor
 ----
 
-> A ClojureScript implementation of [Clouditor](https://github.com/Cirru/clouditor/), which is a structured editor beyond the concepts of files and syntax.
+> A structured editor of Clojure(Script).
 
 * [Client App](http://repo.cirru.org/stack-editor/)
 * [Editor Shortcuts](https://github.com/Cirru/stack-editor/wiki/Keyboard-Shortcuts)
