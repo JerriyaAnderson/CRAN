@@ -115,8 +115,7 @@
           (update
            store
            :notifications
-           (fn [notifications]
-             (into [] (cons [op-id (str "\"" ns-name "\" not found")] notifications))))))
+           (fn [notifications] (helper-notify op-id (str "\"" ns-name "\" not found"))))))
       (update
        store
        :writer

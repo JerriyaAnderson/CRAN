@@ -62,15 +62,17 @@
                                           matched-defs (->> some-defs
                                                             (filter
                                                              (fn [entry]
-                                                               (let [[name-part tree] entry]
-                                                                 (comment
-                                                                  println
+                                                               (let [[def-text tree] entry]
+                                                                 (println
                                                                   "Detecting def:"
                                                                   ns-name
-                                                                  name-part)
-                                                                 (tree-contains?
-                                                                  (subvec tree 2)
-                                                                  extra-name))))
+                                                                  def-text)
+                                                                 (and (not=
+                                                                       extra-name
+                                                                       def-text)
+                                                                      (tree-contains?
+                                                                       (subvec tree 2)
+                                                                       extra-name)))))
                                                             (map
                                                              (fn [entry]
                                                                {:ns ns-name,
@@ -88,7 +90,9 @@
                              (filter (fn [xs] (not (empty? xs))))
                              (apply concat))]
           (println "Got new paths:" new-paths)
-          (update store :writer (push-paths new-paths)))
+          (if (empty? new-paths)
+            (update store :notifications (helper-notify op-id "Nothing found."))
+            (update store :writer (push-paths new-paths))))
       :ns
         (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) pkg)
               new-paths (map (fn [x] [x :ns]) ns-list)]
