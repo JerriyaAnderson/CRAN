@@ -1,7 +1,7 @@
 
 (ns stack-editor.updater.collection
   (:require [clojure.string :as string]
-            [stack-editor.util :refer [helper-notify helper-put-ns make-path]]
+            [stack-editor.util :refer [helper-notify helper-put-ns make-path view-focused]]
             [stack-editor.util.detect :refer [=path?]]))
 
 (defn rename [store op-data op-id]
@@ -152,7 +152,7 @@
                           (if (=path? path (first xs)) x (recur (rest xs) (inc x))))))]
              (if (neg? pos)
                (-> writer
-                   (assoc :focus [])
+                   (assoc :focus [2])
                    (update :pointer (fn [p] (if (empty? stack) p (inc p))))
                    (update
                     :stack
@@ -175,9 +175,9 @@
         pointer (:pointer writer)
         code-path (get stack pointer)
         pkg (get-in store [:collection :package])]
-    (println "Edit ns:" code-path)
+    (comment println "Edit ns:" code-path)
     (if (= (:kind code-path) :ns)
-      (let [guess-ns (get-in store (concat [:collection :files] code-path (:focus writer)))
+      (let [guess-ns (view-focused store)
             ns-name (if (some? guess-ns) (string/replace guess-ns (str pkg ".") "") nil)]
         (if (and (some? ns-name) (some? (get-in store [:collection :files ns-name])))
           (update store :writer (helper-put-ns ns-name))
@@ -186,7 +186,7 @@
            :notifications
            (fn [notifications]
              (into [] (cons [op-id (str "\"" ns-name "\" not found")] notifications))))))
-      (let [ns-part (:ns code-path)] (update store :writer (helper-put-ns ns-part))))))
+      (update store :writer (helper-put-ns (:ns code-path))))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]

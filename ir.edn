@@ -576,13 +576,6 @@
                                          ["into"
                                           ["[]"]
                                           ["concat" ["subvec" "xs" "0" "idx"] ["subvec" "xs" ["inc" "idx"]]]]]]]],
-                        "now!" ["defn" "now!" [] [".now" "js/performance"]],
-                        "helper-notify" ["defn"
-                                         "helper-notify"
-                                         ["op-id" "data"]
-                                         ["fn"
-                                          ["notifications"]
-                                          ["into" ["[]"] ["cons" ["[]" "op-id" "data"] "notifications"]]]],
                         "helper-put-ns" ["defn"
                                          "helper-put-ns"
                                          ["ns-name"]
@@ -602,41 +595,6 @@
                                                [":kind" ":ns"]
                                                [":extra" "nil"]
                                                [":focus" ["[]"]]]]]]]]],
-                        "make-path" ["defn"
-                                     "make-path"
-                                     ["info"]
-                                     ["let"
-                                      [["kind" [":kind" "info"]]]
-                                      ["if"
-                                       ["=" "kind" ":defs"]
-                                       ["[]" ":collection" ":files" [":ns" "info"] ":defs" [":extra" "info"]]
-                                       ["[]" ":collection" ":files" [":ns" "info"] "kind"]]]],
-                        "helper-create-def" ["defn"
-                                             "helper-create-def"
-                                             ["ns-part" "name-part" "code-path" "focus"]
-                                             ["fn"
-                                              ["files"]
-                                              ["if"
-                                               ["contains-def?" "files" "ns-part" "name-part"]
-                                               "files"
-                                               ["assoc-in"
-                                                "files"
-                                                ["[]" "ns-part" ":defs" "name-part"]
-                                                ["let"
-                                                 [["as-fn?"
-                                                   ["and" ["not" ["empty?" "focus"]] ["zero?" ["last" "focus"]]]]]
-                                                 ["if"
-                                                  "as-fn?"
-                                                  ["let"
-                                                   [["expression"
-                                                     ["get-in"
-                                                      "files"
-                                                      ["concat" ["make-short-path" "code-path"] ["butlast" "focus"]]]]]
-                                                   ["if"
-                                                    [">" ["count" "expression"] "1"]
-                                                    ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
-                                                    ["[]" "|defn" "name-part" ["[]"]]]]
-                                                  ["[]" "|def" "name-part" ["[]"]]]]]]]],
                         "helper-put-path" ["defn"
                                            "helper-put-path"
                                            ["ns-part" "name-part" "focus"]
@@ -666,6 +624,30 @@
                                                    ["into" ["[]"] ["subvec" "stack" "0" "next-pointer"]]
                                                    "code-path"]]]]]]
                                              ["update" ":pointer" "inc"]]]],
+                        "helper-notify" ["defn"
+                                         "helper-notify"
+                                         ["op-id" "data"]
+                                         ["fn"
+                                          ["notifications"]
+                                          ["into" ["[]"] ["cons" ["[]" "op-id" "data"] "notifications"]]]],
+                        "make-path" ["defn"
+                                     "make-path"
+                                     ["info"]
+                                     ["let"
+                                      [["kind" [":kind" "info"]]]
+                                      ["if"
+                                       ["=" "kind" ":defs"]
+                                       ["[]" ":collection" ":files" [":ns" "info"] ":defs" [":extra" "info"]]
+                                       ["[]" ":collection" ":files" [":ns" "info"] "kind"]]]],
+                        "view-focused" ["defn"
+                                        "view-focused"
+                                        ["store"]
+                                        ["let"
+                                         [["writer" [":writer" "store"]]
+                                          ["pointer" [":pointer" "writer"]]
+                                          ["stack" [":stack" "writer"]]
+                                          ["code-path" ["get" "stack" "pointer"]]]
+                                         ["get-in" "store" ["concat" ["make-path" "code-path"] [":focus" "code-path"]]]]],
                         "make-short-path" ["defn"
                                            "make-short-path"
                                            ["info"]
@@ -674,7 +656,34 @@
                                             ["if"
                                              ["=" "kind" ":defs"]
                                              ["[]" [":ns" "info"] ":defs" [":extra" "info"]]
-                                             ["[]" [":ns" "info"] "kind"]]]]},
+                                             ["[]" [":ns" "info"] "kind"]]]],
+                        "helper-create-def" ["defn"
+                                             "helper-create-def"
+                                             ["ns-part" "name-part" "code-path" "focus"]
+                                             ["fn"
+                                              ["files"]
+                                              ["if"
+                                               ["contains-def?" "files" "ns-part" "name-part"]
+                                               "files"
+                                               ["assoc-in"
+                                                "files"
+                                                ["[]" "ns-part" ":defs" "name-part"]
+                                                ["let"
+                                                 [["as-fn?"
+                                                   ["and" ["not" ["empty?" "focus"]] ["zero?" ["last" "focus"]]]]]
+                                                 ["if"
+                                                  "as-fn?"
+                                                  ["let"
+                                                   [["expression"
+                                                     ["get-in"
+                                                      "files"
+                                                      ["concat" ["make-short-path" "code-path"] ["butlast" "focus"]]]]]
+                                                   ["if"
+                                                    [">" ["count" "expression"] "1"]
+                                                    ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
+                                                    ["[]" "|defn" "name-part" ["[]"]]]]
+                                                  ["[]" "|def" "name-part" ["[]"]]]]]]]],
+                        "now!" ["defn" "now!" [] [".now" "js/performance"]]},
                  :procs []},
          "comp.workspace" {:ns ["ns"
                                 "stack-editor.comp.workspace"
@@ -2149,7 +2158,7 @@
                                      ["[]"
                                       "stack-editor.util"
                                       ":refer"
-                                      ["[]" "helper-notify" "helper-put-ns" "make-path"]]
+                                      ["[]" "helper-notify" "helper-put-ns" "make-path" "view-focused"]]
                                      ["[]" "stack-editor.util.detect" ":refer" ["[]" "=path?"]]]],
                                :defs {"rename" ["defn"
                                                 "rename"
@@ -2403,7 +2412,7 @@
                                                     ["neg?" "pos"]
                                                     ["->"
                                                      "writer"
-                                                     ["assoc" ":focus" ["[]"]]
+                                                     ["assoc" ":focus" ["[]" "2"]]
                                                      ["update"
                                                       ":pointer"
                                                       ["fn" ["p"] ["if" ["empty?" "stack"] "p" ["inc" "p"]]]]
@@ -2444,13 +2453,7 @@
                                                   ["if"
                                                    ["=" [":kind" "code-path"] ":ns"]
                                                    ["let"
-                                                    [["guess-ns"
-                                                      ["get-in"
-                                                       "store"
-                                                       ["concat"
-                                                        ["[]" ":collection" ":files"]
-                                                        "code-path"
-                                                        [":focus" "writer"]]]]
+                                                    [["guess-ns" ["view-focused" "store"]]
                                                      ["ns-name"
                                                       ["if"
                                                        ["some?" "guess-ns"]
@@ -2472,9 +2475,7 @@
                                                         ["cons"
                                                          ["[]" "op-id" ["str" "|\"" "ns-name" "|\" not found"]]
                                                          "notifications"]]]]]]
-                                                   ["let"
-                                                    [["ns-part" [":ns" "code-path"]]]
-                                                    ["update" "store" ":writer" ["helper-put-ns" "ns-part"]]]]]],
+                                                   ["update" "store" ":writer" ["helper-put-ns" [":ns" "code-path"]]]]]],
                                       "load-remote" ["defn"
                                                      "load-remote"
                                                      ["store" "op-data"]

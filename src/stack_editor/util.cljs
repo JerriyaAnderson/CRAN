@@ -10,11 +10,6 @@
       (= idx (dec xs-size)) (subvec xs 0 idx)
       :else (into [] (concat (subvec xs 0 idx) (subvec xs (inc idx)))))))
 
-(defn now! [] (.now js/performance))
-
-(defn helper-notify [op-id data]
-  (fn [notifications] (into [] (cons [op-id data] notifications))))
-
 (defn helper-put-ns [ns-name]
   (fn [writer]
     (-> writer
@@ -26,11 +21,36 @@
             (subvec stack 0 (inc (:pointer writer)))
             {:ns ns-name, :kind :ns, :extra nil, :focus []}))))))
 
+(defn helper-put-path [ns-part name-part focus]
+  (fn [writer]
+    (-> writer
+        (update
+         :stack
+         (fn [stack]
+           (let [next-pointer (inc (:pointer writer))
+                 code-path {:ns ns-part, :kind :defs, :extra name-part, :focus focus}]
+             (if (< (dec (count stack)) next-pointer)
+               (conj stack code-path)
+               (if (=path? code-path (get stack next-pointer))
+                 stack
+                 (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
+        (update :pointer inc))))
+
+(defn helper-notify [op-id data]
+  (fn [notifications] (into [] (cons [op-id data] notifications))))
+
 (defn make-path [info]
   (let [kind (:kind info)]
     (if (= kind :defs)
       [:collection :files (:ns info) :defs (:extra info)]
       [:collection :files (:ns info) kind])))
+
+(defn view-focused [store]
+  (let [writer (:writer store)
+        pointer (:pointer writer)
+        stack (:stack writer)
+        code-path (get stack pointer)]
+    (get-in store (concat (make-path code-path) (:focus code-path)))))
 
 (defn make-short-path [info]
   (let [kind (:kind info)]
@@ -53,17 +73,4 @@
                ["defn" name-part []]))
            ["def" name-part []]))))))
 
-(defn helper-put-path [ns-part name-part focus]
-  (fn [writer]
-    (-> writer
-        (update
-         :stack
-         (fn [stack]
-           (let [next-pointer (inc (:pointer writer))
-                 code-path {:ns ns-part, :kind :defs, :extra name-part, :focus focus}]
-             (if (< (dec (count stack)) next-pointer)
-               (conj stack code-path)
-               (if (=path? code-path (get stack next-pointer))
-                 stack
-                 (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
-        (update :pointer inc))))
+(defn now! [] (.now js/performance))
