@@ -11,64 +11,6 @@
           (comment println "Picking" cursor full-ns)
           (if (= full-ns (get cursor 1)) cursor (recur (rest left-rules))))))))
 
-(defn locate-ns-by-var [short-form current-ns files]
-  (println "ns by var:" short-form current-ns)
-  (if (nil? current-ns)
-    nil
-    (if (contains? files current-ns)
-      (let [ns-data (get-in files [current-ns :ns])]
-        (println "ns-data:" ns-data)
-        (if (and (nil? ns-data) (<= (count ns-data) 2))
-          nil
-          (if (>= (count ns-data) 3)
-            (let [required (get ns-data 2)
-                  rules (subvec required 1)
-                  matched-rule (->> rules
-                                    (filter
-                                     (fn [rule]
-                                       (println
-                                        "Search rule:"
-                                        rule
-                                        short-form
-                                        (= ":refer" (get rule 1)))
-                                       (and (= ":refer" (get rule 2))
-                                            (some
-                                             (fn [definition] (= definition short-form))
-                                             (get rule 3)))))
-                                    (first))]
-              (println "rules" matched-rule)
-              (if (some? matched-rule) (get matched-rule 1) nil))
-            nil)))
-      nil)))
-
-(defn locate-ns [short-form current-ns files]
-  (if (nil? current-ns)
-    nil
-    (if (contains? files current-ns)
-      (let [ns-data (get-in files [current-ns :ns])]
-        (if (or (nil? ns-data) (<= (count ns-data) 2))
-          nil
-          (let [required (get ns-data 2)
-                rules (subvec required 1)
-                matched-rule (->> rules
-                                  (filter
-                                   (fn [rule]
-                                     (println "rule" rule short-form)
-                                     (and (= ":as" (get rule 2))
-                                          (= short-form (get rule 3)))))
-                                  (first))]
-            (println "matched-rule" matched-rule)
-            (if (some? matched-rule) (get matched-rule 1) nil))))
-      nil)))
-
-(defn compute-ns [piece current-ns files]
-  (println "compute-ns" piece current-ns)
-  (if (string/includes? piece "/")
-    (let [[that-ns that-value] (string/split piece "/")] (locate-ns that-ns current-ns files))
-    (if (contains-def? files current-ns piece)
-      current-ns
-      (locate-ns-by-var piece current-ns files))))
-
 (defn parse-rule [dict rule]
   (let [clean-rule (if (= "[]" (first rule)) (subvec rule 1) rule)
         ns-text (first clean-rule)

@@ -177,7 +177,7 @@
                                 ["[]"
                                  "app.util.analyze"
                                  ":refer"
-                                 ["[]" "locate-ns" "compute-ns" "list-dependent-ns" "pick-rule"]]
+                                 ["[]" "list-dependent-ns" "pick-rule" "parse-ns-deps"]]
                                 ["[]" "app.util.detect" ":refer" ["[]" "strip-atom" "tree-contains?" "contains-def?"]]
                                 ["[]"
                                  "app.util"
@@ -188,7 +188,8 @@
                                   "helper-create-def"
                                   "helper-put-path"
                                   "make-path"
-                                  "drop-pkg"]]]],
+                                  "drop-pkg"
+                                  "has-ns?"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
                                              ["store" "op-data" "op-id"]
@@ -203,132 +204,6 @@
                                                  "writer"
                                                  ["assoc" ":pointer" "0"]
                                                  ["update" ":stack" ["fn" ["stack"] ["subvec" "stack" "cursor"]]]]]]]],
-                                 "goto-definition" ["defn"
-                                                    "goto-definition"
-                                                    ["store" "op-data" "op-id"]
-                                                    ["let"
-                                                     [["forced?" "op-data"]
-                                                      ["writer" [":writer" "store"]]
-                                                      ["pointer" [":pointer" "writer"]]
-                                                      ["stack" [":stack" "writer"]]
-                                                      ["pointer" [":pointer" "writer"]]
-                                                      ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]
-                                                      ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]
-                                                      ["code-path" ["get" "stack" "pointer"]]
-                                                      ["focus" [":focus" "code-path"]]
-                                                      [["{}"
-                                                        ["current-ns" ":ns"]
-                                                        ["kind" ":kind"]
-                                                        ["extra-name" ":extra"]]
-                                                       "code-path"]]
-                                                     ["let"
-                                                      [["target"
-                                                        ["get-in" "store" ["concat" ["make-path" "code-path"] "focus"]]]]
-                                                      ["if"
-                                                       ["string?" "target"]
-                                                       ["let"
-                                                        [["stripped-target" ["strip-atom" "target"]]]
-                                                        ["if"
-                                                         "forced?"
-                                                         ["if"
-                                                          ["string/includes?" "stripped-target" "|/"]
-                                                          ["let"
-                                                           [[["[]" "ns-part" "var-part"]
-                                                             ["string/split" "stripped-target" "|/"]]
-                                                            ["that-ns"
-                                                             ["drop-pkg"
-                                                              ["locate-ns" "ns-part" "current-ns" "files"]
-                                                              "pkg"]]]
-                                                           ["if"
-                                                            ["contains?" "files" "that-ns"]
-                                                            ["if"
-                                                             ["contains-def?" "files" "that-ns" "var-part"]
-                                                             ["update"
-                                                              "store"
-                                                              ":writer"
-                                                              ["helper-put-path" "that-ns" "var-part" ["[]" "2"]]]
-                                                             ["->"
-                                                              "store"
-                                                              ["update-in"
-                                                               ["[]" ":collection" ":files"]
-                                                               ["helper-create-def"
-                                                                "that-ns"
-                                                                "var-part"
-                                                                "code-path"
-                                                                "focus"]]
-                                                              ["update"
-                                                               ":writer"
-                                                               ["helper-put-path" "that-ns" "var-part" ["[]" "2"]]]]]
-                                                            ["->"
-                                                             "store"
-                                                             ["update"
-                                                              ":notifications"
-                                                              ["helper-notify"
-                                                               "op-id"
-                                                               ["str" "|foreign namespace: " "that-ns"]]]]]]
-                                                          ["let"
-                                                           [["ns-part"
-                                                             ["compute-ns" "stripped-target" "current-ns" "files"]]
-                                                            ["that-ns"
-                                                             ["if"
-                                                              ["some?" "ns-part"]
-                                                              ["drop-pkg" "ns-part" "pkg"]
-                                                              "current-ns"]]]
-                                                           ["println" "|forced piece:" "that-ns" "stripped-target"]
-                                                           ["if"
-                                                            ["contains?" "files" "that-ns"]
-                                                            ["->"
-                                                             "store"
-                                                             ["update-in"
-                                                              ["[]" ":collection" ":files"]
-                                                              ["helper-create-def"
-                                                               "that-ns"
-                                                               "stripped-target"
-                                                               "code-path"
-                                                               "focus"]]
-                                                             ["update"
-                                                              ":writer"
-                                                              ["helper-put-path" "that-ns" "stripped-target" ["[]" "2"]]]]
-                                                            ["->"
-                                                             "store"
-                                                             ["update"
-                                                              ":notifications"
-                                                              ["helper-notify"
-                                                               "op-id"
-                                                               ["str" "|foreign namespace: " "that-ns"]]]]]]]
-                                                         ["let"
-                                                          [["that-ns"
-                                                            ["drop-pkg"
-                                                             ["compute-ns" "stripped-target" "current-ns" "files"]
-                                                             "pkg"]]
-                                                           ["var-part" ["last" ["string/split" "stripped-target" "|/"]]]]
-                                                          ["println"
-                                                           "|Search result:"
-                                                           "that-ns"
-                                                           "var-part"
-                                                           "current-ns"]
-                                                          ["if"
-                                                           ["contains-def?" "files" "that-ns" "var-part"]
-                                                           ["if"
-                                                            ["="
-                                                             "code-path"
-                                                             ["{}"
-                                                              [":ns" "that-ns"]
-                                                              [":kind" ":defs"]
-                                                              [":extra" "var-part"]]]
-                                                            "store"
-                                                            ["update"
-                                                             "store"
-                                                             ":writer"
-                                                             ["helper-put-path" "that-ns" "var-part" ["[]"]]]]
-                                                           ["->"
-                                                            "store"
-                                                            ["update"
-                                                             ":notifications"
-                                                             ["helper-notify"
-                                                              "op-id"
-                                                              ["str" "|no namespace for: " "stripped-target"]]]]]]]]
-                                                       "store"]]]],
                                  "go-next" ["defn"
                                             "go-next"
                                             ["store" "op-data"]
@@ -502,7 +377,103 @@
                                                     ["if"
                                                      ["=" "pointer" ["dec" ["count" [":stack" "writer"]]]]
                                                      ["dec" "pointer"]
-                                                     "pointer"]]]]]]]]},
+                                                     "pointer"]]]]]]]],
+                                 "goto-definition" ["defn"
+                                                    "goto-definition"
+                                                    ["store" "op-data" "op-id"]
+                                                    ["let"
+                                                     [["forced?" "op-data"]
+                                                      [["{}" ["pkg" ":package"] ["files" ":files"]]
+                                                       ["get-in" "store" ["[]" ":collection"]]]
+                                                      ["pkg_" ["str" "pkg" "|."]]
+                                                      [["{}" ["stack" ":stack"] ["pointer" ":pointer"]]
+                                                       [":writer" "store"]]
+                                                      ["code-path" ["get" "stack" "pointer" ""]]
+                                                      ["focus" [":focus" "code-path"]]
+                                                      ["target"
+                                                       ["strip-atom"
+                                                        ["get-in" "store" ["concat" ["make-path" "code-path"] "focus"]]]]
+                                                      ["ns-deps"
+                                                       ["parse-ns-deps"
+                                                        ["get-in" "files" ["[]" [":ns" "code-path"] ":ns"]]]]
+                                                      ["current-ns-defs"
+                                                       ["get-in" "files" ["[]" [":ns" "code-path"] ":defs"]]]
+                                                      ["dep-info"
+                                                       ["if"
+                                                        ["has-ns?" "target"]
+                                                        ["let"
+                                                         [[["[]" "ns-text" "def-text"] ["string/split" "target" "|/"]]
+                                                          ["maybe-info" ["get" "ns-deps" "ns-text"]]]
+                                                         ["if"
+                                                          ["and"
+                                                           ["some?" "maybe-info"]
+                                                           ["=" ":as" [":kind" "maybe-info"]]]
+                                                          ["{}" [":ns" [":ns" "maybe-info"]] [":def" "def-text"]]
+                                                          "nil"]]
+                                                        ["let"
+                                                         [["maybe-info" ["get" "ns-deps" "target"]]]
+                                                         ["if"
+                                                          ["and"
+                                                           ["some?" "maybe-info"]
+                                                           ["=" ":refer" [":kind" "maybe-info"]]]
+                                                          ["{}" [":ns" [":ns" "maybe-info"]] [":def" "target"]]
+                                                          ["if"
+                                                           ["or" ["contains?" "current-ns-defs" "target"] "forced?"]
+                                                           ["{}"
+                                                            [":ns" ["str" "pkg_" [":ns" "code-path"]]]
+                                                            [":def" "target"]]
+                                                           "nil"
+                                                           ""]]]]]]
+                                                     ["--" "println" "target" "dep-info"]
+                                                     ["if"
+                                                      ["some?" "dep-info"]
+                                                      ["if"
+                                                       ["string/starts-with?" [":ns" "dep-info"] "pkg_"]
+                                                       ["let"
+                                                        [["existed?"
+                                                          ["some?"
+                                                           ["get-in"
+                                                            "files"
+                                                            ["[]" [":ns" "dep-info"] ":defs" [":def" "dep-info"]]]]]
+                                                         ["shorten-ns"
+                                                          ["string/replace-first" [":ns" "dep-info"] "pkg_" "|"]]
+                                                         ["touch-def"
+                                                          ["fn"
+                                                           ["store"]
+                                                           ["println" "|touching" "existed?"]
+                                                           ["if"
+                                                            "existed?"
+                                                            "store"
+                                                            ["->"
+                                                             "store"
+                                                             ["update-in"
+                                                              ["[]" ":collection" ":files"]
+                                                              ["helper-create-def"
+                                                               "shorten-ns"
+                                                               [":def" "dep-info"]
+                                                               "code-path"
+                                                               [":focus" "code-path"]]]]]]]]
+                                                        ["->"
+                                                         "store"
+                                                         ["touch-def"]
+                                                         ["update"
+                                                          ":writer"
+                                                          ["helper-put-path"
+                                                           "shorten-ns"
+                                                           [":def" "dep-info"]
+                                                           ["[]" "2"]]]]]
+                                                       ["->"
+                                                        "store"
+                                                        ["update"
+                                                         ":notifications"
+                                                         ["helper-notify"
+                                                          "op-id"
+                                                          ["str" "|External package: " [":ns" "dep-info"]]]]]]
+                                                      ["->"
+                                                       "store"
+                                                       ["update"
+                                                        ":notifications"
+                                                        ["helper-notify" "op-id" ["str" "|Can't find: " "target"]]]]]]]},
                           :procs []},
          "util.analyze" {:ns ["ns"
                               "app.util.analyze"
@@ -527,19 +498,6 @@
                                                   ["=" "full-ns" ["get" "cursor" "1"]]
                                                   "cursor"
                                                   ["recur" ["rest" "left-rules"]]]]]]]],
-                                "compute-ns" ["defn"
-                                              "compute-ns"
-                                              ["piece" "current-ns" "files"]
-                                              ["println" "|compute-ns" "piece" "current-ns"]
-                                              ["if"
-                                               ["string/includes?" "piece" "|/"]
-                                               ["let"
-                                                [[["[]" "that-ns" "that-value"] ["string/split" "piece" "|/"]]]
-                                                ["locate-ns" "that-ns" "current-ns" "files"]]
-                                               ["if"
-                                                ["contains-def?" "files" "current-ns" "piece"]
-                                                "current-ns"
-                                                ["locate-ns-by-var" "piece" "current-ns" "files"]]]],
                                 "pick-def-deps" ["defn"
                                                  "pick-def-deps"
                                                  ["expression" "internal-ns" "file" "pkg"]
@@ -645,50 +603,6 @@
                                                              "pkg"
                                                              "next-parents"]]]]]
                                                         ["into" ["#{}"]]]]]]],
-                                "locate-ns-by-var" ["defn"
-                                                    "locate-ns-by-var"
-                                                    ["short-form" "current-ns" "files"]
-                                                    ["println" "|ns by var:" "short-form" "current-ns"]
-                                                    ["if"
-                                                     ["nil?" "current-ns"]
-                                                     "nil"
-                                                     ["if"
-                                                      ["contains?" "files" "current-ns"]
-                                                      ["let"
-                                                       [["ns-data" ["get-in" "files" ["[]" "current-ns" ":ns"]]]]
-                                                       ["println" "|ns-data:" "ns-data"]
-                                                       ["if"
-                                                        ["and" ["nil?" "ns-data"] ["<=" ["count" "ns-data"] "2"]]
-                                                        "nil"
-                                                        ["if"
-                                                         [">=" ["count" "ns-data"] "3"]
-                                                         ["let"
-                                                          [["required" ["get" "ns-data" "2"]]
-                                                           ["rules" ["subvec" "required" "1"]]
-                                                           ["matched-rule"
-                                                            ["->>"
-                                                             "rules"
-                                                             ["filter"
-                                                              ["fn"
-                                                               ["rule"]
-                                                               ["println"
-                                                                "|Search rule:"
-                                                                "rule"
-                                                                "short-form"
-                                                                ["=" "|:refer" ["get" "rule" "1"]]]
-                                                               ["and"
-                                                                ["=" "|:refer" ["get" "rule" "2"]]
-                                                                ["some"
-                                                                 ["fn" ["definition"] ["=" "definition" "short-form"]]
-                                                                 ["get" "rule" "3"]]]]]
-                                                             ["first"]]]]
-                                                          ["println" "|rules" "matched-rule"]
-                                                          ["if"
-                                                           ["some?" "matched-rule"]
-                                                           ["get" "matched-rule" "1"]
-                                                           "nil"]]
-                                                         "nil"]]]
-                                                      "nil"]]],
                                 "parse-rule" ["defn"
                                               "parse-rule"
                                               ["dict" "rule"]
@@ -748,36 +662,6 @@
                                                           ["--" "println" "|Search:" "ns-name" "ns-rules"]
                                                           ["contains?" "ns-rules" "full-ns"]]]]
                                                        ["map" "first"]]]],
-                                "locate-ns" ["defn"
-                                             "locate-ns"
-                                             ["short-form" "current-ns" "files"]
-                                             ["if"
-                                              ["nil?" "current-ns"]
-                                              "nil"
-                                              ["if"
-                                               ["contains?" "files" "current-ns"]
-                                               ["let"
-                                                [["ns-data" ["get-in" "files" ["[]" "current-ns" ":ns"]]]]
-                                                ["if"
-                                                 ["or" ["nil?" "ns-data"] ["<=" ["count" "ns-data"] "2"]]
-                                                 "nil"
-                                                 ["let"
-                                                  [["required" ["get" "ns-data" "2"]]
-                                                   ["rules" ["subvec" "required" "1"]]
-                                                   ["matched-rule"
-                                                    ["->>"
-                                                     "rules"
-                                                     ["filter"
-                                                      ["fn"
-                                                       ["rule"]
-                                                       ["println" "|rule" "rule" "short-form"]
-                                                       ["and"
-                                                        ["=" "|:as" ["get" "rule" "2"]]
-                                                        ["=" "short-form" ["get" "rule" "3"]]]]]
-                                                     ["first"]]]]
-                                                  ["println" "|matched-rule" "matched-rule"]
-                                                  ["if" ["some?" "matched-rule"] ["get" "matched-rule" "1"] "nil"]]]]
-                                               "nil"]]],
                                 "pick-dep" ["defn"
                                             "pick-dep"
                                             ["token"]
@@ -897,6 +781,7 @@
                                     "drop-pkg"
                                     ["x" "pkg"]
                                     ["if" ["string?" "x"] ["string/replace" "x" ["str" "pkg" "|."] "|"] "x"]],
+                        "has-ns?" ["defn" "has-ns?" ["x"] ["string/includes?" "x" "|/"]],
                         "helper-notify" ["defn"
                                          "helper-notify"
                                          ["op-id" "data"]

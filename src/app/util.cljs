@@ -52,6 +52,8 @@
 
 (defn drop-pkg [x pkg] (if (string? x) (string/replace x (str pkg ".") "") x))
 
+(defn has-ns? [x] (string/includes? x "/"))
+
 (defn helper-notify [op-id data]
   (fn [notifications] (into [] (cons [op-id data] notifications))))
 

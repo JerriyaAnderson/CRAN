@@ -1,11 +1,17 @@
 
 (ns app.updater.stack
   (:require [clojure.string :as string]
-            [app.util.analyze :refer [locate-ns compute-ns list-dependent-ns pick-rule]]
+            [app.util.analyze :refer [list-dependent-ns pick-rule parse-ns-deps]]
             [app.util.detect :refer [strip-atom tree-contains? contains-def?]]
             [app.util
              :refer
-             [remove-idx helper-notify helper-create-def helper-put-path make-path drop-pkg]]))
+             [remove-idx
+              helper-notify
+              helper-create-def
+              helper-put-path
+              make-path
+              drop-pkg
+              has-ns?]]))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -14,62 +20,6 @@
      :writer
      (fn [writer]
        (-> writer (assoc :pointer 0) (update :stack (fn [stack] (subvec stack cursor))))))))
-
-(defn goto-definition [store op-data op-id]
-  (let [forced? op-data
-        writer (:writer store)
-        pointer (:pointer writer)
-        stack (:stack writer)
-        pointer (:pointer writer)
-        pkg (get-in store [:collection :package])
-        files (get-in store [:collection :files])
-        code-path (get stack pointer)
-        focus (:focus code-path)
-        {current-ns :ns, kind :kind, extra-name :extra} code-path]
-    (let [target (get-in store (concat (make-path code-path) focus))]
-      (if (string? target)
-        (let [stripped-target (strip-atom target)]
-          (if forced?
-            (if (string/includes? stripped-target "/")
-              (let [[ns-part var-part] (string/split stripped-target "/")
-                    that-ns (drop-pkg (locate-ns ns-part current-ns files) pkg)]
-                (if (contains? files that-ns)
-                  (if (contains-def? files that-ns var-part)
-                    (update store :writer (helper-put-path that-ns var-part [2]))
-                    (-> store
-                        (update-in
-                         [:collection :files]
-                         (helper-create-def that-ns var-part code-path focus))
-                        (update :writer (helper-put-path that-ns var-part [2]))))
-                  (-> store
-                      (update
-                       :notifications
-                       (helper-notify op-id (str "foreign namespace: " that-ns))))))
-              (let [ns-part (compute-ns stripped-target current-ns files)
-                    that-ns (if (some? ns-part) (drop-pkg ns-part pkg) current-ns)]
-                (println "forced piece:" that-ns stripped-target)
-                (if (contains? files that-ns)
-                  (-> store
-                      (update-in
-                       [:collection :files]
-                       (helper-create-def that-ns stripped-target code-path focus))
-                      (update :writer (helper-put-path that-ns stripped-target [2])))
-                  (-> store
-                      (update
-                       :notifications
-                       (helper-notify op-id (str "foreign namespace: " that-ns)))))))
-            (let [that-ns (drop-pkg (compute-ns stripped-target current-ns files) pkg)
-                  var-part (last (string/split stripped-target "/"))]
-              (println "Search result:" that-ns var-part current-ns)
-              (if (contains-def? files that-ns var-part)
-                (if (= code-path {:ns that-ns, :kind :defs, :extra var-part})
-                  store
-                  (update store :writer (helper-put-path that-ns var-part [])))
-                (-> store
-                    (update
-                     :notifications
-                     (helper-notify op-id (str "no namespace for: " stripped-target))))))))
-        store))))
 
 (defn go-next [store op-data]
   (-> store
@@ -191,3 +141,52 @@
             :pointer
             (fn [pointer]
               (if (= pointer (dec (count (:stack writer)))) (dec pointer) pointer))))))))
+
+(defn goto-definition [store op-data op-id]
+  (let [forced? op-data
+        {pkg :package, files :files} (get-in store [:collection])
+        pkg_ (str pkg ".")
+        {stack :stack, pointer :pointer} (:writer store)
+        code-path (get stack pointer )
+        focus (:focus code-path)
+        target (strip-atom (get-in store (concat (make-path code-path) focus)))
+        ns-deps (parse-ns-deps (get-in files [(:ns code-path) :ns]))
+        current-ns-defs (get-in files [(:ns code-path) :defs])
+        dep-info (if (has-ns? target)
+                   (let [[ns-text def-text] (string/split target "/")
+                         maybe-info (get ns-deps ns-text)]
+                     (if (and (some? maybe-info) (= :as (:kind maybe-info)))
+                       {:ns (:ns maybe-info), :def def-text}
+                       nil))
+                   (let [maybe-info (get ns-deps target)]
+                     (if (and (some? maybe-info) (= :refer (:kind maybe-info)))
+                       {:ns (:ns maybe-info), :def target}
+                       (if (or (contains? current-ns-defs target) forced?)
+                         {:ns (str pkg_ (:ns code-path)), :def target}
+                         nil
+                         ))))]
+    (comment println target dep-info)
+    (if (some? dep-info)
+      (if (string/starts-with? (:ns dep-info) pkg_)
+        (let [existed? (some? (get-in files [(:ns dep-info) :defs (:def dep-info)]))
+              shorten-ns (string/replace-first (:ns dep-info) pkg_ "")
+              touch-def (fn [store]
+                          (println "touching" existed?)
+                          (if existed?
+                            store
+                            (-> store
+                                (update-in
+                                 [:collection :files]
+                                 (helper-create-def
+                                  shorten-ns
+                                  (:def dep-info)
+                                  code-path
+                                  (:focus code-path))))))]
+          (-> store
+              (touch-def)
+              (update :writer (helper-put-path shorten-ns (:def dep-info) [2]))))
+        (-> store
+            (update
+             :notifications
+             (helper-notify op-id (str "External package: " (:ns dep-info))))))
+      (-> store (update :notifications (helper-notify op-id (str "Can't find: " target)))))))
