@@ -37,7 +37,7 @@
 
 (def server-rendered? (some? (.querySelector js/document "meta#server-rendered")))
 
-(def mount-target (.querySelector js/document "#app"))
+(def mount-target (.querySelector js/document ".app"))
 
 (defn render-app! []
   (render! (comp-container @*store) mount-target dispatch!)

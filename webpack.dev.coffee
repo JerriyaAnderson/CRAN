@@ -9,7 +9,7 @@ module.exports =
   devServer:
     clientLogLevel: 'info'
     stats: 'errors-only'
-    contentBase: resolve(__dirname, 'dist')
+    contentBase: resolve(__dirname, 'target')
     publicPath: '/'
     host: '0.0.0.0'
   # devtool: 'source-map',

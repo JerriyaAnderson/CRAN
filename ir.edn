@@ -1,5 +1,5 @@
 {:package "app",
- :root {:ns "main", :defs "-main!"},
+ :root {:ns "main", :def "main!"},
  :files {"updater.router" {:ns ["ns" "app.updater.router"],
                            :defs {"toggle-palette" ["defn"
                                                     "toggle-palette"
@@ -421,7 +421,25 @@
                               [":require"
                                ["[]" "clojure.string" ":as" "string"]
                                ["[]" "app.util.detect" ":refer" ["[]" "contains-def?"]]]],
-                         :defs {"compute-ns" ["defn"
+                         :defs {"pick-rule" ["defn"
+                                             "pick-rule"
+                                             ["ns-block" "ns-name" "pkg"]
+                                             ["let"
+                                              [["full-ns" ["str" "pkg" "|." "ns-name"]]
+                                               ["rules" ["subvec" ["get" "ns-block" "2"] "1"]]]
+                                              ["loop"
+                                               ["[]" "left-rules" "rules"]
+                                               ["if"
+                                                ["empty?" "left-rules"]
+                                                "nil"
+                                                ["let"
+                                                 [["cursor" ["first" "left-rules"]]]
+                                                 ["--" "println" "|Picking" "cursor" "full-ns"]
+                                                 ["if"
+                                                  ["=" "full-ns" ["get" "cursor" "1"]]
+                                                  "cursor"
+                                                  ["recur" ["rest" "left-rules"]]]]]]]],
+                                "compute-ns" ["defn"
                                               "compute-ns"
                                               ["piece" "current-ns" "files"]
                                               ["println" "|compute-ns" "piece" "current-ns"]
@@ -434,36 +452,110 @@
                                                 ["contains-def?" "files" "current-ns" "piece"]
                                                 "current-ns"
                                                 ["locate-ns-by-var" "piece" "current-ns" "files"]]]],
-                                "locate-ns" ["defn"
-                                             "locate-ns"
-                                             ["short-form" "current-ns" "files"]
-                                             ["if"
-                                              ["nil?" "current-ns"]
-                                              "nil"
-                                              ["if"
-                                               ["contains?" "files" "current-ns"]
-                                               ["let"
-                                                [["ns-data" ["get-in" "files" ["[]" "current-ns" ":ns"]]]]
-                                                ["if"
-                                                 ["or" ["nil?" "ns-data"] ["<=" ["count" "ns-data"] "2"]]
-                                                 "nil"
+                                "pick-def-deps" ["defn"
+                                                 "pick-def-deps"
+                                                 ["expression" "internal-ns" "file" "pkg"]
                                                  ["let"
-                                                  [["required" ["get" "ns-data" "2"]]
-                                                   ["rules" ["subvec" "required" "1"]]
-                                                   ["matched-rule"
-                                                    ["->>"
-                                                     "rules"
-                                                     ["filter"
-                                                      ["fn"
-                                                       ["rule"]
-                                                       ["println" "|rule" "rule" "short-form"]
-                                                       ["and"
-                                                        ["=" "|:as" ["get" "rule" "2"]]
-                                                        ["=" "short-form" ["get" "rule" "3"]]]]]
-                                                     ["first"]]]]
-                                                  ["println" "|matched-rule" "matched-rule"]
-                                                  ["if" ["some?" "matched-rule"] ["get" "matched-rule" "1"] "nil"]]]]
-                                               "nil"]]],
+                                                  [["external?"
+                                                    ["fn"
+                                                     ["ns-text"]
+                                                     ["not" ["string/starts-with?" "ns-text" ["str" "pkg" "|."]]]]]
+                                                   ["ns-deps" ["parse-ns-deps" [":ns" "file"]]]]
+                                                  ["->>"
+                                                   ["subvec" "expression" "2"]
+                                                   ["flatten"]
+                                                   ["map" "pick-dep"]
+                                                   ["filter" "some?"]
+                                                   ["map"
+                                                    ["fn"
+                                                     ["info"]
+                                                     ["case"
+                                                      [":kind" "info"]
+                                                      [":def"
+                                                       ["let"
+                                                        [["def-text" [":data" "info"]] ["defs" [":defs" "file"]]]
+                                                        ["cond"
+                                                         [["contains?" "ns-deps" "def-text"]
+                                                          ["let"
+                                                           [["using-mapping" ["get" "ns-deps" "def-text"]]]
+                                                           ["if"
+                                                            ["=" ":refer" [":kind" "using-mapping"]]
+                                                            ["let"
+                                                             [["ns-text" [":ns" "using-mapping"]]]
+                                                             ["{}"
+                                                              [":ns" "ns-text"]
+                                                              [":def" "def-text"]
+                                                              [":external?" ["external?" "ns-text"]]]]
+                                                            "nil"]]]
+                                                         [["contains?" "defs" "def-text"]
+                                                          ["{}"
+                                                           [":ns" ["str" "pkg" "|." "internal-ns"]]
+                                                           [":def" "def-text"]
+                                                           [":external?" "false"]]]
+                                                         [":else" "nil"]]]]
+                                                      [":ns"
+                                                       ["let"
+                                                        [[["{}" ["ns-text" ":data"] ["def-text" ":extra"]] "info"]]
+                                                        ["if"
+                                                         ["contains?" "ns-deps" "ns-text"]
+                                                         ["let"
+                                                          [["using-mapping" ["get" "ns-deps" "ns-text"]]]
+                                                          ["if"
+                                                           ["=" ":as" [":kind" "using-mapping"]]
+                                                           ["let"
+                                                            [["ns-text" [":ns" "using-mapping"]]]
+                                                            ["{}"
+                                                             [":ns" "ns-text"]
+                                                             [":def" "def-text"]
+                                                             [":external?" ["external?" "ns-text"]]]]
+                                                           "nil"]]
+                                                         "nil"]]]
+                                                      "nil"]]]
+                                                   ["filter" "some?"]
+                                                   ["into" ["#{}"]]]]],
+                                "expand-deps-tree" ["defn"
+                                                    "expand-deps-tree"
+                                                    ["internal-ns" "def-text" "files" "pkg" "parents"]
+                                                    ["let"
+                                                     [["this-file" ["get" "files" "internal-ns"]]
+                                                      ["def-expr" ["get-in" "this-file" ["[]" ":defs" "def-text"]]]
+                                                      ["def-deps"
+                                                       ["pick-def-deps" "def-expr" "internal-ns" "this-file" "pkg"]]
+                                                      ["stamp" ["{}" [":ns" "internal-ns"] [":def" "def-text"]]]
+                                                      ["base-dep"
+                                                       ["{}"
+                                                        [":ns" "internal-ns"]
+                                                        [":def" "def-text"]
+                                                        [":external?" "false"]]]]
+                                                     ["if"
+                                                      ["contains?" "parents" "stamp"]
+                                                      "base-dep"
+                                                      ["assoc"
+                                                       "base-dep"
+                                                       ":deps"
+                                                       ["->>"
+                                                        "def-deps"
+                                                        ["map"
+                                                         ["fn"
+                                                          ["dep-info"]
+                                                          ["if"
+                                                           [":external?" "dep-info"]
+                                                           "dep-info"
+                                                           ["let"
+                                                            [["child-internal-ns"
+                                                              ["string/replace-first"
+                                                               [":ns" "dep-info"]
+                                                               ["str" "pkg" "|."]
+                                                               "|"]]
+                                                             ["child-def" [":def" "dep-info"]]
+                                                             ["next-parents" ["conj" "parents" "stamp"]]]
+                                                            ["expand-deps-tree"
+                                                             "child-internal-ns"
+                                                             "child-def"
+                                                             "files"
+                                                             "pkg"
+                                                             "next-parents"]]]]]
+                                                        ["into" ["#{}"]]]]]]],
                                 "locate-ns-by-var" ["defn"
                                                     "locate-ns-by-var"
                                                     ["short-form" "current-ns" "files"]
@@ -508,6 +600,44 @@
                                                            "nil"]]
                                                          "nil"]]]
                                                       "nil"]]],
+                                "parse-rule" ["defn"
+                                              "parse-rule"
+                                              ["dict" "rule"]
+                                              ["let"
+                                               [["clean-rule"
+                                                 ["if" ["=" "|[]" ["first" "rule"]] ["subvec" "rule" "1"] "rule"]]
+                                                ["ns-text" ["first" "clean-rule"]]
+                                                ["binding-rule" ["subvec" "clean-rule" "1"]]]
+                                               ["loop"
+                                                ["[]" "left-binding" "binding-rule" "result" "dict"]
+                                                ["--" "println" "|doing loop:" "left-binding" "result"]
+                                                ["if"
+                                                 ["<" ["count" "left-binding"] "2"]
+                                                 "result"
+                                                 ["let"
+                                                  [["kind" ["first" "left-binding"]]
+                                                   ["data" ["get" "left-binding" "1"]]]
+                                                  ["recur"
+                                                   ["subvec" "left-binding" "2"]
+                                                   ["cond"
+                                                    [["=" "|:as" "kind"]
+                                                     ["assoc"
+                                                      "result"
+                                                      "data"
+                                                      ["{}" [":kind" ":as"] [":ns" "ns-text"] [":text" "data"]]]]
+                                                    [["=" "|:refer" "kind"]
+                                                     ["->>"
+                                                      "data"
+                                                      ["filter" ["fn" ["x"] ["not=" "x" "|[]"]]]
+                                                      ["map"
+                                                       ["fn"
+                                                        ["x"]
+                                                        ["[]"
+                                                         "x"
+                                                         ["{}" [":kind" ":refer"] [":ns" "ns-text"] [":text" "x"]]]]]
+                                                      ["into" ["{}"]]
+                                                      ["merge" "result"]]]
+                                                    [":else" "result"]]]]]]]],
                                 "list-dependent-ns" ["defn"
                                                      "list-dependent-ns"
                                                      ["ns-name" "files" "pkg"]
@@ -529,24 +659,74 @@
                                                           ["--" "println" "|Search:" "ns-name" "ns-rules"]
                                                           ["contains?" "ns-rules" "full-ns"]]]]
                                                        ["map" "first"]]]],
-                                "pick-rule" ["defn"
-                                             "pick-rule"
-                                             ["ns-block" "ns-name" "pkg"]
-                                             ["let"
-                                              [["full-ns" ["str" "pkg" "|." "ns-name"]]
-                                               ["rules" ["subvec" ["get" "ns-block" "2"] "1"]]]
-                                              ["loop"
-                                               ["[]" "left-rules" "rules"]
-                                               ["if"
-                                                ["empty?" "left-rules"]
-                                                "nil"
-                                                ["let"
-                                                 [["cursor" ["first" "left-rules"]]]
-                                                 ["--" "println" "|Picking" "cursor" "full-ns"]
-                                                 ["if"
-                                                  ["=" "full-ns" ["get" "cursor" "1"]]
-                                                  "cursor"
-                                                  ["recur" ["rest" "left-rules"]]]]]]]]},
+                                "locate-ns" ["defn"
+                                             "locate-ns"
+                                             ["short-form" "current-ns" "files"]
+                                             ["if"
+                                              ["nil?" "current-ns"]
+                                              "nil"
+                                              ["if"
+                                               ["contains?" "files" "current-ns"]
+                                               ["let"
+                                                [["ns-data" ["get-in" "files" ["[]" "current-ns" ":ns"]]]]
+                                                ["if"
+                                                 ["or" ["nil?" "ns-data"] ["<=" ["count" "ns-data"] "2"]]
+                                                 "nil"
+                                                 ["let"
+                                                  [["required" ["get" "ns-data" "2"]]
+                                                   ["rules" ["subvec" "required" "1"]]
+                                                   ["matched-rule"
+                                                    ["->>"
+                                                     "rules"
+                                                     ["filter"
+                                                      ["fn"
+                                                       ["rule"]
+                                                       ["println" "|rule" "rule" "short-form"]
+                                                       ["and"
+                                                        ["=" "|:as" ["get" "rule" "2"]]
+                                                        ["=" "short-form" ["get" "rule" "3"]]]]]
+                                                     ["first"]]]]
+                                                  ["println" "|matched-rule" "matched-rule"]
+                                                  ["if" ["some?" "matched-rule"] ["get" "matched-rule" "1"] "nil"]]]]
+                                               "nil"]]],
+                                "pick-dep" ["defn"
+                                            "pick-dep"
+                                            ["token"]
+                                            ["cond"
+                                             [["string/blank?" "token"] "nil"]
+                                             [["string/starts-with?" "token" "|:"] "nil"]
+                                             [["string/starts-with?" "token" "|."] "nil"]
+                                             [["string/starts-with?" "token" "||"] "nil"]
+                                             [["string/starts-with?" "token" "|#"] "nil"]
+                                             [["string/starts-with?" "token" "|["] "nil"]
+                                             [["string/starts-with?" "token" "|'"] "nil"]
+                                             [["string/starts-with?" "token" "|{"] "nil"]
+                                             [["string/starts-with?" "token" "|%"] "nil"]
+                                             [["=" "token" "|--"] "nil"]
+                                             [["string/includes?" "token" "|/"]
+                                              ["let"
+                                               [[["[]" "ns-piece" "def-piece"] ["string/split" "token" "|/"]]]
+                                               ["{}" [":kind" ":ns"] [":data" "ns-piece"] [":extra" "def-piece"]]]]
+                                             [["string/includes?" "token" "|."]
+                                              ["let"
+                                               [[["[]" "def-piece" "prop-piece"] ["string/split" "token" "|."]]]
+                                               ["{}" [":kind" ":def"] [":data" "def-piece"]]]]
+                                             [["string/starts-with?" "token" "|@"]
+                                              ["{}" [":kind" ":def"] [":data" ["subs" "token" "1"]]]]
+                                             [":else" ["{}" [":kind" ":def"] [":data" "token"]]]]],
+                                "parse-ns-deps" ["defn"
+                                                 "parse-ns-deps"
+                                                 ["expression"]
+                                                 ["let"
+                                                  [["branches"
+                                                    ["->>"
+                                                     ["subvec" "expression" "2"]
+                                                     ["filter" ["fn" ["expr"] ["=" "|:require" ["first" "expr"]]]]]]]
+                                                  ["if"
+                                                   ["empty?" "branches"]
+                                                   ["{}"]
+                                                   ["doall"
+                                                    ["reduce" "parse-rule" ["{}"] ["rest" ["first" "branches"]]]]]]]},
                          :procs []},
          "util" {:ns ["ns"
                       "app.util"
@@ -856,7 +1036,8 @@
                              ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
                              ["[]" "respo.alias" ":refer" ["[]" "div" "button"]]
                              ["respo-ui.style" ":as" "ui"]
-                             ["respo.comp.text" ":refer" ["comp-text"]]]],
+                             ["respo.comp.text" ":refer" ["comp-text"]]
+                             ["app.comp.dep-node" ":refer" ["comp-dep-node"]]]],
                        :defs {"comp-graph" ["defcomp"
                                             "comp-graph"
                                             ["store"]
@@ -864,24 +1045,61 @@
                                              ["{}" [":style" ["merge" "ui/fullscreen" "style-graph"]]]
                                              ["div"
                                               ["{}" [":style" "style-toolbar"]]
-                                              ["button"
-                                               ["{}"
-                                                [":inner-text" "|Generate!"]
-                                                [":style" "ui/button"]
-                                                [":event" ["{}" [":click" "on-load"]]]]]]
-                                             ["comp-text" "|Graph" "nil"]]],
-                              "style-graph" ["def" "style-graph" ["{}" [":background-color" ["hsl" "0" "0" "0"]]]],
+                                              ["div"
+                                               ["{}"]
+                                               ["button"
+                                                ["{}"
+                                                 [":inner-text" "|Generate!"]
+                                                 [":style" "ui/button"]
+                                                 [":event" ["{}" [":click" "on-load"]]]]]]
+                                              ["div"
+                                               ["{}"]
+                                               ["let"
+                                                [["tree" ["get-in" "store" ["[]" ":graph" ":tree"]]]]
+                                                ["if"
+                                                 ["some?" "tree"]
+                                                 ["comp-dep-node" "tree"]
+                                                 ["comp-text" "|Need to generate..."]]]]]]],
+                              "style-graph" ["def"
+                                             "style-graph"
+                                             ["{}" [":background-color" ["hsl" "0" "0" "0"]] [":overflow" ":auto"]]],
                               "style-toolbar" ["def" "style-toolbar" ["{}" [":padding" "16"]]],
                               "on-load" ["defn" "on-load" ["e" "dispatch!"] ["dispatch!" ":graph/load-graph" "nil"]]},
                        :procs []},
-         "updater.graph" {:ns ["ns" "app.updater.graph"],
+         "updater.graph" {:ns ["ns"
+                               "app.updater.graph"
+                               [":require"
+                                ["app.util.analyze"
+                                 ":refer"
+                                 ["parse-ns-deps" "pick-dep" "pick-def-deps" "expand-deps-tree"]]]],
                           :defs {"load-graph" ["defn"
                                                "load-graph"
                                                ["store" "op-data"]
                                                ["let"
-                                                [["root-info" ["get-in" "store" ["[]" ":collection" ":root"]]]]
-                                                ["println" "root-info"]]
-                                               "store"]},
+                                                [["root-info" ["get-in" "store" ["[]" ":collection" ":root"]]]
+                                                 ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]
+                                                 ["internal-ns" [":ns" "root-info"]]
+                                                 ["ns-deps"
+                                                  ["parse-ns-deps" ["get-in" "files" ["[]" "internal-ns" ":ns"]]]]
+                                                 ["def-expr"
+                                                  ["get-in"
+                                                   "files"
+                                                   ["[]" [":ns" "root-info"] ":defs" [":def" "root-info"]]]]
+                                                 ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]
+                                                 ["this-file" ["get" "files" "internal-ns"]]
+                                                 ["deps-tree"
+                                                  ["expand-deps-tree"
+                                                   "internal-ns"
+                                                   [":def" "root-info"]
+                                                   "files"
+                                                   "pkg"
+                                                   ["#{}"]]]]
+                                                ["--"
+                                                 "println"
+                                                 ["pick-def-deps" "def-expr" "internal-ns" "this-file" "pkg"]]
+                                                ["--" "println" "ns-deps"]
+                                                ["println"]
+                                                ["assoc-in" "store" ["[]" ":graph" ":tree"] "deps-tree"]]]},
                           :procs []},
          "schema" {:ns ["ns" "app.schema"],
                    :defs {"store" ["def"
@@ -890,6 +1108,7 @@
                                     [":router"
                                      ["{}" [":name" ":loading"] [":data" ":definitions"] [":show-palette?" "false"]]]
                                     [":collection" ["{}" [":package" "nil"] [":root" "nil"] [":files" ["{}"]]]]
+                                    [":graph" ["{}" [":tree" "nil"] [":orphans" "nil"] [":path" ["[]"]]]]
                                     [":writer" ["{}" [":stack" ["[]"]] [":pointer" "0"] [":clipboard" ["[]"]]]]
                                     [":notifications" ["[]"]]
                                     [":modal-stack" ["[]"]]
@@ -1254,7 +1473,7 @@
                                        ["render!" ["comp-container" "@*store"] "mount-target" "dispatch!"]
                                        ["if" "@*focus-moved?" ["do" ["reset!" "*focus-moved?" "false"] ["focus!"]]]],
                         "reload!" ["defn" "reload!" [] ["clear-cache!"] ["render-app!"] ["println" "|Code updated."]],
-                        "mount-target" ["def" "mount-target" [".querySelector" "js/document" "|#app"]]},
+                        "mount-target" ["def" "mount-target" [".querySelector" "js/document" "|.app"]]},
                  :procs [["set!" "js/window.onload" "main!"]]},
          "updater.notification" {:ns ["ns" "app.updater.notification"],
                                  :defs {"add-one" ["defn"
@@ -1951,9 +2170,10 @@
                    :defs {"main!" ["defn"
                                    "main!"
                                    []
-                                   ["spit"
-                                    "|dist/index.html"
-                                    ["if" ["=" "js/process.env.env" "|dev"] ["generate-empty-html"] ["generate-html"]]]],
+                                   ["if"
+                                    ["=" "js/process.env.env" "|dev"]
+                                    ["spit" "|target/index.html" ["generate-empty-html"]]
+                                    ["spit" "|dist/index.html" ["generate-html"]]]],
                           "spit" ["defn"
                                   "spit"
                                   ["file-name" "content"]
@@ -1962,7 +2182,12 @@
                           "generate-empty-html" ["defn"
                                                  "generate-empty-html"
                                                  []
-                                                 ["html-dsl" ["{}" [":build?" "false"] [":main" "|/main.js"]] "|"]],
+                                                 ["html-dsl"
+                                                  ["{}"
+                                                   [":build?" "false"]
+                                                   [":main" "|/main.js"]
+                                                   [":main-cljs" "|/browser/main.js"]]
+                                                  "|"]],
                           "generate-html" ["defn"
                                            "generate-html"
                                            []
@@ -2007,10 +2232,11 @@
                                             [":href" [":css" "resources"]]]]]]
                                         ["body"
                                          ["{}"]
-                                         ["div" ["{}" [":id" "|app"] [":innerHTML" "html-content"]]]
+                                         ["div" ["{}" [":class-name" "|app"] [":innerHTML" "html-content"]]]
                                          ["if"
                                           [":build?" "resources"]
-                                          ["script" ["{}" [":src" [":vendor" "resources"]]]]]
+                                          ["script" ["{}" [":src" [":vendor" "resources"]]]]
+                                          ["script" ["{}" [":src" [":main-cljs" "resources"]]]]]
                                          ["script" ["{}" [":src" [":main" "resources"]]]]]]]],
                           "icon-url" ["def" "icon-url" "|http://logo.cirru.org/cirru-400x400.png"]},
                    :procs [["main!"]]},
@@ -2572,6 +2798,119 @@
                                                     ":router/route"
                                                     ["{}" [":name" ":workspace"] [":data" "nil"]]]]]]]},
                             :procs []},
+         "comp.dep-node" {:ns ["ns"
+                               "app.comp.dep-node"
+                               [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
+                               [":require"
+                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                                ["[]" "respo.alias" ":refer" ["[]" "div"]]
+                                ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
+                                ["[]" "respo-ui.style" ":as" "ui"]
+                                ["clojure.set" ":refer" ["difference"]]]],
+                          :defs {"comp-dep-node" ["defcomp"
+                                                  "comp-dep-node"
+                                                  ["dep-info"]
+                                                  ["let"
+                                                   [["external?" [":external?" "dep-info"]]]
+                                                   ["div"
+                                                    ["{}" [":style" ["merge" "ui/row" "style-dependency"]]]
+                                                    ["if"
+                                                     "external?"
+                                                     ["render-external-name" "dep-info"]
+                                                     ["render-internal-name" "dep-info"]]
+                                                    ["let"
+                                                     [["deps" [":deps" "dep-info"]]
+                                                      ["external-deps" ["into" ["#{}"] ["filter" ":external?" "deps"]]]
+                                                      ["internal-deps" ["difference" "deps" "external-deps"]]]
+                                                     ["if"
+                                                      ["not" ["empty?" "deps"]]
+                                                      ["div"
+                                                       ["{}"]
+                                                       ["if"
+                                                        ["not" ["empty?" "external-deps"]]
+                                                        ["div"
+                                                         ["{}" [":style" "ui/row"]]
+                                                         ["->>"
+                                                          "external-deps"
+                                                          ["map"
+                                                           ["fn"
+                                                            ["child-dep-info"]
+                                                            ["let"
+                                                             [[["{}" ["ns-text" ":ns"] ["def-text" ":def"]]
+                                                               "child-dep-info"]]
+                                                             ["[]"
+                                                              ["str" "ns-text" "|/" "def-text"]
+                                                              ["comp-dep-node" "child-dep-info"]]]]]]]]
+                                                       ["if"
+                                                        ["not" ["empty?" "internal-deps"]]
+                                                        ["div"
+                                                         ["{}"]
+                                                         ["->>"
+                                                          "internal-deps"
+                                                          ["map"
+                                                           ["fn"
+                                                            ["child-dep-info"]
+                                                            ["let"
+                                                             [[["{}" ["ns-text" ":ns"] ["def-text" ":def"]]
+                                                               "child-dep-info"]]
+                                                             ["[]"
+                                                              ["str" "ns-text" "|/" "def-text"]
+                                                              ["comp-dep-node" "child-dep-info"]]]]]]]]]]]]]],
+                                 "style-name" ["def"
+                                               "style-name"
+                                               ["{}"
+                                                [":padding" "|0 4px"]
+                                                [":white-space" ":nowrap"]
+                                                [":line-height" "|20px"]
+                                                [":cursor" ":pointer"]]],
+                                 "style-external" ["def"
+                                                   "style-external"
+                                                   ["{}"
+                                                    [":color" ["hsl" "0" "0" "70" "0.7"]]
+                                                    [":font-size" "12"]
+                                                    [":line-height" "1"]
+                                                    [":cursor" ":default"]]],
+                                 "render-external-name" ["defn"
+                                                         "render-external-name"
+                                                         ["dep-info"]
+                                                         ["div"
+                                                          ["{}"
+                                                           [":inner-text"
+                                                            ["str"
+                                                             [":ns" "dep-info"]
+                                                             "\\newline"
+                                                             "|/"
+                                                             [":def" "dep-info"]]]
+                                                           [":style"
+                                                            ["merge" "style-name" "style-external" "ui/column"]]]]],
+                                 "render-internal-name" ["defn"
+                                                         "render-internal-name"
+                                                         ["dep-info"]
+                                                         ["div"
+                                                          ["{}"
+                                                           [":inner-text"
+                                                            ["str" [":ns" "dep-info"] "|/" [":def" "dep-info"]]]
+                                                           [":style" ["merge" "style-name"]]
+                                                           [":event" ["{}" [":click" ["on-edit" "dep-info"]]]]]]],
+                                 "style-dependency" ["def"
+                                                     "style-dependency"
+                                                     ["{}"
+                                                      [":border-left" ["str" "|1px solid " ["hsl" "0" "0" "100" "0.3"]]]
+                                                      [":padding-left" "8"]
+                                                      [":align-items" ":flex-start"]]],
+                                 "on-edit" ["defn"
+                                            "on-edit"
+                                            ["dep-info"]
+                                            ["fn"
+                                             ["e" "dispatch!"]
+                                             ["dispatch!"
+                                              ":collection/edit"
+                                              ["{}"
+                                               [":ns" [":ns" "dep-info"]]
+                                               [":kind" ":defs"]
+                                               [":extra" [":def" "dep-info"]]
+                                               [":focus" ["[]"]]]]]]},
+                          :procs []},
          "actions" {:ns ["ns"
                          "app.actions"
                          [":require"

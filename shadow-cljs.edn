@@ -7,7 +7,13 @@
                 [respo/ui             "0.2.0"]
                 [respo/border         "0.1.0"]
                 [cljs-ajax            "0.5.8"]]
- :builds {:app {:output-dir "target/"
-                :target :npm-module
-                :release {:entries [app.main]
-                          :output-dir "target/release/"}}}}
+ :builds {:dev {:output-dir "target/browser"
+                :asset-path "/browser"
+                :target :browser
+                :modules {:main {:entries [app.main]}}
+                :devtools {:after-load app.main/reload!}}
+          :npm {:output-dir "target"
+                :target :npm-module}
+          :release {:entries [app.main]
+                    :target :npm-module
+                    :output-dir "target/release/"}}}

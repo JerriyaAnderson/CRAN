@@ -4,9 +4,10 @@
   (:require [hsl.core :refer [hsl]]
             [respo.alias :refer [div button]]
             (respo-ui.style :as ui)
-            (respo.comp.text :refer (comp-text))))
+            (respo.comp.text :refer (comp-text))
+            (app.comp.dep-node :refer (comp-dep-node))))
 
-(def style-graph {:background-color (hsl 0 0 0)})
+(def style-graph {:background-color (hsl 0 0 0), :overflow :auto})
 
 (def style-toolbar {:padding 16})
 
@@ -19,5 +20,8 @@
   {:style (merge ui/fullscreen style-graph)}
   (div
    {:style style-toolbar}
-   (button {:inner-text "Generate!", :style ui/button, :event {:click on-load}}))
-  (comp-text "Graph" nil)))
+   (div {} (button {:inner-text "Generate!", :style ui/button, :event {:click on-load}}))
+   (div
+    {}
+    (let [tree (get-in store [:graph :tree])]
+      (if (some? tree) (comp-dep-node tree) (comp-text "Need to generate...")))))))
