@@ -1,7 +1,8 @@
 
 (ns app.comp.define
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div input]]
+            [respo.alias :refer [div input]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]
@@ -42,26 +43,24 @@
        (dispatch! :states [parent-cursor ""])
        (dispatch! :collection/add-definition [ns-name text])))))
 
-(def comp-define
-  (create-comp
-   :define
-   (fn [draft ns-name parent-cursor]
-     (fn [cursor]
-       (div
-        {}
-        (div
-         {:style style-namespace, :event {:click (on-click ns-name)}}
-         (comp-text ns-name style-ns)
-         (comp-space 16 nil)
-         (div
-          {:style (merge style-proc), :event {:click (on-proc ns-name)}}
-          (comp-text "proc" nil)))
-        (div
-         {}
-         (input
-          {:style (merge (merge widget/input {:width "200px", :height "24px"})),
-           :attrs {:value draft, :placeholder ""},
-           :event {:input (on-input parent-cursor),
-                   :keydown (on-keydown parent-cursor draft ns-name)}})))))))
+(defcomp
+ comp-define
+ (draft ns-name parent-cursor)
+ (div
+  {}
+  (div
+   {:style style-namespace, :event {:click (on-click ns-name)}}
+   (comp-text ns-name style-ns)
+   (comp-space 16 nil)
+   (div
+    {:style (merge style-proc), :event {:click (on-proc ns-name)}}
+    (comp-text "proc" nil)))
+  (div
+   {}
+   (input
+    {:style (merge (merge widget/input {:width "200px", :height "24px"})),
+     :attrs {:value draft, :placeholder ""},
+     :event {:input (on-input parent-cursor),
+             :keydown (on-keydown parent-cursor draft ns-name)}}))))
 
 (defn init-state [& args] "")

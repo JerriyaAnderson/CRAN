@@ -1,7 +1,8 @@
 
 (ns app.comp.modal-stack
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div span]]
+            [respo.alias :refer [div span]]
             [respo.cursor :refer [with-cursor]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.debug :refer [comp-debug]]
@@ -33,18 +34,16 @@
      :hydrate (with-cursor :hydrate (comp-hydrate (:hydrate states)))
      (comp-text title nil))))
 
-(def comp-modal-stack
-  (create-comp
-   :modal-stack
-   (fn [states modal-stack]
-     (fn [cursor]
-       (div
-        {}
-        (->> modal-stack
-             (map-indexed
-              (fn [idx modal]
-                (let [kind (:kind modal), title (:title modal), data (:data modal)]
-                  [idx
-                   (div
-                    {:style style-modal, :event {:click on-recycle}}
-                    (div {:event {:click on-tip}} (renderer states kind title data)))])))))))))
+(defcomp
+ comp-modal-stack
+ (states modal-stack)
+ (div
+  {}
+  (->> modal-stack
+       (map-indexed
+        (fn [idx modal]
+          (let [kind (:kind modal), title (:title modal), data (:data modal)]
+            [idx
+             (div
+              {:style style-modal, :event {:click on-recycle}}
+              (div {:event {:click on-tip}} (renderer states kind title data)))]))))))

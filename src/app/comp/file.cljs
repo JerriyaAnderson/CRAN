@@ -1,7 +1,8 @@
 
 (ns app.comp.file
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [clojure.string :as string]
-            [respo.alias :refer [create-comp div input]]
+            [respo.alias :refer [div input]]
             [respo.cursor :refer [with-cursor]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
@@ -26,26 +27,24 @@
 (defn with-query [state]
   (fn [x] (if (string/blank? state) true (string/includes? (first x) state))))
 
-(def comp-file
-  (create-comp
-   :file
-   (fn [states def-codes ns-name]
-     (fn [cursor]
-       (let [state (or (:data states) "")]
-         (div
-          {:style style-file}
-          (comp-define state ns-name cursor)
-          (div
-           {:style style-list}
-           (->> def-codes
-                (filter (with-query state))
-                (sort-by by-var-part)
-                (map
-                 (fn [code-entry]
-                   (let [path (first code-entry)
-                         var-part (last (string/split path (re-pattern "/")))]
-                     [var-part
-                      (div
-                       {:style widget/var-entry,
-                        :event {:click (on-edit-definition ns-name path)},
-                        :attrs {:inner-text var-part}})])))))))))))
+(defcomp
+ comp-file
+ (states def-codes ns-name)
+ (let [state (or (:data states) "")]
+   (div
+    {:style style-file}
+    (comp-define state ns-name cursor)
+    (div
+     {:style style-list}
+     (->> def-codes
+          (filter (with-query state))
+          (sort-by by-var-part)
+          (map
+           (fn [code-entry]
+             (let [path (first code-entry)
+                   var-part (last (string/split path (re-pattern "/")))]
+               [var-part
+                (div
+                 {:style widget/var-entry,
+                  :event {:click (on-edit-definition ns-name path)},
+                  :attrs {:inner-text var-part}})]))))))))

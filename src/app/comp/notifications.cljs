@@ -1,8 +1,9 @@
 
 (ns app.comp.notifications
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
             [respo-ui.style :as ui]
-            [respo.alias :refer [create-comp div]]
+            [respo.alias :refer [div]]
             [respo.comp.text :refer [comp-text]]))
 
 (defn on-click [idx] (fn [e dispatch!] (dispatch! :notification/remove-since idx)))
@@ -22,18 +23,16 @@
    :cursor "pointer",
    :border-radius "2px"})
 
-(def comp-notifications
-  (create-comp
-   :notifications
-   (fn [notifications]
-     (fn [cursor]
-       (div
-        {}
-        (->> notifications
-             (map-indexed
-              (fn [idx entry]
-                [(first entry)
-                 (div
-                  {:style (merge style-notification {:top (str (+ 8 (* 40 idx)) "px")}),
-                   :event {:click (on-click idx)}}
-                  (comp-text (last entry) nil))]))))))))
+(defcomp
+ comp-notifications
+ (notifications)
+ (div
+  {}
+  (->> notifications
+       (map-indexed
+        (fn [idx entry]
+          [(first entry)
+           (div
+            {:style (merge style-notification {:top (str (+ 8 (* 40 idx)) "px")}),
+             :event {:click (on-click idx)}}
+            (comp-text (last entry) nil))])))))

@@ -1,6 +1,7 @@
 
 (ns app.comp.rename-path
-  (:require [respo.alias :refer [create-comp div input]]
+  (:require-macros (respo.macros :refer (defcomp)))
+  (:require [respo.alias :refer [div input]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [respo-ui.style :as ui]
@@ -18,24 +19,22 @@
     (dispatch! :collection/rename [code-path text])
     (dispatch! :modal/recycle nil)))
 
-(def comp-rename-path
-  (create-comp
-   :rename-path
-   (fn [states code-path]
-     (fn [cursor]
-       (let [state (or (:data states) (init-state code-path))]
-         (div
-          {}
-          (div {} (comp-text (str "Rename in " (first code-path)) nil))
-          (div {} (comp-text (last code-path) nil))
-          (div
-           {}
-           (input
-            {:style (merge ui/input {:width 400}),
-             :attrs {:value state},
-             :event {:input (on-input cursor)}})
-           (comp-space 16 nil)
-           (div
-            {:style widget/button,
-             :attrs {:inner-text "Rename"},
-             :event {:click (on-rename code-path state)}}))))))))
+(defcomp
+ comp-rename-path
+ (states code-path)
+ (let [state (or (:data states) (init-state code-path))]
+   (div
+    {}
+    (div {} (comp-text (str "Rename in " (first code-path)) nil))
+    (div {} (comp-text (last code-path) nil))
+    (div
+     {}
+     (input
+      {:style (merge ui/input {:width 400}),
+       :attrs {:value state},
+       :event {:input (on-input cursor)}})
+     (comp-space 16 nil)
+     (div
+      {:style widget/button,
+       :attrs {:inner-text "Rename"},
+       :event {:click (on-rename code-path state)}})))))

@@ -1,8 +1,9 @@
 
 (ns app.comp.command
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [clojure.string :as string]
             [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div]]
+            [respo.alias :refer [div]]
             [respo.comp.text :refer [comp-text]]))
 
 (def style-command
@@ -14,12 +15,10 @@
 
 (defn on-click [on-select] (fn [e dispatch!] (on-select dispatch!)))
 
-(def comp-command
-  (create-comp
-   :command
-   (fn [command selected? on-select]
-     (fn [cursor]
-       (div
-        {:style (merge style-command (if selected? {:background-color (hsl 0 0 30)})),
-         :event {:click (on-click on-select)}}
-        (comp-text (string/join " " command) nil))))))
+(defcomp
+ comp-command
+ (command selected? on-select)
+ (div
+  {:style (merge style-command (if selected? {:background-color (hsl 0 0 30)})),
+   :event {:click (on-click on-select)}}
+  (comp-text (string/join " " command) nil)))

@@ -1,9 +1,10 @@
 
 (ns app.comp.stack
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
             [clojure.string :as string]
             [respo-ui.style :as ui]
-            [respo.alias :refer [create-comp div]]
+            [respo.alias :refer [div]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]))
@@ -44,26 +45,22 @@
    :line-height 1.4,
    :white-space "nowrap"})
 
-(def comp-stack
-  (create-comp
-   :stack
-   (fn [stack pointer]
-     (fn [cursor]
-       (div
-        {:style (merge ui/flex style-container)}
-        (->> stack
-             (map-indexed
-              (fn [idx item]
-                [idx
-                 (let [{ns-part :ns, kind :kind, extra-name :extra} item]
-                   (if (= kind :defs)
-                     (div
-                      {:style style-bar, :event {:click (on-click idx)}}
-                      (div
-                       {:style (if (= idx pointer) style-bright)}
-                       (comp-text extra-name nil))
-                      (div {:style style-ns} (comp-text ns-part nil)))
-                     (div
-                      {:style (merge style-ns-main (if (= idx pointer) style-bright)),
-                       :event {:click (on-click idx)}}
-                      (comp-text ns-part nil))))]))))))))
+(defcomp
+ comp-stack
+ (stack pointer)
+ (div
+  {:style (merge ui/flex style-container)}
+  (->> stack
+       (map-indexed
+        (fn [idx item]
+          [idx
+           (let [{ns-part :ns, kind :kind, extra-name :extra} item]
+             (if (= kind :defs)
+               (div
+                {:style style-bar, :event {:click (on-click idx)}}
+                (div {:style (if (= idx pointer) style-bright)} (comp-text extra-name nil))
+                (div {:style style-ns} (comp-text ns-part nil)))
+               (div
+                {:style (merge style-ns-main (if (= idx pointer) style-bright)),
+                 :event {:click (on-click idx)}}
+                (comp-text ns-part nil))))])))))

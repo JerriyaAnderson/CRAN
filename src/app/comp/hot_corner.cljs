@@ -1,7 +1,8 @@
 
 (ns app.comp.hot-corner
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div span]]
+            [respo.alias :refer [div span]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [respo-ui.style :as ui]))
@@ -13,15 +14,10 @@
       (if (not (empty? (:stack writer)))
         (dispatch! :router/route {:name :workspace, :data nil})))))
 
-(def comp-hot-corner
-  (create-comp
-   :hot-corner
-   (fn [router writer]
-     (fn [cursor]
-       (div
-        {:style {:font-size "24px",
-                 :font-weight "300",
-                 :text-align "center",
-                 :cursor "pointer"},
-         :event {:click (on-switch router writer)}}
-        (comp-text "Stack Editor" {:font-family "Josefin Sans"}))))))
+(defcomp
+ comp-hot-corner
+ (router writer)
+ (div
+  {:style {:font-size "24px", :font-weight "300", :text-align "center", :cursor "pointer"},
+   :event {:click (on-switch router writer)}}
+  (comp-text "Stack Editor" {:font-family "Josefin Sans"})))

@@ -1,8 +1,9 @@
 
 (ns app.comp.palette
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [clojure.string :as string]
             [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div input]]
+            [respo.alias :refer [div input]]
             [respo-ui.style :as ui]
             [respo.comp.text :refer [comp-text]]
             [cirru-editor.util.dom :refer [focus!]]
@@ -71,43 +72,36 @@
            (handle-command cursor commands collection dispatch!))
         :else nil))))
 
-(def comp-palette
-  (create-comp
-   :palette
-   (fn [states files]
-     (fn [cursor]
-       (let [ns-names (->> (keys files) (map (fn [path] [:ns path])))
-             state (or (:data states) initial-state)
-             def-paths (->> files
-                            (map
-                             (fn [entry]
-                               (let [[ns-part tree] entry]
-                                 (->> (:defs tree)
-                                      (keys)
-                                      (map (fn [def-name] [:defs ns-part def-name]))))))
-                            (apply concat))
-             procedure-names (->> (keys files) (map (fn [proc-name] [:procs proc-name])))
-             queries (string/split (:text state) " ")
-             commands (->> (concat def-paths ns-names procedure-names basic-commands)
-                           (filter (fn [command] (fuzzy-search command queries))))]
-         (div
-          {:style (merge ui/fullscreen ui/row style-container)}
-          (div
-           {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
-           (input
-            {:style (merge widget/input {:width "100%", :line-height "40px"}),
-             :attrs {:placeholder "write command...",
-                     :id "command-palette",
-                     :value (:text state)},
-             :event {:input (on-input cursor state),
-                     :keydown (on-keydown cursor state commands (:cursor state) files)}})
-           (div
-            {:style (merge ui/flex {:overflow "auto"})}
-            (->> commands
-                 (map-indexed
-                  (fn [idx command]
-                    [idx
-                     (comp-command
-                      command
-                      (= idx (:cursor state))
-                      (on-select idx commands files))])))))))))))
+(defcomp
+ comp-palette
+ (states files)
+ (let [ns-names (->> (keys files) (map (fn [path] [:ns path])))
+       state (or (:data states) initial-state)
+       def-paths (->> files
+                      (map
+                       (fn [entry]
+                         (let [[ns-part tree] entry]
+                           (->> (:defs tree)
+                                (keys)
+                                (map (fn [def-name] [:defs ns-part def-name]))))))
+                      (apply concat))
+       procedure-names (->> (keys files) (map (fn [proc-name] [:procs proc-name])))
+       queries (string/split (:text state) " ")
+       commands (->> (concat def-paths ns-names procedure-names basic-commands)
+                     (filter (fn [command] (fuzzy-search command queries))))]
+   (div
+    {:style (merge ui/fullscreen ui/row style-container)}
+    (div
+     {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
+     (input
+      {:style (merge widget/input {:width "100%", :line-height "40px"}),
+       :attrs {:placeholder "write command...", :id "command-palette", :value (:text state)},
+       :event {:input (on-input cursor state),
+               :keydown (on-keydown cursor state commands (:cursor state) files)}})
+     (div
+      {:style (merge ui/flex {:overflow "auto"})}
+      (->> commands
+           (map-indexed
+            (fn [idx command]
+              [idx
+               (comp-command command (= idx (:cursor state)) (on-select idx commands files))]))))))))

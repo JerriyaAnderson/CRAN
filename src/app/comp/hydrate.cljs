@@ -1,7 +1,8 @@
 
 (ns app.comp.hydrate
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div textarea button]]
+            [respo.alias :refer [div textarea button]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]
@@ -32,24 +33,22 @@
         (do (dispatch! :collection/hydrate piece) (dispatch! :modal/recycle nil))
         (dispatch! :notification/add-one (str "Checking failed: " (pr-str text)))))))
 
-(def comp-hydrate
-  (create-comp
-   :hydrate
-   (fn [states]
-     (fn [cursor]
-       (let [state (:data states)]
-         (div
-          {}
-          (div {:style style-hint} (comp-text "EDN Cirru code to hydrate:" nil))
-          (div
-           {}
-           (textarea
-            {:style (merge ui/textarea style-textarea),
-             :attrs {:value state},
-             :event {:input (on-change cursor)}}))
-          (comp-space nil 8)
-          (div
-           {:style (merge ui/row style-toolbar)}
-           (button
-            {:style widget/button, :event {:click (on-hydrate state)}}
-            (comp-text "Hydrate" nil)))))))))
+(defcomp
+ comp-hydrate
+ (states)
+ (let [state (:data states)]
+   (div
+    {}
+    (div {:style style-hint} (comp-text "EDN Cirru code to hydrate:" nil))
+    (div
+     {}
+     (textarea
+      {:style (merge ui/textarea style-textarea),
+       :attrs {:value state},
+       :event {:input (on-change cursor)}}))
+    (comp-space nil 8)
+    (div
+     {:style (merge ui/row style-toolbar)}
+     (button
+      {:style widget/button, :event {:click (on-hydrate state)}}
+      (comp-text "Hydrate" nil))))))

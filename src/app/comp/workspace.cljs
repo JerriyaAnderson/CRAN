@@ -1,7 +1,8 @@
 
 (ns app.comp.workspace
+  (:require-macros (respo.macros :refer (defcomp)))
   (:require [hsl.core :refer [hsl]]
-            [respo.alias :refer [create-comp div]]
+            [respo.alias :refer [div]]
             [respo.cursor :refer [with-cursor]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
@@ -69,46 +70,42 @@
    :display "inline-block",
    :max-width "400px"})
 
-(def comp-workspace
-  (create-comp
-   :workspace
-   (fn [store]
-     (fn [cursor]
-       (let [router (:router store)
-             states (:states store)
-             writer (:writer store)
-             stack (get-in store [:writer :stack])
-             pointer (get-in store [:writer :pointer])
-             code-path (get stack pointer)
-             tree (if (some? code-path) (get-in store (make-path code-path)) nil)]
-         (div
-          {:style (merge ui/fullscreen ui/row style-container)}
-          (div
-           {:style (merge ui/column style-sidebar)}
-           (comp-hot-corner router (:writer store))
-           (comp-stack stack pointer))
-          (comment comp-debug writer style-debugger)
-          (if (some? tree)
-            (div
-             {:style (merge ui/column ui/flex)}
-             (with-cursor
-              :editor
-              (comp-editor
-               (:editor states)
-               {:tree tree, :focus (:focus code-path), :clipboard (:clipboard writer)}
-               on-update
-               (on-command store)))
-             (div
-              {:style (merge ui/row style-toolbar)}
-              (div
-               {:style widget/button,
-                :event {:click (on-rename code-path)},
-                :attrs {:inner-text "Rename"}})
-              (comp-space 8 nil)
-              (div
-               {:style widget/button,
-                :event {:click on-remove},
-                :attrs {:inner-text "Remove"}})))
-            (div
-             {:style (merge ui/column ui/flex)}
-             (div {:style style-removed} (comp-text "Tree is be removed." nil))))))))))
+(defcomp
+ comp-workspace
+ (store)
+ (let [router (:router store)
+       states (:states store)
+       writer (:writer store)
+       stack (get-in store [:writer :stack])
+       pointer (get-in store [:writer :pointer])
+       code-path (get stack pointer)
+       tree (if (some? code-path) (get-in store (make-path code-path)) nil)]
+   (div
+    {:style (merge ui/fullscreen ui/row style-container)}
+    (div
+     {:style (merge ui/column style-sidebar)}
+     (comp-hot-corner router (:writer store))
+     (comp-stack stack pointer))
+    (comment comp-debug writer style-debugger)
+    (if (some? tree)
+      (div
+       {:style (merge ui/column ui/flex)}
+       (with-cursor
+        :editor
+        (comp-editor
+         (:editor states)
+         {:tree tree, :focus (:focus code-path), :clipboard (:clipboard writer)}
+         on-update
+         (on-command store)))
+       (div
+        {:style (merge ui/row style-toolbar)}
+        (div
+         {:style widget/button,
+          :event {:click (on-rename code-path)},
+          :attrs {:inner-text "Rename"}})
+        (comp-space 8 nil)
+        (div
+         {:style widget/button, :event {:click on-remove}, :attrs {:inner-text "Remove"}})))
+      (div
+       {:style (merge ui/column ui/flex)}
+       (div {:style style-removed} (comp-text "Tree is be removed." nil)))))))
