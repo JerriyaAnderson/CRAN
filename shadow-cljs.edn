@@ -4,14 +4,15 @@
                 [cumulo/shallow-diff  "0.1.3"]
                 [mvc-works/shell-page "0.1.1"]
                 [cirru/editor         "0.2.4"]
-                [respo                "0.5.7"]
+                [respo                "0.5.9"]
                 [respo/ui             "0.2.0"]
                 [cljs-ajax            "0.5.8"]]
  :builds {:browser {:output-dir "target/browser"
                     :asset-path "/browser"
                     :target :browser
                     :modules {:main {:entries [app.main]}}
-                    :devtools {:after-load app.main/reload!}}
+                    :devtools {:after-load app.main/reload!}
+                    :compiler-options {:pseudo-names true}}
           :ssr {:target :node-script
                 :output-to "target/ssr.js"
                 :main app.render/main!
