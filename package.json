@@ -29,7 +29,7 @@
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
     "respo-ui": "^0.1.2",
-    "shadow-cljs": "^0.18.0",
+    "shadow-cljs": "^0.18.1",
     "source-map-loader": "^0.2.1",
     "source-map-support": "^0.4.15",
     "style-loader": "^0.18.2",

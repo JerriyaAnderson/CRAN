@@ -97,10 +97,7 @@
      (fn [writer]
        (-> writer
            (update :stack (fn [stack] (remove-idx stack pointer)))
-           (update
-            :pointer
-            (fn [pointer]
-              (if (= pointer (dec (count (:stack writer)))) (dec pointer) pointer))))))))
+           (update :pointer (fn [pointer] (if (pos? pointer) (dec pointer) pointer))))))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data

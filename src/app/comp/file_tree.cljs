@@ -37,10 +37,14 @@
 
 (defn on-graph [e dispatch!] (dispatch! :router/route {:name :graph, :data nil}))
 
+(defn on-stack [e d! m!] (d! :router/route {:name :workspace, :data nil}))
+
 (defn render-toolbar [state cursor]
   (div
    {:style style-toolbar}
    (button {:inner-text "Graph", :style widget/button, :event {:click on-graph}})
+   (=< 8 nil)
+   (button {:inner-text "Stack", :style widget/button, :event {:click on-stack}})
    (=< 8 nil)
    (input
     {:value state,

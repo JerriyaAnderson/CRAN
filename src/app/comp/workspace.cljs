@@ -59,10 +59,10 @@
 
 (def style-removed
   {:margin "32px 16px",
-   :font-size "14px",
+   :font-size "20px",
    :font-weight "lighter",
-   :color (hsl 0 80 100),
-   :background-color (hsl 0 80 40),
+   :color (hsl 0 80 50),
+   :font-family "Josefin Sans",
    :padding "0 16px",
    :display "inline-block",
    :max-width "400px"})
@@ -109,4 +109,4 @@
           :event {:click on-remove}})))
       (div
        {:style (merge ui/column ui/flex)}
-       (div {:style style-removed} (<> span "Tree is be removed." nil)))))))
+       (div {:style style-removed} (<> span "No expression" nil)))))))

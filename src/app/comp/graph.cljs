@@ -48,29 +48,32 @@
   (let [tree (get-in store [:graph :tree])
         root-tree (assoc (get-in store [:collection :root]) :deps #{tree})
         view-path (get-in store [:graph :path])]
-    (div
-     {:style (merge ui/row style-body)}
-     (loop [branch root-tree, children [], path []]
-       (let [next-path (conj path (get view-path (count path)))
-             next-pos (get view-path (count path))
-             next-children (conj
-                            children
-                            [(count children)
-                             (div
-                              {:style style-column}
-                              (->> (:deps branch)
-                                   (sort def-order)
-                                   (map-indexed
-                                    (fn [idx child-node]
-                                      [idx
-                                       (comp-def
-                                        child-node
-                                        path
-                                        (=def? next-pos child-node))]))))])]
-         (if (= path view-path)
-           next-children
-           (let [next-branch (->> (:deps branch)
-                                  (set/select
-                                   (fn [x] (=def? (get view-path (count path)) x)))
-                                  (first))]
-             (recur next-branch next-children next-path)))))))))
+    (println "tree" tree)
+    (if (some? tree)
+      (div
+       {:style (merge ui/row style-body)}
+       (loop [branch root-tree, children [], path []]
+         (let [next-path (conj path (get view-path (count path)))
+               next-pos (get view-path (count path))
+               next-children (conj
+                              children
+                              [(count children)
+                               (div
+                                {:style style-column}
+                                (->> (:deps branch)
+                                     (sort def-order)
+                                     (map-indexed
+                                      (fn [idx child-node]
+                                        [idx
+                                         (comp-def
+                                          child-node
+                                          path
+                                          (=def? next-pos child-node))]))))])]
+           (if (= path view-path)
+             next-children
+             (let [next-branch (->> (:deps branch)
+                                    (set/select
+                                     (fn [x] (=def? (get view-path (count path)) x)))
+                                    (first))]
+               (recur next-branch next-children next-path))))))
+      (<> div "Not generated yet." {:padding "0 16px"})))))

@@ -381,10 +381,7 @@
                                                    ":pointer"
                                                    ["fn"
                                                     ["pointer"]
-                                                    ["if"
-                                                     ["=" "pointer" ["dec" ["count" [":stack" "writer"]]]]
-                                                     ["dec" "pointer"]
-                                                     "pointer"]]]]]]]],
+                                                    ["if" ["pos?" "pointer"] ["dec" "pointer"] "pointer"]]]]]]]],
                                  "goto-definition" ["defn"
                                                     "goto-definition"
                                                     ["store" "op-data" "op-id"]
@@ -940,7 +937,7 @@
                                                         ["{}" [":style" ["merge" "ui/column" "ui/flex"]]]
                                                         ["div"
                                                          ["{}" [":style" "style-removed"]]
-                                                         ["<>" "span" "|Tree is be removed." "nil"]]]]]]],
+                                                         ["<>" "span" "|No expression" "nil"]]]]]]],
                                   "on-update" ["defn"
                                                "on-update"
                                                ["snapshot" "dispatch!"]
@@ -983,10 +980,10 @@
                                                    "style-removed"
                                                    ["{}"
                                                     [":margin" "|32px 16px"]
-                                                    [":font-size" "|14px"]
+                                                    [":font-size" "|20px"]
                                                     [":font-weight" "|lighter"]
-                                                    [":color" ["hsl" "0" "80" "100"]]
-                                                    [":background-color" ["hsl" "0" "80" "40"]]
+                                                    [":color" ["hsl" "0" "80" "50"]]
+                                                    [":font-family" "|Josefin Sans"]
                                                     [":padding" "|0 16px"]
                                                     [":display" "|inline-block"]
                                                     [":max-width" "|400px"]]]},
@@ -1035,43 +1032,47 @@
                                                  ":deps"
                                                  ["#{}" "tree"]]]
                                                ["view-path" ["get-in" "store" ["[]" ":graph" ":path"]]]]
-                                              ["div"
-                                               ["{}" [":style" ["merge" "ui/row" "style-body"]]]
-                                               ["loop"
-                                                ["[]" "branch" "root-tree" "children" ["[]"] "path" ["[]"]]
-                                                ["let"
-                                                 [["next-path" ["conj" "path" ["get" "view-path" ["count" "path"]]]]
-                                                  ["next-pos" ["get" "view-path" ["count" "path"]]]
-                                                  ["next-children"
-                                                   ["conj"
-                                                    "children"
-                                                    ["[]"
-                                                     ["count" "children"]
-                                                     ["div"
-                                                      ["{}" [":style" "style-column"]]
+                                              ["println" "|tree" "tree"]
+                                              ["if"
+                                               ["some?" "tree"]
+                                               ["div"
+                                                ["{}" [":style" ["merge" "ui/row" "style-body"]]]
+                                                ["loop"
+                                                 ["[]" "branch" "root-tree" "children" ["[]"] "path" ["[]"]]
+                                                 ["let"
+                                                  [["next-path" ["conj" "path" ["get" "view-path" ["count" "path"]]]]
+                                                   ["next-pos" ["get" "view-path" ["count" "path"]]]
+                                                   ["next-children"
+                                                    ["conj"
+                                                     "children"
+                                                     ["[]"
+                                                      ["count" "children"]
+                                                      ["div"
+                                                       ["{}" [":style" "style-column"]]
+                                                       ["->>"
+                                                        [":deps" "branch"]
+                                                        ["sort" "def-order"]
+                                                        ["map-indexed"
+                                                         ["fn"
+                                                          ["idx" "child-node"]
+                                                          ["[]"
+                                                           "idx"
+                                                           ["comp-def"
+                                                            "child-node"
+                                                            "path"
+                                                            ["=def?" "next-pos" "child-node"]]]]]]]]]]]
+                                                  ["if"
+                                                   ["=" "path" "view-path"]
+                                                   "next-children"
+                                                   ["let"
+                                                    [["next-branch"
                                                       ["->>"
                                                        [":deps" "branch"]
-                                                       ["sort" "def-order"]
-                                                       ["map-indexed"
-                                                        ["fn"
-                                                         ["idx" "child-node"]
-                                                         ["[]"
-                                                          "idx"
-                                                          ["comp-def"
-                                                           "child-node"
-                                                           "path"
-                                                           ["=def?" "next-pos" "child-node"]]]]]]]]]]]
-                                                 ["if"
-                                                  ["=" "path" "view-path"]
-                                                  "next-children"
-                                                  ["let"
-                                                   [["next-branch"
-                                                     ["->>"
-                                                      [":deps" "branch"]
-                                                      ["set/select"
-                                                       ["fn" ["x"] ["=def?" ["get" "view-path" ["count" "path"]] "x"]]]
-                                                      ["first"]]]]
-                                                   ["recur" "next-branch" "next-children" "next-path"]]]]]]]]],
+                                                       ["set/select"
+                                                        ["fn" ["x"] ["=def?" ["get" "view-path" ["count" "path"]] "x"]]]
+                                                       ["first"]]]]
+                                                    ["recur" "next-branch" "next-children" "next-path"]]]]]]
+                                               ["<>" "div" "|Not generated yet." ["{}" [":padding" "|0 16px"]]]]]]],
                               "render-toolbar" ["defn"
                                                 "render-toolbar"
                                                 []
@@ -2441,6 +2442,12 @@
                                                        [":style" "widget/button"]
                                                        [":event" ["{}" [":click" "on-graph"]]]]]
                                                      ["=<" "8" "nil"]
+                                                     ["button"
+                                                      ["{}"
+                                                       [":inner-text" "|Stack"]
+                                                       [":style" "widget/button"]
+                                                       [":event" ["{}" [":click" "on-stack"]]]]]
+                                                     ["=<" "8" "nil"]
                                                      ["input"
                                                       ["{}"
                                                        [":value" "state"]
@@ -2475,7 +2482,11 @@
                                                  [":cursor" ":pointer"]
                                                  [":color" ["hsl" "0" "0" "100" "0.5"]]
                                                  [":white-space" ":nowrap"]
-                                                 [":font-size" "16"]]]},
+                                                 [":font-size" "16"]]],
+                                  "on-stack" ["defn"
+                                              "on-stack"
+                                              ["e" "d!" "m!"]
+                                              ["d!" ":router/route" ["{}" [":name" ":workspace"] [":data" "nil"]]]]},
                            :procs []},
          "updater.collection" {:ns ["ns"
                                     "app.updater.collection"
