@@ -25,7 +25,10 @@
 
 (defn fuzzy-search [pieces queries]
   (every?
-   (fn [query] (some (fn [piece] (string/includes? (str piece) query)) pieces))
+   (fn [query]
+     (some
+      (fn [piece] (string/includes? (str piece) query))
+      (if (= :defs (first pieces)) (subvec pieces 1) pieces)))
    queries))
 
 (defn strip-atom [token]
