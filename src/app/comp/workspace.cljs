@@ -37,8 +37,6 @@
            (.stopPropagation event)
            (dispatch! :router/toggle-palette nil)
            (dom/focus-palette!))
-        (and command? shift? (= code keycode/key-e))
-          (do (.preventDefault event) (dispatch! :collection/expand-ns nil))
         (and command? (not shift?) (= code keycode/key-e))
           (do (.preventDefault event) (dispatch! :collection/edit-ns nil))
         :else nil))))

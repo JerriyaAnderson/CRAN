@@ -19,16 +19,13 @@
             [app.style.widget :as widget]
             (app.comp.file-tree :refer (comp-file-tree))))
 
-(defn on-keydown [e dispatch!] )
-
 (defcomp
  comp-container
  (store)
  (let [router (:router store), states (:states store)]
    (div
     {:style (merge ui/global {:background-color (hsl 0 0 0), :color (hsl 0 0 70)}),
-     :attrs {:tab-index 0},
-     :event {:keydown on-keydown}}
+     :attrs {:tab-index 0}}
     (case (:name router)
       :loading (comp-loading)
       :analyzer (comp-definitions states (:collection store))

@@ -1025,10 +1025,6 @@
                                                      [".stopPropagation" "event"]
                                                      ["dispatch!" ":router/toggle-palette" "nil"]
                                                      ["dom/focus-palette!"]]]
-                                                   [["and" "command?" "shift?" ["=" "code" "keycode/key-e"]]
-                                                    ["do"
-                                                     [".preventDefault" "event"]
-                                                     ["dispatch!" ":collection/expand-ns" "nil"]]]
                                                    [["and" "command?" ["not" "shift?"] ["=" "code" "keycode/key-e"]]
                                                     ["do"
                                                      [".preventDefault" "event"]
@@ -1346,8 +1342,7 @@
                                                          ["{}"
                                                           [":background-color" ["hsl" "0" "0" "0"]]
                                                           [":color" ["hsl" "0" "0" "70"]]]]]
-                                                       [":attrs" ["{}" [":tab-index" "0"]]]
-                                                       [":event" ["{}" [":keydown" "on-keydown"]]]]
+                                                       [":attrs" ["{}" [":tab-index" "0"]]]]
                                                       ["case"
                                                        [":name" "router"]
                                                        [":loading" ["comp-loading"]]
@@ -1369,8 +1364,7 @@
                                                         ["comp-palette"
                                                          [":palette" "states"]
                                                          [":files" [":collection" "store"]]]]]
-                                                      ["comp-modal-stack" "states" [":modal-stack" "store"]]]]],
-                                  "on-keydown" ["defn" "on-keydown" ["e" "dispatch!"]]},
+                                                      ["comp-modal-stack" "states" [":modal-stack" "store"]]]]]},
                            :procs []},
          "comp.def" {:ns ["ns"
                           "app.comp.def"
@@ -2170,7 +2164,6 @@
                                                [":collection/add-namespace" "collection/add-namespace"]
                                                [":collection/edit" "collection/edit"]
                                                [":collection/edit-ns" "collection/edit-ns"]
-                                               [":collection/expand-ns" "collection/expand-ns"]
                                                [":collection/write" "collection/write-code"]
                                                [":collection/load" "collection/load-remote"]
                                                [":collection/remove-this" "collection/remove-this"]
@@ -2941,79 +2934,6 @@
                                                         ["fn"
                                                          ["pointer"]
                                                          ["if" ["pos?" "pointer"] ["dec" "pointer"] "pointer"]]]]]],
-                                      "expand-ns" ["defn"
-                                                   "expand-ns"
-                                                   ["store" "op-data" "op-id"]
-                                                   ["let"
-                                                    [["writer" [":writer" "store"]]
-                                                     ["file-path" ["get" [":stack" "writer"] [":pointer" "writer"]]]
-                                                     ["ns-name" [":ns" "file-path"]]
-                                                     ["buffer" ["view-focused" "store"]]
-                                                     ["focused-path" ["make-focus-path" "store"]]]
-                                                    ["if"
-                                                     ["and" ["string?" "buffer"] ["string/includes?" "buffer" "|/"]]
-                                                     ["let"
-                                                      [[["[]" "ns-x" "def-x"] ["string/split" "buffer" "|/"]]
-                                                       ["ns-ast"
-                                                        ["get-in" "store" ["[]" ":collection" ":files" "ns-name" ":ns"]]]
-                                                       ["maybe-rule"
-                                                        ["first"
-                                                         ["filter"
-                                                          ["fn" ["rule"] ["=" "ns-x" ["get" "rule" "1"]]]
-                                                          ["rest" ["get" "ns-ast" "2"]]]]]]
-                                                      ["cond"
-                                                       [["nil?" "maybe-rule"]
-                                                        ["->"
-                                                         "store"
-                                                         ["assoc-in" "focused-path" "def-x"]
-                                                         ["update-in"
-                                                          ["[]" ":collection" ":files" "ns-name" ":ns" "2"]
-                                                          ["fn"
-                                                           ["require-rules"]
-                                                           ["conj"
-                                                            ["into" ["[]"] "require-rules"]
-                                                            ["[]" "|[]" "ns-x" "|:refer" ["[]" "|[]" "def-x"]]]]]
-                                                         ["update" ":writer" ["helper-put-ns" "ns-name"]]]]
-                                                       [["=" "|:refer" ["get" "maybe-rule" "2"]]
-                                                        ["->"
-                                                         "store"
-                                                         ["assoc-in" "focused-path" "def-x"]
-                                                         ["update-in"
-                                                          ["[]" ":collection" ":files" "ns-name" ":ns" "2"]
-                                                          ["fn"
-                                                           ["require-rules"]
-                                                           ["->>"
-                                                            "require-rules"
-                                                            ["map"
-                                                             ["fn"
-                                                              ["or-rule"]
-                                                              ["if"
-                                                               ["=" "or-rule" "|:require"]
-                                                               "|:require"
-                                                               ["if"
-                                                                ["=" "ns-x" ["get" "or-rule" "1"]]
-                                                                ["update"
-                                                                 "or-rule"
-                                                                 "3"
-                                                                 ["fn"
-                                                                  ["defs"]
-                                                                  ["if"
-                                                                   ["contains?" ["into" ["#{}"] "defs"] "def-x"]
-                                                                   "defs"
-                                                                   ["conj" "defs" "def-x"]]]]
-                                                                "or-rule"]]]]]]]
-                                                         ["update" ":writer" ["helper-put-ns" "ns-name"]]]]
-                                                       [["=" "|:as" ["get" "maybe-rule" "2"]]
-                                                        ["let"
-                                                         [["new-ns" ["last" "maybe-rule"]]]
-                                                         ["->"
-                                                          "store"
-                                                          ["assoc-in" "focused-path" ["str" "new-ns" "|/" "def-x"]]]]]
-                                                       [":else" ["println" "|Unkown rule:" "maybe-rule"] "store"]]]
-                                                     ["update"
-                                                      "store"
-                                                      ":notifications"
-                                                      ["helper-notify" "op-id" "|Not valid ns/def form!"]]]]],
                                       "write-code" ["defn"
                                                     "write-code"
                                                     ["store" "op-data"]

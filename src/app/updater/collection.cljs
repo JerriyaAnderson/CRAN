@@ -69,53 +69,6 @@
          [:writer :pointer]
          (fn [pointer] (if (pos? pointer) (dec pointer) pointer))))))
 
-(defn expand-ns [store op-data op-id]
-  (let [writer (:writer store)
-        file-path (get (:stack writer) (:pointer writer))
-        ns-name (:ns file-path)
-        buffer (view-focused store)
-        focused-path (make-focus-path store)]
-    (if (and (string? buffer) (string/includes? buffer "/"))
-      (let [[ns-x def-x] (string/split buffer "/")
-            ns-ast (get-in store [:collection :files ns-name :ns])
-            maybe-rule (first
-                        (filter (fn [rule] (= ns-x (get rule 1))) (rest (get ns-ast 2))))]
-        (cond
-          (nil? maybe-rule)
-            (-> store
-                (assoc-in focused-path def-x)
-                (update-in
-                 [:collection :files ns-name :ns 2]
-                 (fn [require-rules]
-                   (conj (into [] require-rules) ["[]" ns-x ":refer" ["[]" def-x]])))
-                (update :writer (helper-put-ns ns-name)))
-          (= ":refer" (get maybe-rule 2))
-            (-> store
-                (assoc-in focused-path def-x)
-                (update-in
-                 [:collection :files ns-name :ns 2]
-                 (fn [require-rules]
-                   (->> require-rules
-                        (map
-                         (fn [or-rule]
-                           (if (= or-rule ":require")
-                             ":require"
-                             (if (= ns-x (get or-rule 1))
-                               (update
-                                or-rule
-                                3
-                                (fn [defs]
-                                  (if (contains? (into #{} defs) def-x)
-                                    defs
-                                    (conj defs def-x))))
-                               or-rule)))))))
-                (update :writer (helper-put-ns ns-name)))
-          (= ":as" (get maybe-rule 2))
-            (let [new-ns (last maybe-rule)]
-              (-> store (assoc-in focused-path (str new-ns "/" def-x))))
-          :else (println "Unkown rule:" maybe-rule)))
-      (update store :notifications (helper-notify op-id "Not valid ns/def form!")))))
-
 (defn write-code [store op-data]
   (let [tree (:tree op-data)
         focus (:focus op-data)
