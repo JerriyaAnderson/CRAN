@@ -15,15 +15,6 @@
      (fn [writer]
        (-> writer (assoc :pointer 0) (update :stack (fn [stack] (subvec stack cursor))))))))
 
-(defn go-next [store op-data]
-  (-> store
-      (update
-       :writer
-       (fn [writer]
-         (if (< (:pointer writer) (dec (count (:stack writer))))
-           (-> writer (update :pointer inc) (assoc :focus []))
-           writer)))))
-
 (defn dependents [store op-data op-id]
   (let [writer (:writer store)
         {stack :stack, pointer :pointer} writer
@@ -77,9 +68,6 @@
           (update store :writer (push-paths new-paths)))
       store)))
 
-(defn point-to [store op-data op-id]
-  (let [pointer op-data] (assoc-in store [:writer :pointer] pointer)))
-
 (defn go-back [store op-data]
   (-> store
       (update
@@ -89,17 +77,14 @@
            (-> writer (update :pointer dec) (assoc :focus []))
            writer)))))
 
-(defn shift-one [store op-data op-id]
-  (let [pointer op-data]
-    (update
-     store
-     :writer
-     (fn [writer]
-       (-> writer
-           (update :stack (fn [stack] (remove-idx stack pointer)))
-           (update
-            :pointer
-            (fn [p] (if (= p pointer) (if (pos? p) (dec p) p) (if (< p pointer) p (dec p))))))))))
+(defn go-next [store op-data]
+  (-> store
+      (update
+       :writer
+       (fn [writer]
+         (if (< (:pointer writer) (dec (count (:stack writer))))
+           (-> writer (update :pointer inc) (assoc :focus []))
+           writer)))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
@@ -122,8 +107,7 @@
                        {:ns (:ns maybe-info), :def target}
                        (if (or (contains? current-ns-defs target) forced?)
                          {:ns (str pkg_ (:ns code-path)), :def target}
-                         nil
-                         ))))]
+                         nil))))]
     (comment println target dep-info)
     (if (some? dep-info)
       (if (string/starts-with? (:ns dep-info) pkg_)
@@ -151,3 +135,18 @@
              :notifications
              (helper-notify op-id (str "External package: " (:ns dep-info))))))
       (-> store (update :notifications (helper-notify op-id (str "Can't find: " target)))))))
+
+(defn point-to [store op-data op-id]
+  (let [pointer op-data] (assoc-in store [:writer :pointer] pointer)))
+
+(defn shift-one [store op-data op-id]
+  (let [pointer op-data]
+    (update
+     store
+     :writer
+     (fn [writer]
+       (-> writer
+           (update :stack (fn [stack] (remove-idx stack pointer)))
+           (update
+            :pointer
+            (fn [p] (if (= p pointer) (if (pos? p) (dec p) p) (if (< p pointer) p (dec p))))))))))

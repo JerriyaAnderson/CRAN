@@ -8,6 +8,17 @@
             [cljs.reader :refer [read-string]]
             [app.util.detect :refer [cirru-vec?]]))
 
+(defn on-change [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
+
+(defn on-hydrate [text]
+  (fn [e dispatch!]
+    (let [piece (read-string text)]
+      (if (cirru-vec? piece)
+        (do (dispatch! :collection/hydrate piece) (dispatch! :modal/recycle nil))
+        (dispatch! :notification/add-one (str "Checking failed: " (pr-str text)))))))
+
+(def style-hint {:font-family "Hind"})
+
 (def style-textarea
   {:background-color (hsl 0 0 100 0.2),
    :font-family "Source Code Pro, Menlo",
@@ -17,18 +28,7 @@
    :height 200,
    :line-height "24px"})
 
-(def style-hint {:font-family "Hind"})
-
 (def style-toolbar {:justify-content :flex-end})
-
-(defn on-change [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
-
-(defn on-hydrate [text]
-  (fn [e dispatch!]
-    (let [piece (read-string text)]
-      (if (cirru-vec? piece)
-        (do (dispatch! :collection/hydrate piece) (dispatch! :modal/recycle nil))
-        (dispatch! :notification/add-one (str "Checking failed: " (pr-str text)))))))
 
 (defcomp
  comp-hydrate

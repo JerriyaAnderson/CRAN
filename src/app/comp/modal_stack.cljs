@@ -8,7 +8,18 @@
             [app.comp.hydrate :refer [comp-hydrate]]
             [app.comp.orphans :refer [comp-orphans]]))
 
+(defn on-recycle [e dispatch!] (dispatch! :modal/recycle nil))
+
 (defn on-tip [e dispatch!] )
+
+(defn renderer [states kind title data]
+  (div
+   {}
+   (case title
+     :rename-path (comp-rename-path (>> states :rename-path) data)
+     :hydrate (comp-hydrate (>> states :hydrate))
+     :orphans (comp-orphans data)
+     (<> span title nil))))
 
 (def style-modal
   (merge
@@ -20,17 +31,6 @@
     :right 0,
     :width "100%",
     :height "100%"}))
-
-(defn on-recycle [e dispatch!] (dispatch! :modal/recycle nil))
-
-(defn renderer [states kind title data]
-  (div
-   {}
-   (case title
-     :rename-path (comp-rename-path (>> states :rename-path) data)
-     :hydrate (comp-hydrate (>> states :hydrate))
-     :orphans (comp-orphans data)
-     (<> span title nil))))
 
 (defcomp
  comp-modal-stack

@@ -10,20 +10,9 @@
             [app.style.widget :as widget]
             [app.util.keycode :as keycode]))
 
-(def style-body {:flex 1, :overflow :auto})
-
-(def style-highlight {:color (hsl 0 0 100 0.9)})
-
-(def style-toolbar {:padding "16px 16px"})
-
-(def style-column {:padding "16px 16px", :min-width 80, :line-height 1.6, :overflow :auto})
-
-(defn on-view [path ns-piece]
-  (fn [e dispatch!] (dispatch! :graph/view-ns (conj path ns-piece))))
-
 (defn on-change [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
 
-(def style-file-tree {:background-color (hsl 0 0 0)})
+(defn on-graph [e dispatch!] (dispatch! :router/route {:name :graph, :data nil}))
 
 (defn on-keydown [state cursor]
   (fn [e dispatch!]
@@ -34,9 +23,12 @@
          (dispatch! :collection/add-namespace state))
        (dispatch! :states [cursor ""])))))
 
-(defn on-graph [e dispatch!] (dispatch! :router/route {:name :graph, :data nil}))
-
 (defn on-stack [e d! m!] (d! :router/route {:name :workspace, :data nil}))
+
+(defn on-view [path ns-piece]
+  (fn [e dispatch!] (dispatch! :graph/view-ns (conj path ns-piece))))
+
+(def style-toolbar {:padding "16px 16px"})
 
 (defn render-toolbar [state cursor]
   (div
@@ -52,8 +44,16 @@
      :on-input (on-change cursor),
      :on-keydown (on-keydown state cursor)})))
 
+(def style-body {:flex 1, :overflow :auto})
+
+(def style-column {:padding "16px 16px", :min-width 80, :line-height 1.6, :overflow :auto})
+
 (def style-file
   {:cursor :pointer, :color (hsl 0 0 100 0.5), :white-space :nowrap, :font-size 16})
+
+(def style-file-tree {:background-color (hsl 0 0 0)})
+
+(def style-highlight {:color (hsl 0 0 100 0.9)})
 
 (defcomp
  comp-file-tree

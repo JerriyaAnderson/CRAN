@@ -17,14 +17,14 @@
 
 (def style-circular {:text-decoration :underline})
 
+(def style-count {:font-size 12, :color (hsl 0 0 100 0.4)})
+
 (def style-def
   {:color (hsl 0 0 70 0.7), :font-size 14, :cursor :pointer, :white-space :nowrap})
 
 (def style-external {:color (hsl 260 16 44), :font-size 12, :cursor :default})
 
 (def style-highlight {:color (hsl 0 0 100 0.86)})
-
-(def style-count {:font-size 12, :color (hsl 0 0 100 0.4)})
 
 (defcomp
  comp-def

@@ -15,14 +15,14 @@
    :inilne-html "",
    :styles ["http://cdn.tiye.me/favored-fonts/main-fonts.css"]})
 
+(defn dev-page [] (make-page "" (merge base-info {:scripts ["/client.js"]})))
+
 (defn prod-page []
   (let [html-content (make-string (comp-container schema/store))
         assets (read-string (slurp "dist/assets.edn"))]
     (make-page
      html-content
      (merge base-info {:styles [], :scripts (map (fn [x] (:output-name x)) assets)}))))
-
-(defn dev-page [] (make-page "" (merge base-info {:scripts ["/client.js"]})))
 
 (defn main! []
   (if (= js/process.env.env "dev")

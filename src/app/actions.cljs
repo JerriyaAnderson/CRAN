@@ -8,6 +8,14 @@
 
 (defonce *remote-sepal (atom nil))
 
+(defn display-code! [store]
+  (let [writer (:writer store)
+        collection (:collection store)
+        path-info (get (:stack writer) (:pointer writer))
+        tree (get-in store (make-path path-info))]
+    (if (some? tree)
+      (-> js/window (.open) (.-document) (.write "<pre><code>" (pr-str tree) "</code></pre>")))))
+
 (def options
   (merge {"port" "7010", "host" "localhost"} (parse-query (.-search js/location))))
 
@@ -59,11 +67,3 @@
         (dispatch! :notification/add-one "Connection failed!")
         (let [response (read-string (:response error))]
           (dispatch! :notification/add-one (:status response)))))}))
-
-(defn display-code! [store]
-  (let [writer (:writer store)
-        collection (:collection store)
-        path-info (get (:stack writer) (:pointer writer))
-        tree (get-in store (make-path path-info))]
-    (if (some? tree)
-      (-> js/window (.open) (.-document) (.write "<pre><code>" (pr-str tree) "</code></pre>")))))

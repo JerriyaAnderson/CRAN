@@ -12,9 +12,6 @@
 
 (defn on-input [e dispatch! m!] (m! (:value e)))
 
-(defn on-rename [code-path text]
-  (fn [e d! m!] (d! :collection/rename [code-path text]) (d! :modal/recycle nil) (m! nil)))
-
 (defn on-keydown [code-path text]
   (fn [e d! m!]
     (println keycode/key-esc)
@@ -23,6 +20,9 @@
         (do (d! :collection/rename [code-path text]) (d! :modal/recycle nil) (m! nil))
       (= (:key-code e) keycode/key-esc) (d! :modal/recycle nil)
       :else nil)))
+
+(defn on-rename [code-path text]
+  (fn [e d! m!] (d! :collection/rename [code-path text]) (d! :modal/recycle nil) (m! nil)))
 
 (defcomp
  comp-rename-path

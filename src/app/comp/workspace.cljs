@@ -38,15 +38,7 @@
           (do (.preventDefault event) (dispatch! :collection/edit-ns nil))
         :else nil))))
 
-(defn on-update [snapshot dispatch!] (dispatch! :collection/write snapshot))
-
-(def style-toolbar {:background-color (hsl 0 0 0), :justify-content "flex-start"})
-
-(def style-container {:background-color (hsl 0 0 0)})
-
-(def style-debugger {:z-index 999, :background-color (hsl 0 0 0), :opacity 1})
-
-(def style-sidebar {:width "180px", :background-color (hsl 0 0 0), :color (hsl 0 0 80)})
+(defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
 
 (defn on-rename [code-path]
   (fn [e dispatch!]
@@ -54,7 +46,11 @@
     (dispatch! :modal/mould {:title :rename-path, :data code-path})
     (dom/focus-rename!)))
 
-(defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
+(defn on-update [snapshot dispatch!] (dispatch! :collection/write snapshot))
+
+(def style-container {:background-color (hsl 0 0 0)})
+
+(def style-debugger {:z-index 999, :background-color (hsl 0 0 0), :opacity 1})
 
 (def style-removed
   {:margin "32px 16px",
@@ -65,6 +61,10 @@
    :padding "0 16px",
    :display "inline-block",
    :max-width "400px"})
+
+(def style-sidebar {:width "180px", :background-color (hsl 0 0 0), :color (hsl 0 0 80)})
+
+(def style-toolbar {:background-color (hsl 0 0 0), :justify-content "flex-start"})
 
 (defcomp
  comp-workspace

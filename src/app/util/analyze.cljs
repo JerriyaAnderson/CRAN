@@ -23,6 +23,10 @@
                     (merge result))
              :else result)))))))
 
+(defn parse-ns-deps [expression]
+  (let [branches (->> (subvec expression 2) (filter (fn [expr] (= ":require" (first expr)))))]
+    (if (empty? branches) {} (doall (reduce parse-rule {} (rest (first branches)))))))
+
 (defn pick-dep [token]
   (cond
     (string/blank? token) nil
@@ -43,10 +47,6 @@
       (let [[def-piece prop-piece] (string/split token ".")] {:kind :def, :data def-piece})
     (string/starts-with? token "@") {:kind :def, :data (subs token 1)}
     :else {:kind :def, :data token}))
-
-(defn parse-ns-deps [expression]
-  (let [branches (->> (subvec expression 2) (filter (fn [expr] (= ":require" (first expr)))))]
-    (if (empty? branches) {} (doall (reduce parse-rule {} (rest (first branches)))))))
 
 (defn extract-deps [expression internal-ns file pkg]
   (let [external? (fn [ns-text] (not (string/starts-with? ns-text (str pkg "."))))
@@ -78,8 +78,7 @@
                         (let [ns-text (:ns using-mapping)]
                           {:ns ns-text, :def def-text, :external? (external? ns-text)})
                         nil))
-                    nil))
-              nil)))
+                    nil)))))
          (filter some?)
          (into #{}))))
 
