@@ -2442,7 +2442,7 @@
                                                    ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]]
                                                   ["println" "|Edit ns:" "code-path"]
                                                   ["if"
-                                                   ["=" ["last" "code-path"] ":ns"]
+                                                   ["=" [":kind" "code-path"] ":ns"]
                                                    ["let"
                                                     [["guess-ns"
                                                       ["get-in"
@@ -2473,7 +2473,7 @@
                                                          ["[]" "op-id" ["str" "|\"" "ns-name" "|\" not found"]]
                                                          "notifications"]]]]]]
                                                    ["let"
-                                                    [["ns-part" ["first" "code-path"]]]
+                                                    [["ns-part" [":ns" "code-path"]]]
                                                     ["update" "store" ":writer" ["helper-put-ns" "ns-part"]]]]]],
                                       "load-remote" ["defn"
                                                      "load-remote"

@@ -176,7 +176,7 @@
         code-path (get stack pointer)
         pkg (get-in store [:collection :package])]
     (println "Edit ns:" code-path)
-    (if (= (last code-path) :ns)
+    (if (= (:kind code-path) :ns)
       (let [guess-ns (get-in store (concat [:collection :files] code-path (:focus writer)))
             ns-name (if (some? guess-ns) (string/replace guess-ns (str pkg ".") "") nil)]
         (if (and (some? ns-name) (some? (get-in store [:collection :files ns-name])))
@@ -186,7 +186,7 @@
            :notifications
            (fn [notifications]
              (into [] (cons [op-id (str "\"" ns-name "\" not found")] notifications))))))
-      (let [ns-part (first code-path)] (update store :writer (helper-put-ns ns-part))))))
+      (let [ns-part (:ns code-path)] (update store :writer (helper-put-ns ns-part))))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]
