@@ -13,14 +13,19 @@ Stack Editor
 
 ```bash
 npm install -g stack-editor
-stack-editor ir.edn
 ```
 
-Demo of `ir.edn`
+Create `ir.edn`:
 
 ```clojure
 {:package "demo"
  :files {}}
+```
+
+Run editor:
+
+```bash
+stack-editor ir.edn
 ```
 
 ![Command Line](https://pbs.twimg.com/media/DClMKBMUIAAL5X5.png:large)
