@@ -11,7 +11,11 @@
 
 (def entry-line (merge var-entry {:display "block"}))
 
-(def clickable-text {:text-decoration :underline})
+(def clickable-text
+  {:text-decoration :underline,
+   :cursor :pointer,
+   :color (hsl 0 0 80),
+   :font-family "Josefin Sans"})
 
 (def input
   (merge

@@ -41,7 +41,7 @@
 
 (defn on-update [snapshot dispatch!] (dispatch! :collection/write snapshot))
 
-(def style-toolbar {:background-color (hsl 0 0 0), :justify-content "flex-end"})
+(def style-toolbar {:background-color (hsl 0 0 0), :justify-content "flex-start"})
 
 (def style-container {:background-color (hsl 0 0 0)})
 
@@ -52,7 +52,8 @@
 (defn on-rename [code-path]
   (fn [e dispatch!]
     (println "the code path:" code-path)
-    (dispatch! :modal/mould {:title :rename-path, :data code-path})))
+    (dispatch! :modal/mould {:title :rename-path, :data code-path})
+    (dom/focus-rename!)))
 
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
 
@@ -96,9 +97,16 @@
        (div
         {:style (merge ui/row style-toolbar)}
         (div
-         {:inner-text "Rename", :style widget/button, :event {:click (on-rename code-path)}})
+         {:inner-text "Rename",
+          :class-name "is-unremarkable",
+          :style widget/clickable-text,
+          :event {:click (on-rename code-path)}})
         (=< 8 nil)
-        (div {:inner-text "Remove", :style widget/button, :event {:click on-remove}})))
+        (div
+         {:inner-text "Delete",
+          :class-name "is-unremarkable",
+          :style widget/clickable-text,
+          :event {:click on-remove}})))
       (div
        {:style (merge ui/column ui/flex)}
        (div {:style style-removed} (<> span "Tree is be removed." nil)))))))

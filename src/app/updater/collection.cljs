@@ -29,14 +29,14 @@
                     files
                     [ns-part :defs]
                     (fn [dict]
-                      (-> dict (dissoc extra-name) (assoc new-name (get dict extra-name)))))
-                   (-> files
-                       (update-in [ns-part :defs] (fn [dict] (dissoc dict extra-name)))
-                       (assoc-in
-                        [new-ns :defs new-name]
-                        (get-in
-                         files
-                         (if (= :defs kind) [ns-part :defs extra-name] [ns-part kind])))))))
+                      (let [def-code (get dict extra-name)]
+                        (-> dict
+                            (dissoc extra-name)
+                            (assoc new-name (assoc def-code 1 new-name))))))
+                   (let [def-code (get-in files [ns-part :defs extra-name])]
+                     (-> files
+                         (update-in [ns-part :defs] (fn [dict] (dissoc dict extra-name)))
+                         (assoc-in [new-ns :defs new-name] (assoc def-code 1 new-name)))))))
               (assoc-in
                [:writer :stack pointer]
                {:ns new-ns, :kind :defs, :extra new-name, :focus focus})))

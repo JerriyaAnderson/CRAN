@@ -6,3 +6,11 @@ body {
 body * {
   box-sizing: border-box;
 }
+
+.is-unremarkable {
+  opacity: 0.6;
+}
+
+.is-unremarkable:hover {
+  opacity: 1;
+}

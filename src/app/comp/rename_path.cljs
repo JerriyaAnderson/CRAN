@@ -4,19 +4,26 @@
   (:require [respo.core :refer [create-comp]]
             [respo.comp.space :refer [=<]]
             [respo-ui.style :as ui]
-            [app.style.widget :as widget]))
+            [app.style.widget :as widget]
+            [app.util.keycode :as keycode]))
 
 (defn init-state [code-path]
   (let [{ns-part :ns, kind :kind, extra-name :extra} code-path]
     (if (= kind :defs) (str ns-part "/" extra-name) ns-part)))
 
-(defn on-input [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
+(defn on-input [e dispatch! m!] (m! (:value e)))
 
 (defn on-rename [code-path text]
-  (fn [e dispatch!]
-    (println "on-rename" code-path text)
-    (dispatch! :collection/rename [code-path text])
-    (dispatch! :modal/recycle nil)))
+  (fn [e d! m!] (d! :collection/rename [code-path text]) (d! :modal/recycle nil) (m! nil)))
+
+(defn on-keydown [code-path text]
+  (fn [e d! m!]
+    (println keycode/key-esc)
+    (cond
+      (= (:key-code e) keycode/key-enter)
+        (do (d! :collection/rename [code-path text]) (d! :modal/recycle nil) (m! nil))
+      (= (:key-code e) keycode/key-esc) (d! :modal/recycle nil)
+      :else nil)))
 
 (defcomp
  comp-rename-path
@@ -24,14 +31,14 @@
  (let [state (or (:data states) (init-state code-path))]
    (div
     {}
-    (div {} (<> span (str "Rename in " (first code-path)) nil))
-    (div {} (<> span (last code-path) nil))
+    (div {} (<> span (str "Rename: " (:ns code-path) "/" (:extra code-path)) nil))
     (div
      {}
      (input
       {:value state,
+       :id "rename-box",
        :style (merge ui/input {:width 400}),
-       :event {:input (on-input cursor)}})
+       :event {:input on-input, :keydown (on-keydown code-path state)}})
      (=< 16 nil)
      (div
       {:inner-text "Rename",
