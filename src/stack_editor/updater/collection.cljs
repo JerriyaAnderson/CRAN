@@ -47,8 +47,7 @@
   (let [writer (:writer store)
         stack (:stack writer)
         pointer (:pointer writer)
-        path (get stack pointer)
-        [ns-part kind extra-name] path]
+        {ns-part :ns, kind :kind, extra-name :extra} (get stack pointer)]
     (-> store
         (update-in
          [:collection :files]
