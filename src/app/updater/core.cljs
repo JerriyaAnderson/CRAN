@@ -15,6 +15,7 @@
                   :states (fn [x] (update x :states (mutate op-data)))
                   :router/route router/route
                   :router/toggle-palette router/toggle-palette
+                  :router/open-file-tree router/open-file-tree
                   :collection/add-definition collection/add-definition
                   :collection/add-namespace collection/add-namespace
                   :collection/edit collection/edit

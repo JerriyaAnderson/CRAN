@@ -28,3 +28,6 @@
                 (assoc :focus (:focus (first new-paths)))))))))
 
 (defn push-path [x] (push-paths [x]))
+
+(defn get-path [store]
+  (let [writer (:writer store), {stack :stack, pointer :pointer} writer] (get stack pointer)))

@@ -30,7 +30,11 @@
       :file-tree (cursor-> :file-tree comp-file-tree states store)
       (<> span router nil))
     (comp-notifications (:notifications store))
-    (comp-inspect "Store" store {:bottom 0})
+    (comment
+     comp-inspect
+     "Store"
+     store
+     {:bottom 0, :background-color (hsl 0 0 0), :opacity 1, :color :white})
     (if (:show-palette? router)
       (cursor-> :palette comp-palette states (:files (:collection store))))
     (comp-modal-stack states (:modal-stack store)))))

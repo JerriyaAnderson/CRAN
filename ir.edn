@@ -1,6 +1,10 @@
 {:package "app",
  :root {:ns "main", :def "main!"},
- :files {"updater.router" {:ns ["ns" "app.updater.router"],
+ :files {"updater.router" {:ns ["ns"
+                                "app.updater.router"
+                                [":require"
+                                 ["[]" "app.util.stack" ":refer" ["[]" "get-path"]]
+                                 ["[]" "clojure.string" ":as" "string"]]],
                            :defs {"toggle-palette" ["defn"
                                                     "toggle-palette"
                                                     ["store" "op-data" "op-id"]
@@ -8,7 +12,18 @@
                                   "route" ["defn"
                                            "route"
                                            ["store" "op-data"]
-                                           ["let" [["router" "op-data"]] ["assoc" "store" ":router" "router"]]]},
+                                           ["let" [["router" "op-data"]] ["assoc" "store" ":router" "router"]]],
+                                  "open-file-tree" ["defn"
+                                                    "open-file-tree"
+                                                    ["store" "op-data" "op-id"]
+                                                    ["let"
+                                                     [["code-path" ["get-path" "store"]]]
+                                                     ["->"
+                                                      "store"
+                                                      ["assoc-in" ["[]" ":router" ":name"] ":file-tree"]
+                                                      ["assoc-in"
+                                                       ["[]" ":graph" ":ns-path"]
+                                                       ["vec" ["string/split" [":ns" "code-path"] "|."]]]]]]},
                            :procs []},
          "comp.brief-file" {:ns ["ns"
                                  "app.comp.brief-file"
@@ -1213,7 +1228,15 @@
                                                         ["cursor->" ":file-tree" "comp-file-tree" "states" "store"]]
                                                        ["<>" "span" "router" "nil"]]
                                                       ["comp-notifications" [":notifications" "store"]]
-                                                      ["comp-inspect" "|Store" "store" ["{}" [":bottom" "0"]]]
+                                                      ["--"
+                                                       "comp-inspect"
+                                                       "|Store"
+                                                       "store"
+                                                       ["{}"
+                                                        [":bottom" "0"]
+                                                        [":background-color" ["hsl" "0" "0" "0"]]
+                                                        [":opacity" "1"]
+                                                        [":color" ":white"]]]
                                                       ["if"
                                                        [":show-palette?" "router"]
                                                        ["cursor->"
@@ -1866,6 +1889,7 @@
                                                [":states" ["fn" ["x"] ["update" "x" ":states" ["mutate" "op-data"]]]]
                                                [":router/route" "router/route"]
                                                [":router/toggle-palette" "router/toggle-palette"]
+                                               [":router/open-file-tree" "router/open-file-tree"]
                                                [":collection/add-definition" "collection/add-definition"]
                                                [":collection/add-namespace" "collection/add-namespace"]
                                                [":collection/edit" "collection/edit"]
@@ -2716,7 +2740,14 @@
                                                      ["subvec" "stack" ["inc" "pointer"]]]]]
                                                   ["update" ":pointer" "inc"]
                                                   ["assoc" ":focus" [":focus" ["first" "new-paths"]]]]]]]]]],
-                              "push-path" ["defn" "push-path" ["x"] ["push-paths" ["[]" "x"]]]},
+                              "push-path" ["defn" "push-path" ["x"] ["push-paths" ["[]" "x"]]],
+                              "get-path" ["defn"
+                                          "get-path"
+                                          ["store"]
+                                          ["let"
+                                           [["writer" [":writer" "store"]]
+                                            [["{}" "stack" ":stack" "pointer" ":pointer"] "writer"]]
+                                           ["get" "stack" "pointer"]]]},
                        :procs []},
          "comp.hot-corner" {:ns ["ns"
                                  "app.comp.hot-corner"
@@ -2749,9 +2780,7 @@
                                                  ["e" "dispatch!"]
                                                  ["if"
                                                   ["=" [":name" "router"] ":workspace"]
-                                                  ["dispatch!"
-                                                   ":router/route"
-                                                   ["{}" [":name" ":file-tree"] [":data" "nil"]]]
+                                                  ["dispatch!" ":router/open-file-tree" "nil"]
                                                   ["if"
                                                    ["not" ["empty?" [":stack" "writer"]]]
                                                    ["dispatch!"

@@ -9,7 +9,7 @@
 (defn on-switch [router writer]
   (fn [e dispatch!]
     (if (= (:name router) :workspace)
-      (dispatch! :router/route {:name :file-tree, :data nil})
+      (dispatch! :router/open-file-tree nil)
       (if (not (empty? (:stack writer)))
         (dispatch! :router/route {:name :workspace, :data nil})))))
 
