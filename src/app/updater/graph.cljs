@@ -1,7 +1,10 @@
 
 (ns app.updater.graph
   (:require (app.util.analyze :refer (parse-ns-deps pick-dep pick-def-deps expand-deps-tree))
-            (app.util.stack :refer (push-path))))
+            (app.util.stack :refer (push-path))
+            (clojure.set :refer (union difference))
+            (app.util :refer (collect-defs))
+            (clojure.string :as string)))
 
 (defn load-graph [store op-data]
   (let [root-info (get-in store [:collection :root])
@@ -31,3 +34,20 @@
             {:ns (:ns maybe-path), :kind :defs, :extra (:def maybe-path), :focus []}))
           (assoc :router {:name :workspace, :data nil}))
       store)))
+
+(defn show-orphans [store op-data]
+  (let [all-defs (->> (get-in store [:collection :files])
+                      (map
+                       (fn [file-entry]
+                         (let [ns-text (first file-entry)
+                               defs (keys (:defs (val file-entry)))]
+                           (->> defs
+                                (map (fn [def-text] {:ns ns-text, :def def-text}))
+                                (into #{})))))
+                      (apply union))
+        deps-tree (get-in store [:graph :tree])
+        defs-in-tree (collect-defs deps-tree)]
+    (update
+     store
+     :modal-stack
+     (fn [xs] (conj xs {:title :orphans, :data (difference all-defs defs-in-tree)})))))

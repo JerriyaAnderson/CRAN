@@ -23,6 +23,8 @@
 
 (def style-column {:min-width 80, :overflow :auto, :padding "16px 16px", :flex-shrink 0})
 
+(defn on-orphans [e dispatch!] (dispatch! :graph/show-orphans nil))
+
 (defn on-edit [e dispatch!] (dispatch! :graph/edit-current nil))
 
 (defn render-toolbar []
@@ -34,7 +36,9 @@
     (comp-space 8 nil)
     (button {:inner-text "Edit", :style widget/button, :event {:click on-edit}})
     (comp-space 64 nil)
-    (button {:inner-text "Build tree", :style widget/button, :event {:click on-load}}))))
+    (button {:inner-text "Build tree", :style widget/button, :event {:click on-load}})
+    (comp-space 8 nil)
+    (button {:inner-text "Find orphans", :style widget/button, :event {:click on-orphans}}))))
 
 (defcomp
  comp-graph

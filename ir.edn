@@ -654,6 +654,7 @@
                                              [["string/starts-with?" "token" "|'"] "nil"]
                                              [["string/starts-with?" "token" "|{"] "nil"]
                                              [["string/starts-with?" "token" "|%"] "nil"]
+                                             [["string/starts-with?" "token" "|\\"] "nil"]
                                              [["=" "token" "|--"] "nil"]
                                              [["string/includes?" "token" "|/"]
                                               ["let"
@@ -683,7 +684,8 @@
          "util" {:ns ["ns"
                       "app.util"
                       [":require"
-                       ["[]" "app.util.detect" ":refer" ["[]" "contains-def?" "=path?" "find-by"]]
+                       ["[]" "app.util.detect" ":refer" ["[]" "contains-def?" "=path?"]]
+                       ["clojure.set" ":refer" ["union"]]
                        ["clojure.string" ":as" "string"]]],
                  :defs {"remove-idx" ["defn"
                                       "remove-idx"
@@ -780,7 +782,18 @@
                                                     ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
                                                     ["[]" "|defn" "name-part" ["[]"]]]]
                                                   ["[]" "|def" "name-part" ["[]"]]]]]]]],
-                        "now!" ["defn" "now!" [] [".now" "js/performance"]]},
+                        "now!" ["defn" "now!" [] [".now" "js/performance"]],
+                        "collect-defs" ["defn"
+                                        "collect-defs"
+                                        ["node"]
+                                        ["let"
+                                         [["base-result" ["#{}" ["select-keys" "node" ["[]" ":ns" ":def"]]]]]
+                                         ["if"
+                                          ["contains?" "node" ":deps"]
+                                          ["union"
+                                           ["apply" "union" ["map" "collect-defs" [":deps" "node"]]]
+                                           "base-result"]
+                                          "base-result"]]]},
                  :procs []},
          "comp.workspace" {:ns ["ns"
                                 "app.comp.workspace"
@@ -1050,7 +1063,17 @@
                                                    ["{}"
                                                     [":inner-text" "|Build tree"]
                                                     [":style" "widget/button"]
-                                                    [":event" ["{}" [":click" "on-load"]]]]]]]],
+                                                    [":event" ["{}" [":click" "on-load"]]]]]
+                                                  ["comp-space" "8" "nil"]
+                                                  ["button"
+                                                   ["{}"
+                                                    [":inner-text" "|Find orphans"]
+                                                    [":style" "widget/button"]
+                                                    [":event" ["{}" [":click" "on-orphans"]]]]]]]],
+                              "on-orphans" ["defn"
+                                            "on-orphans"
+                                            ["e" "dispatch!"]
+                                            ["dispatch!" ":graph/show-orphans" "nil"]],
                               "on-edit" ["defn" "on-edit" ["e" "dispatch!"] ["dispatch!" ":graph/edit-current" "nil"]]},
                        :procs []},
          "updater.graph" {:ns ["ns"
@@ -1059,7 +1082,10 @@
                                 ["app.util.analyze"
                                  ":refer"
                                  ["parse-ns-deps" "pick-dep" "pick-def-deps" "expand-deps-tree"]]
-                                ["app.util.stack" ":refer" ["push-path"]]]],
+                                ["app.util.stack" ":refer" ["push-path"]]
+                                ["clojure.set" ":refer" ["union" "difference"]]
+                                ["app.util" ":refer" ["collect-defs"]]
+                                ["clojure.string" ":as" "string"]]],
                           :defs {"load-graph" ["defn"
                                                "load-graph"
                                                ["store" "op-data"]
@@ -1114,7 +1140,40 @@
                                                        [":extra" [":def" "maybe-path"]]
                                                        [":focus" ["[]"]]]]]
                                                     ["assoc" ":router" ["{}" [":name" ":workspace"] [":data" "nil"]]]]
-                                                   "store"]]]},
+                                                   "store"]]],
+                                 "show-orphans" ["defn"
+                                                 "show-orphans"
+                                                 ["store" "op-data"]
+                                                 ["let"
+                                                  [["all-defs"
+                                                    ["->>"
+                                                     ["get-in" "store" ["[]" ":collection" ":files"]]
+                                                     ["map"
+                                                      ["fn"
+                                                       ["file-entry"]
+                                                       ["let"
+                                                        [["ns-text" ["first" "file-entry"]]
+                                                         ["defs" ["keys" [":defs" ["val" "file-entry"]]]]]
+                                                        ["->>"
+                                                         "defs"
+                                                         ["map"
+                                                          ["fn"
+                                                           ["def-text"]
+                                                           ["{}" [":ns" "ns-text"] [":def" "def-text"]]]]
+                                                         ["into" ["#{}"]]]]]]
+                                                     ["apply" "union"]]]
+                                                   ["deps-tree" ["get-in" "store" ["[]" ":graph" ":tree"]]]
+                                                   ["defs-in-tree" ["collect-defs" "deps-tree"]]]
+                                                  ["update"
+                                                   "store"
+                                                   ":modal-stack"
+                                                   ["fn"
+                                                    ["xs"]
+                                                    ["conj"
+                                                     "xs"
+                                                     ["{}"
+                                                      [":title" ":orphans"]
+                                                      [":data" ["difference" "all-defs" "defs-in-tree"]]]]]]]]},
                           :procs []},
          "schema" {:ns ["ns" "app.schema"],
                    :defs {"store" ["def"
@@ -1261,7 +1320,8 @@
                                    ["[]" "respo-ui.style" ":as" "ui"]
                                    ["[]" "app.style.widget" ":as" "widget"]
                                    ["[]" "app.comp.rename-path" ":refer" ["[]" "comp-rename-path"]]
-                                   ["[]" "app.comp.hydrate" ":refer" ["[]" "comp-hydrate"]]]],
+                                   ["[]" "app.comp.hydrate" ":refer" ["[]" "comp-hydrate"]]
+                                   ["app.comp.orphans" ":refer" ["comp-orphans"]]]],
                              :defs {"on-tip" ["defn" "on-tip" ["e" "dispatch!"]],
                                     "style-modal" ["def"
                                                    "style-modal"
@@ -1292,6 +1352,7 @@
                                                     ["comp-rename-path" [":rename-path" "states"] "data"]]]
                                                   [":hydrate"
                                                    ["with-cursor" ":hydrate" ["comp-hydrate" [":hydrate" "states"]]]]
+                                                  [":orphans" ["comp-orphans" "data"]]
                                                   ["comp-text" "title" "nil"]]]],
                                     "comp-modal-stack" ["defcomp"
                                                         "comp-modal-stack"
@@ -1527,107 +1588,70 @@
                                                             ["not=" "notification-id" ["first" "notification"]]]
                                                            "notifications"]]]]]]},
                                  :procs []},
-         "comp.define" {:ns ["ns"
-                             "app.comp.define"
-                             [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
-                             [":require"
-                              ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                              ["[]" "respo.alias" ":refer" ["[]" "div" "input"]]
-                              ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
-                              ["[]" "respo.comp.space" ":refer" ["[]" "comp-space"]]
-                              ["[]" "respo.comp.debug" ":refer" ["[]" "comp-debug"]]
-                              ["[]" "respo-ui.style" ":as" "ui"]
-                              ["[]" "app.style.widget" ":as" "widget"]
-                              ["[]" "app.util.keycode" ":as" "keycode"]]],
-                        :defs {"on-input" ["defn"
-                                           "on-input"
-                                           ["parent-cursor"]
-                                           ["fn"
-                                            ["e" "dispatch!"]
-                                            ["dispatch!" ":states" ["[]" "parent-cursor" [":value" "e"]]]]],
-                               "update-state" ["defn" "update-state" ["state" "text"] "text"],
-                               "style-namespace" ["def"
-                                                  "style-namespace"
-                                                  ["{}" [":display" "|inline-block"] [":cursor" "|pointer"]]],
-                               "on-click" ["defn"
-                                           "on-click"
-                                           ["ns-text"]
+         "comp.orphans" {:ns ["ns"
+                              "app.comp.orphans"
+                              [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
+                              [":require"
+                               ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
+                               ["[]" "respo.alias" ":refer" ["[]" "div"]]
+                               ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
+                               ["[]" "respo-ui.style" ":as" "ui"]]],
+                         :defs {"comp-orphans" ["defcomp"
+                                                "comp-orphans"
+                                                ["orphans"]
+                                                ["div"
+                                                 ["{}" [":style" "style-container"]]
+                                                 ["div" ["{}"] ["comp-text" "|Orphans:" "style-title"]]
+                                                 ["div"
+                                                  ["{}"]
+                                                  ["->>"
+                                                   "orphans"
+                                                   ["map"
+                                                    ["fn"
+                                                     ["def-info"]
+                                                     ["let"
+                                                      [["def-id" ["str" [":ns" "def-info"] "|/" [":def" "def-info"]]]]
+                                                      ["[]"
+                                                       "def-id"
+                                                       ["div"
+                                                        ["{}"
+                                                         [":inner-text" "def-id"]
+                                                         [":style" "style-def"]
+                                                         [":event" ["{}" [":click" ["on-edit" "def-info"]]]]]]]]]]]]]],
+                                "style-container" ["def"
+                                                   "style-container"
+                                                   ["{}"
+                                                    [":width" "800"]
+                                                    [":height" "400"]
+                                                    [":overflow" ":auto"]
+                                                    [":padding" "16"]
+                                                    [":background" ["hsl" "0" "0" "0" "0.9"]]]],
+                                "style-def" ["def"
+                                             "style-def"
+                                             ["{}"
+                                              [":min-width" "200"]
+                                              [":display" ":inline-block"]
+                                              [":cursor" ":pointer"]]],
+                                "style-title" ["def"
+                                               "style-title"
+                                               ["{}"
+                                                [":font-size" "24"]
+                                                [":font-weight" "100"]
+                                                [":font-family" "|Josefin Sans"]]],
+                                "on-edit" ["defn"
+                                           "on-edit"
+                                           ["def-info"]
                                            ["fn"
                                             ["e" "dispatch!"]
                                             ["dispatch!"
                                              ":collection/edit"
-                                             ["{}" [":ns" "ns-text"] [":kind" ":ns"] [":extra" "nil"] [":focus" ["[]"]]]]]],
-                               "on-proc" ["defn"
-                                          "on-proc"
-                                          ["ns-name"]
-                                          ["fn"
-                                           ["e" "dispatch!"]
-                                           ["dispatch!"
-                                            ":collection/edit"
-                                            ["{}"
-                                             [":ns" "ns-name"]
-                                             [":kind" ":procs"]
-                                             [":extra" "nil"]
-                                             [":focus" ["[]"]]]]]],
-                               "style-ns" ["def"
-                                           "style-ns"
-                                           ["{}"
-                                            [":font-family" "|Source Code Pro,Menlo,monospace"]
-                                            [":white-space" ":nowrap"]]],
-                               "comp-define" ["defcomp"
-                                              "comp-define"
-                                              ["draft" "ns-name" "parent-cursor"]
-                                              ["div"
-                                               ["{}"]
-                                               ["div"
-                                                ["{}"
-                                                 [":style" "style-namespace"]
-                                                 [":event" ["{}" [":click" ["on-click" "ns-name"]]]]]
-                                                ["comp-text" "ns-name" "style-ns"]
-                                                ["comp-space" "16" "nil"]
-                                                ["div"
-                                                 ["{}"
-                                                  [":style" ["merge" "style-proc"]]
-                                                  [":event" ["{}" [":click" ["on-proc" "ns-name"]]]]]
-                                                 ["comp-text" "|proc" "nil"]]]
-                                               ["div"
-                                                ["{}"]
-                                                ["input"
-                                                 ["{}"
-                                                  [":style"
-                                                   ["merge"
-                                                    ["merge"
-                                                     "widget/input"
-                                                     ["{}" [":width" "|200px"] [":height" "|24px"]]]]]
-                                                  [":attrs" ["{}" [":value" "draft"] [":placeholder" "|"]]]
-                                                  [":event"
-                                                   ["{}"
-                                                    [":input" ["on-input" "parent-cursor"]]
-                                                    [":keydown" ["on-keydown" "parent-cursor" "draft" "ns-name"]]]]]]]]],
-                               "init-state" ["defn" "init-state" ["&" "args"] "|"],
-                               "style-proc" ["def"
-                                             "style-proc"
                                              ["{}"
-                                              [":width" "48"]
-                                              [":min-width" "48"]
-                                              [":height" "24"]
-                                              [":line-height" "|24px"]
-                                              [":cursor" ":pointer"]
-                                              [":display" ":inline-block"]
-                                              [":text-decoration" ":underline"]]],
-                               "on-keydown" ["defn"
-                                             "on-keydown"
-                                             ["parent-cursor" "text" "ns-name"]
-                                             ["fn"
-                                              ["e" "dispatch!"]
-                                              ["if"
-                                               ["and"
-                                                ["=" "keycode/key-enter" [":key-code" "e"]]
-                                                ["pos?" ["count" "text"]]]
-                                               ["do"
-                                                ["dispatch!" ":states" ["[]" "parent-cursor" "|"]]
-                                                ["dispatch!" ":collection/add-definition" ["[]" "ns-name" "text"]]]]]]},
-                        :procs []},
+                                              [":kind" ":defs"]
+                                              [":ns" [":ns" "def-info"]]
+                                              [":extra" [":def" "def-info"]]
+                                              [":focus" ["[]" "1"]]]]
+                                            ["dispatch!" ":modal/recycle" "nil"]]]},
+                         :procs []},
          "comp.palette" {:ns ["ns"
                               "app.comp.palette"
                               [":require-macros" ["respo.macros" ":refer" ["defcomp"]]]
@@ -1680,7 +1704,7 @@
                                                         [":ns" ["get" "command" "1"]]
                                                         [":kind" ":defs"]
                                                         [":extra" ["last" "command"]]
-                                                        [":focus" ["[]"]]]]]]
+                                                        [":focus" ["[]" "0"]]]]]]
                                                     [":ns"
                                                      ["do"
                                                       ["dispatch!"
@@ -1689,7 +1713,7 @@
                                                         [":ns" ["get" "command" "1"]]
                                                         [":kind" ":ns"]
                                                         [":extra" "nil"]
-                                                        [":focus" ["[]"]]]]]]
+                                                        [":focus" ["[]" "0"]]]]]]
                                                     [":procs"
                                                      ["do"
                                                       ["dispatch!"
@@ -1698,7 +1722,7 @@
                                                         [":ns" ["get" "command" "1"]]
                                                         [":kind" ":procs"]
                                                         [":extra" "nil"]
-                                                        [":focus" ["[]"]]]]]]
+                                                        [":focus" ["[]" "0"]]]]]]
                                                     "nil"]]],
                                 "comp-palette" ["defcomp"
                                                 "comp-palette"
@@ -1878,6 +1902,7 @@
                                                [":graph/view-path" "graph/view-path"]
                                                [":graph/view-ns" "graph/view-ns"]
                                                [":graph/edit-current" "graph/edit-current"]
+                                               [":graph/show-orphans" "graph/show-orphans"]
                                                "default-handler"]]]
                                             ["handler" "store" "op-data" "op-id"]]],
                                 "default-handler" ["defn" "default-handler" ["store" "op-data"] "store"]},

@@ -9,7 +9,8 @@
             [respo-ui.style :as ui]
             [app.style.widget :as widget]
             [app.comp.rename-path :refer [comp-rename-path]]
-            [app.comp.hydrate :refer [comp-hydrate]]))
+            [app.comp.hydrate :refer [comp-hydrate]]
+            (app.comp.orphans :refer (comp-orphans))))
 
 (defn on-tip [e dispatch!] )
 
@@ -32,6 +33,7 @@
    (case title
      :rename-path (with-cursor :rename-path (comp-rename-path (:rename-path states) data))
      :hydrate (with-cursor :hydrate (comp-hydrate (:hydrate states)))
+     :orphans (comp-orphans data)
      (comp-text title nil))))
 
 (defcomp

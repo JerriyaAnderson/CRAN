@@ -46,6 +46,7 @@
     (string/starts-with? token "'") nil
     (string/starts-with? token "{") nil
     (string/starts-with? token "%") nil
+    (string/starts-with? token "\\") nil
     (= token "--") nil
     (string/includes? token "/")
       (let [[ns-piece def-piece] (string/split token "/")]

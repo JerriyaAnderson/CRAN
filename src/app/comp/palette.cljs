@@ -29,17 +29,17 @@
         (do
          (dispatch!
           :collection/edit
-          {:ns (get command 1), :kind :defs, :extra (last command), :focus []}))
+          {:ns (get command 1), :kind :defs, :extra (last command), :focus [0]}))
       :ns
         (do
          (dispatch!
           :collection/edit
-          {:ns (get command 1), :kind :ns, :extra nil, :focus []}))
+          {:ns (get command 1), :kind :ns, :extra nil, :focus [0]}))
       :procs
         (do
          (dispatch!
           :collection/edit
-          {:ns (get command 1), :kind :procs, :extra nil, :focus []}))
+          {:ns (get command 1), :kind :procs, :extra nil, :focus [0]}))
       nil)))
 
 (def style-container

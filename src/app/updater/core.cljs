@@ -40,5 +40,6 @@
                   :graph/view-path graph/view-path
                   :graph/view-ns graph/view-ns
                   :graph/edit-current graph/edit-current
+                  :graph/show-orphans graph/show-orphans
                   default-handler)]
     (handler store op-data op-id)))

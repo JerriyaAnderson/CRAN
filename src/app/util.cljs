@@ -1,6 +1,7 @@
 
 (ns app.util
-  (:require [app.util.detect :refer [contains-def? =path? find-by]]
+  (:require [app.util.detect :refer [contains-def? =path?]]
+            (clojure.set :refer (union))
             (clojure.string :as string)))
 
 (defn remove-idx [xs idx]
@@ -68,3 +69,9 @@
            ["def" name-part []]))))))
 
 (defn now! [] (.now js/performance))
+
+(defn collect-defs [node]
+  (let [base-result #{(select-keys node [:ns :def])}]
+    (if (contains? node :deps)
+      (union (apply union (map collect-defs (:deps node))) base-result)
+      base-result)))
