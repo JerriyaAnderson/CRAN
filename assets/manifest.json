@@ -1,0 +1,15 @@
+{
+  "short_name": "Stack Editor",
+  "name": "Stack Editor",
+  "icons": [
+    {
+      "src": "http://repo.cirru.org/logo.cirru.org/cirru-400x400.png",
+      "sizes": "400x400"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eeeeff",
+  "theme_color": "#eeeeff"
+}
