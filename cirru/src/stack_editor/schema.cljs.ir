@@ -1,0 +1,5 @@
+
+[
+[ "ns" "stack-editor.schema" ]
+[ "def" "store" [ "{}" [ ":snapshot" [ "{}" [ ":tree" [ "[]" ] ] [ ":entry" "nil" ] [ ":focus" [ "[]" ] ] ] ] [ ":writer" [ "{}" [ ":stack" [ "[]" ] ] [ ":pointer" "nil" ] ] ] [ ":router" [ "{}" [ ":name" ":home" ] [ ":data" "nil" ] ] ] [ ":notifications" [ "[]" ] ] ] ]
+]

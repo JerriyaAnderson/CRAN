@@ -1,7 +1,7 @@
 
-(ns boot-workflow.core
+(ns stack-editor.core
   (:require [respo.core :refer [render! clear-cache!]]
-            [boot-workflow.comp.container :refer [comp-container]]
+            [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]))
 
 (defonce store-ref (atom {}))
