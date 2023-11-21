@@ -4,5 +4,5 @@
 (def store
  {:router {:name :home, :data nil},
   :notifications [],
-  :snapshot {:tree [], :focus [], :entry nil},
-  :writer {:pointer nil, :stack []}})
+  :writer {:pointer nil, :stack [], :focus []},
+  :collection {}})
