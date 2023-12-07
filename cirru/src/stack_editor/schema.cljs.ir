@@ -1,5 +1,5 @@
 
 [
 [ "ns" "stack-editor.schema" ]
-[ "def" "store" [ "{}" [ ":collection" [ "{}" ] ] [ ":writer" [ "{}" [ ":stack" [ "[]" ] ] [ ":pointer" "nil" ] [ ":focus" [ "[]" ] ] ] ] [ ":router" [ "{}" [ ":name" ":home" ] [ ":data" "nil" ] ] ] [ ":notifications" [ "[]" ] ] ] ]
+[ "def" "store" [ "{}" [ ":router" [ "{}" [ ":name" ":analyzer" ] [ ":data" ":definitions" ] ] ] [ ":collection" [ "{}" [ ":definitions" [ "{}" ] ] [ ":procedures" [ "{}" ] ] [ ":namespaces" [ "{}" ] ] ] ] [ ":writer" [ "{}" [ ":stack" [ "[]" ] ] [ ":pointer" [ "[]" ":definitions" "nil" ] ] [ ":focus" [ "[]" ] ] [ ":clipboard" [ "[]" ] ] ] ] [ ":notifications" [ "[]" ] ] ] ]
 ]

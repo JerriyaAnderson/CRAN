@@ -1,8 +1,8 @@
 
-(ns stack-editor.comp.procedure
+(ns stack-editor.comp.procedures
   (:require [hsl.core :refer [hsl]]
             [respo.alias :refer [create-comp div]]))
 
 (defn render [store] (fn [state mutate!] (div {})))
 
-(def comp-procedure (create-comp :procedure render))
+(def comp-procedures (create-comp :procedures render))

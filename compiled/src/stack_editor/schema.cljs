@@ -2,7 +2,8 @@
 (ns stack-editor.schema)
 
 (def store
- {:router {:name :home, :data nil},
+ {:router {:name :analyzer, :data :definitions},
   :notifications [],
-  :writer {:pointer nil, :stack [], :focus []},
-  :collection {}})
+  :writer
+  {:pointer [:definitions nil], :clipboard [], :stack [], :focus []},
+  :collection {:definitions {}, :namespaces {}, :procedures {}}})

@@ -1,16 +1,23 @@
 
 (ns stack-editor.core
   (:require [respo.core :refer [render! clear-cache!]]
+            [stack-editor.schema :as schema]
             [stack-editor.comp.container :refer [comp-container]]
-            [cljs.reader :refer [read-string]]))
+            [cljs.reader :refer [read-string]]
+            [stack-editor.updater.core :refer [updater]]))
 
-(defonce store-ref (atom {}))
+(defonce store-ref (atom schema/store))
 
 (defonce states-ref (atom {}))
 
-(defn dispatch! [op op-data])
+(defn dispatch! [op op-data]
+  (println "dispatch!" op op-data)
+  (let [new-store (updater @store-ref op op-data)]
+    (println "new store" new-store)
+    (reset! store-ref new-store)))
 
 (defn render-app! []
+  (println "render-app!")
   (let [target (.querySelector js/document "#app")]
     (render! (comp-container @store-ref) target dispatch! states-ref)))
 
