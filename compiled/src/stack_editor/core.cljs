@@ -13,11 +13,9 @@
 (defn dispatch! [op op-data]
   (println "dispatch!" op op-data)
   (let [new-store (updater @store-ref op op-data)]
-    (println "new store" new-store)
     (reset! store-ref new-store)))
 
 (defn render-app! []
-  (println "render-app!")
   (let [target (.querySelector js/document "#app")]
     (render! (comp-container @store-ref) target dispatch! states-ref)))
 

@@ -3,7 +3,8 @@
   (:require [hsl.core :refer [hsl]]
             [respo.alias :refer [create-comp div]]
             [respo-ui.style :as ui]
-            [stack-editor.comp.hot-corner :refer [comp-hot-corner]]))
+            [stack-editor.comp.hot-corner :refer [comp-hot-corner]]
+            [stack-editor.comp.stack :refer [comp-stack]]))
 
 (defn render [store]
   (fn [state mutate!]

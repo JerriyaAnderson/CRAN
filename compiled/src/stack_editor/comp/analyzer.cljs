@@ -17,9 +17,10 @@
 (defn render [store]
   (fn [state mutate!]
     (let [router (:router store)
-          definitions (:definitions store)
-          namespaces (:namespaces store)
-          procedures (:procedures store)]
+          collection (:collection store)
+          definitions (:definitions collection)
+          namespaces (:namespaces collection)
+          procedures (:procedures collection)]
       (div
         {:style (merge ui/fullscreen ui/row)}
         (div
@@ -36,7 +37,7 @@
         (case
           (:data router)
           :definitions
-          (comp-definitions)
+          (comp-definitions definitions (:main-definition collection))
           :namespaces
           (comp-namespaces)
           :procedures

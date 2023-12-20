@@ -1,9 +1,20 @@
 
 (ns stack-editor.updater.core
-  (:require [stack-editor.updater.router :as router]))
+  (:require [stack-editor.updater.router :as router]
+            [stack-editor.updater.collection :as collection]))
 
 (defn default-handler [store op-data] store)
 
 (defn updater [store op op-data]
-  (let [handler (case op :router/route router/route default-handler)]
+  (let [handler (case
+                  op
+                  :router/route
+                  router/route
+                  :collection/add-definition
+                  collection/add-definition
+                  :collection/set-main
+                  collection/set-main
+                  :collection/edit
+                  collection/edit
+                  default-handler)]
     (handler store op-data)))
