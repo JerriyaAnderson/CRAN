@@ -39,9 +39,9 @@
           :definitions
           (comp-definitions definitions (:main-definition collection))
           :namespaces
-          (comp-namespaces)
+          (comp-namespaces namespaces)
           :procedures
-          (comp-procedures)
+          (comp-procedures procedures)
           :orphans
           (comp-orphans)
           nil)))))
