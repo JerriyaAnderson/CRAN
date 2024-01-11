@@ -22,9 +22,10 @@
           namespaces (:namespaces collection)
           procedures (:procedures collection)]
       (div
-        {:style (merge ui/fullscreen ui/row)}
+        {:style
+         (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
         (div
-          {:style {:background-color (hsl 0 0 90), :width "20%"}}
+          {:style {:width "20%"}}
           (comp-hot-corner router)
           (comp-space nil "32px")
           (comp-navigator

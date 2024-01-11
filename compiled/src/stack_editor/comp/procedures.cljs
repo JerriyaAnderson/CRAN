@@ -27,7 +27,7 @@
 (defn render [procedures]
   (fn [state mutate!]
     (div
-      {:style ui/card}
+      {:style (merge ui/flex ui/card)}
       (div
         {}
         (input

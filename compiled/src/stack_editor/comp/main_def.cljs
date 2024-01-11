@@ -36,7 +36,7 @@
          (merge
            ui/button
            (if (= main-definition state)
-             {:background-color (hsl 200 60 80)})),
+             {:background-color (hsl 200 30 30)})),
          :event {:click (on-set-main state)}}
         (comp-text "update -main" nil)))))
 

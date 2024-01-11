@@ -8,7 +8,8 @@
             [respo-ui.style :as ui]
             [stack-editor.util.time :refer [now]]
             [stack-editor.comp.main-def :refer [comp-main-def]]
-            [respo-border.transform.space :refer [interpose-spaces]]))
+            [respo-border.transform.space :refer [interpose-spaces]]
+            [stack-editor.style.widget :as widget]))
 
 (defn init-state [& args] "")
 
@@ -33,8 +34,7 @@
 (defn render [definitions main-definition]
   (fn [state mutate!]
     (div
-      {:style
-       (merge ui/flex ui/card {:background-color (hsl 0 80 96)})}
+      {:style (merge ui/flex ui/card {})}
       (div
         {}
         (input
@@ -58,11 +58,7 @@
             (map-indexed
               (fn [idx entry] [idx
                                (div
-                                 {:style
-                                  {:background-color (hsl 200 90 90),
-                                   :cursor "pointer",
-                                   :padding "0 8px",
-                                   :display "inline-block"},
+                                 {:style widget/entry,
                                   :event
                                   {:click (on-edit (first entry))}}
                                  (comp-text (first entry) nil))]))))

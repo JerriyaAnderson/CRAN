@@ -28,7 +28,7 @@
          (merge
            writer
            {:kind :definitions, :stack [definition-path], :focus []})))
-     (assoc :router {:name :workspace, :data nil}))))
+     (assoc-in [:router :name] :workspace))))
 
 (defn edit-procedure [store op-data]
   (let [procedure op-data]

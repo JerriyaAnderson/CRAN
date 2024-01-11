@@ -26,7 +26,10 @@
       (div
         {:style (merge ui/fullscreen ui/row)}
         (div
-          {:style {:background-color (hsl 0 0 90), :width "20%"}}
+          {:style
+           {:color (hsl 0 0 80),
+            :background-color (hsl 0 0 0),
+            :width "20%"}}
           (comp-hot-corner router)
           (comp-stack stack pointer))
         (comment

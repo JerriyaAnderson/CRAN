@@ -1,7 +1,8 @@
 
 (ns stack-editor.updater.core
   (:require [stack-editor.updater.router :as router]
-            [stack-editor.updater.collection :as collection]))
+            [stack-editor.updater.collection :as collection]
+            [stack-editor.updater.notification :as notification]))
 
 (defn default-handler [store op-data] store)
 
@@ -26,5 +27,9 @@
                   collection/edit-procedure
                   :collection/edit-namespace
                   collection/edit-namespace
+                  :notification/add-one
+                  notification/add-one
+                  :notification/remove-one
+                  notification/remove-one
                   default-handler)]
     (handler store op-data)))

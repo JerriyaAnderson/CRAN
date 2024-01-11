@@ -27,7 +27,7 @@
                                 style-entry
                                 (if
                                   (= router-data (first entry))
-                                  {:color (hsl 0 0 0)})),
+                                  {:color (hsl 0 0 80)})),
                               :event
                               {:click
                                (handle-nav (first entry) on-nav)}}
