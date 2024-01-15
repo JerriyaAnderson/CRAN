@@ -19,7 +19,7 @@
   (let [main-definition op-data]
     (assoc-in store [:collection :main-definition] main-definition)))
 
-(defn edit [store op-data]
+(defn edit-definition [store op-data]
   (let [definition-path op-data]
     (-> store
      (update

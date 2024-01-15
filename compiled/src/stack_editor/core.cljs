@@ -4,7 +4,8 @@
             [stack-editor.schema :as schema]
             [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
-            [stack-editor.updater.core :refer [updater]]))
+            [stack-editor.updater.core :refer [updater]]
+            [stack-editor.util.time :refer [now]]))
 
 (defonce store-ref (atom schema/store))
 
@@ -12,7 +13,7 @@
 
 (defn dispatch! [op op-data]
   (println "dispatch!" op op-data)
-  (let [new-store (updater @store-ref op op-data)]
+  (let [new-store (updater @store-ref op op-data (now))]
     (reset! store-ref new-store)))
 
 (defn render-app! []

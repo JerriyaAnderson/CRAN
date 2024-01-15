@@ -2,11 +2,12 @@
 (ns stack-editor.updater.core
   (:require [stack-editor.updater.router :as router]
             [stack-editor.updater.collection :as collection]
-            [stack-editor.updater.notification :as notification]))
+            [stack-editor.updater.notification :as notification]
+            [stack-editor.updater.stack :as stack]))
 
 (defn default-handler [store op-data] store)
 
-(defn updater [store op op-data]
+(defn updater [store op op-data op-id]
   (let [handler (case
                   op
                   :router/route
@@ -19,8 +20,8 @@
                   collection/add-namespace
                   :collection/set-main
                   collection/set-main
-                  :collection/edit
-                  collection/edit
+                  :collection/edit-definition
+                  collection/edit-definition
                   :collection/write
                   collection/write-code
                   :collection/edit-procedure
@@ -31,5 +32,9 @@
                   notification/add-one
                   :notification/remove-one
                   notification/remove-one
+                  :stack/goto-definition
+                  stack/goto-definition
+                  :stack/go-back
+                  stack/go-back
                   default-handler)]
-    (handler store op-data)))
+    (handler store op-data op-id)))

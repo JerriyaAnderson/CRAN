@@ -29,7 +29,8 @@
           [(now) (str "\"" content "\" is not valid!")])))))
 
 (defn on-edit [definition-path]
-  (fn [e dispatch!] (dispatch! :collection/edit definition-path)))
+  (fn [e dispatch!]
+    (dispatch! :collection/edit-definition definition-path)))
 
 (defn render [definitions main-definition]
   (fn [state mutate!]

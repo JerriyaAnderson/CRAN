@@ -6,13 +6,18 @@
             [respo-ui.style :as ui]
             [stack-editor.comp.hot-corner :refer [comp-hot-corner]]
             [stack-editor.comp.stack :refer [comp-stack]]
-            [cirru-editor.comp.editor :refer [comp-editor]]))
+            [cirru-editor.comp.editor :refer [comp-editor]]
+            [stack-editor.util.keycode :as keycode]))
 
 (defn on-update [snapshot dispatch!]
-  (println "update!")
   (dispatch! :collection/write snapshot))
 
-(defn on-save [snapsnot dispatch!])
+(defn on-command [snapsnot dispatch! e]
+  (let [code (:key-code e)]
+    (cond
+      (= code keycode/key-d) (dispatch! :stack/goto-definition nil)
+      (= code keycode/key-b) (dispatch! :stack/go-back nil)
+      :else nil)))
 
 (defn render [store]
   (fn [state mutate!]
@@ -43,6 +48,6 @@
              :clipboard (:clipboard writer),
              :focus (:focus writer)}
             on-update
-            on-save))))))
+            on-command))))))
 
 (def comp-workspace (create-comp :workspace render))

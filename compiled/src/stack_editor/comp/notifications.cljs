@@ -34,7 +34,7 @@
                              {:style
                               (merge
                                 style-notification
-                                {:top (str (* 50 idx) "px")}),
+                                {:top (str (+ 16 (* 50 idx)) "px")}),
                               :event {:click (on-click (first entry))}}
                              (comp-text (last entry) nil))]))))))
 
