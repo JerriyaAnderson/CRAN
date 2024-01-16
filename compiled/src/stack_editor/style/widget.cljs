@@ -7,4 +7,5 @@
   :background-color (hsl 200 10 40),
   :cursor "pointer",
   :padding "0 8px",
-  :display "inline-block"})
+  :display "inline-block",
+  :margin-bottom "8px"})

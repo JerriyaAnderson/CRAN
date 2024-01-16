@@ -6,6 +6,9 @@
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]))
 
+(defn on-click [pointer]
+  (fn [e dispatch!] (dispatch! :stack/point-to pointer)))
+
 (defn render [stack pointer]
   (fn [state mutate!]
     (div
@@ -16,9 +19,15 @@
           (fn [idx item] [idx
                           (div
                             {:style
-                             {:line-height 3,
-                              :cursor "pointer",
-                              :padding "0 16px"}}
+                             (merge
+                               {:line-height 3,
+                                :color (hsl 0 0 60),
+                                :cursor "pointer",
+                                :padding "0 16px"}
+                               (if
+                                 (= idx pointer)
+                                 {:color (hsl 0 0 90)})),
+                             :event {:click (on-click idx)}}
                             (comp-text item nil))]))))))
 
 (def comp-stack (create-comp :stack render))

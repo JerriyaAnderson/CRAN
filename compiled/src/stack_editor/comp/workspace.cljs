@@ -32,7 +32,8 @@
         {:style (merge ui/fullscreen ui/row)}
         (div
           {:style
-           {:color (hsl 0 0 80),
+           {:min-width "280px",
+            :color (hsl 0 0 80),
             :background-color (hsl 0 0 0),
             :width "20%"}}
           (comp-hot-corner router)

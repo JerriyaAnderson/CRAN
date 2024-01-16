@@ -8,26 +8,36 @@
         focus (:focus writer)
         stack (:stack writer)
         pointer (:pointer writer)
+        next-pointer (inc pointer)
         definitions (get-in store [:collection :definitions])
         namespaces (get-in store [:collection :namespaces])
-        definition (get stack pointer)]
+        current-def (get stack pointer)]
     (if (= :definitions (:kind writer))
       (let [target (get-in
                      store
                      (concat
-                       [:collection :definitions definition]
+                       [:collection :definitions current-def]
                        focus))]
         (if (string? target)
           (let [maybe-path (find-path
-                             definition
+                             target
+                             current-def
                              namespaces
                              definitions)]
-            (if (some? maybe-path)
-              (-> store
-               (update-in
-                 [:writer :stack]
-                 (fn [stack] (conj stack maybe-path)))
-               (update-in [:writer :pointer] inc))
+            (if (:ok maybe-path)
+              (let [path (:data maybe-path)]
+                (-> store
+                 (update-in
+                   [:writer :stack]
+                   (fn [stack]
+                     (if (< (dec (count stack)) next-pointer)
+                       (conj stack path)
+                       (if (= path (get stack next-pointer))
+                         stack
+                         (conj
+                           (into [] (subvec stack 0 next-pointer))
+                           path)))))
+                 (update-in [:writer :pointer] inc)))
               (-> store
                (update
                  :notifications
@@ -35,9 +45,19 @@
                    (into
                      []
                      (cons
-                       [op-id (str "\"" definition "\" is not found!")]
+                       [op-id (str "\"" target "\" is not found!")]
                        notifications)))))))
           store))
       store)))
 
-(defn go-back [store op-data] store)
+(defn go-back [store op-data]
+  (-> store
+   (update
+     :writer
+     (fn [writer]
+       (if (pos? (:pointer writer))
+         (update writer :pointer dec)
+         writer)))))
+
+(defn point-to [store op-data op-id]
+  (let [pointer op-data] (assoc-in store [:writer :pointer] pointer)))

@@ -36,5 +36,7 @@
                   stack/goto-definition
                   :stack/go-back
                   stack/go-back
+                  :stack/point-to
+                  stack/point-to
                   default-handler)]
     (handler store op-data op-id)))
