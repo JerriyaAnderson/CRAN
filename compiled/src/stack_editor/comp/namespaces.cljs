@@ -6,7 +6,8 @@
             [respo.alias :refer (create-comp div input)]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
-            [stack-editor.style.widget :as widget]))
+            [stack-editor.style.widget :as widget]
+            [cirru-editor.util.dom :refer [focus!]]))
 
 (defn init-state [& args] "")
 
@@ -20,7 +21,9 @@
     (mutate! "")))
 
 (defn on-edit-ns [namespace']
-  (fn [e dispatch!] (dispatch! :collection/edit-namespace namespace')))
+  (fn [e dispatch!]
+    (dispatch! :collection/edit-namespace namespace')
+    (focus!)))
 
 (defn render [namespaces]
   (fn [state mutate!]

@@ -7,16 +7,23 @@
             [stack-editor.comp.hot-corner :refer [comp-hot-corner]]
             [stack-editor.comp.stack :refer [comp-stack]]
             [cirru-editor.comp.editor :refer [comp-editor]]
-            [stack-editor.util.keycode :as keycode]))
+            [stack-editor.util.keycode :as keycode]
+            [cirru-editor.util.dom :refer [focus!]]))
 
 (defn on-update [snapshot dispatch!]
   (dispatch! :collection/write snapshot))
 
 (defn on-command [snapsnot dispatch! e]
-  (let [code (:key-code e)]
+  (let [code (:key-code e) event (:original-event e)]
     (cond
-      (= code keycode/key-d) (dispatch! :stack/goto-definition nil)
-      (= code keycode/key-b) (dispatch! :stack/go-back nil)
+      (= code keycode/key-d) (do
+                               (.preventDefault event)
+                               (dispatch! :stack/goto-definition nil)
+                               (focus!))
+      (= code keycode/key-b) (do
+                               (.preventDefault event)
+                               (dispatch! :stack/go-back nil)
+                               (focus!))
       :else nil)))
 
 (defn render [store]

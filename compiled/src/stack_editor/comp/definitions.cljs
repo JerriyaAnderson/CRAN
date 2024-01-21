@@ -1,6 +1,7 @@
 
 (ns stack-editor.comp.definitions
   (:require [hsl.core :refer [hsl]]
+            [clojure.string :as string]
             [respo.alias :refer (create-comp div input)]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.text :refer [comp-text]]
@@ -9,7 +10,8 @@
             [stack-editor.util.time :refer [now]]
             [stack-editor.comp.main-def :refer [comp-main-def]]
             [respo-border.transform.space :refer [interpose-spaces]]
-            [stack-editor.style.widget :as widget]))
+            [stack-editor.style.widget :as widget]
+            [cirru-editor.util.dom :refer [focus!]]))
 
 (defn init-state [& args] "")
 
@@ -28,9 +30,10 @@
           :notification/add-one
           [(now) (str "\"" content "\" is not valid!")])))))
 
-(defn on-edit [definition-path]
+(defn on-edit-definition [definition-path]
   (fn [e dispatch!]
-    (dispatch! :collection/edit-definition definition-path)))
+    (dispatch! :collection/edit-definition definition-path)
+    (focus!)))
 
 (defn render [definitions main-definition]
   (fn [state mutate!]
@@ -58,11 +61,27 @@
             definitions
             (map-indexed
               (fn [idx entry] [idx
-                               (div
-                                 {:style widget/entry,
-                                  :event
-                                  {:click (on-edit (first entry))}}
-                                 (comp-text (first entry) nil))]))))
+                               (let 
+                                 [[ns-part var-part]
+                                  (string/split (first entry) "/")]
+                                 (div
+                                   {:style
+                                    (merge
+                                      widget/entry
+                                      {:padding "4px 8px"}),
+                                    :event
+                                    {:click
+                                     (on-edit-definition
+                                       (first entry))}}
+                                   (div
+                                     {:style {:line-height 1.4}}
+                                     (comp-text var-part nil))
+                                   (div
+                                     {:style
+                                      {:line-height 1.4,
+                                       :color (hsl 0 0 70),
+                                       :font-size "11px"}}
+                                     (comp-text ns-part nil))))]))))
         {:width "8px", :display "inline-block"}))))
 
 (def comp-definitions

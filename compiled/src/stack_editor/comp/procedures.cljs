@@ -8,7 +8,8 @@
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]
-            [stack-editor.style.widget :as widget]))
+            [stack-editor.style.widget :as widget]
+            [cirru-editor.util.dom :refer [focus!]]))
 
 (defn init-state [& args] "")
 
@@ -22,7 +23,9 @@
     (mutate! "")))
 
 (defn on-edit-procedure [procedure]
-  (fn [e dispatch!] (dispatch! :collection/edit-procedure procedure)))
+  (fn [e dispatch!]
+    (dispatch! :collection/edit-procedure procedure)
+    (focus!)))
 
 (defn render [procedures]
   (fn [state mutate!]

@@ -37,7 +37,8 @@
                          (conj
                            (into [] (subvec stack 0 next-pointer))
                            path)))))
-                 (update-in [:writer :pointer] inc)))
+                 (update-in [:writer :pointer] inc)
+                 (assoc-in [:writer :focus] [])))
               (-> store
                (update
                  :notifications
@@ -56,7 +57,7 @@
      :writer
      (fn [writer]
        (if (pos? (:pointer writer))
-         (update writer :pointer dec)
+         (-> writer (update :pointer dec) (assoc :focus []))
          writer)))))
 
 (defn point-to [store op-data op-id]
