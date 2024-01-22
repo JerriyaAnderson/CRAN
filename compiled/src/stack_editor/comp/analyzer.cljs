@@ -9,7 +9,8 @@
             [stack-editor.comp.definitions :refer [comp-definitions]]
             [stack-editor.comp.namespaces :refer [comp-namespaces]]
             [stack-editor.comp.procedures :refer [comp-procedures]]
-            [stack-editor.comp.orphans :refer [comp-orphans]]))
+            [stack-editor.comp.orphans :refer [comp-orphans]]
+            [stack-editor.comp.settings :refer [comp-settings]]))
 
 (defn on-nav [nav-id dispatch!]
   (dispatch! :router/route {:name :analyzer, :data nav-id}))
@@ -32,19 +33,22 @@
             [[:definitions "Definitions"]
              [:namespaces "Namespaces"]
              [:procedures "Procedures"]
-             [:orphans "Orphans"]]
+             [:orphans "Orphans"]
+             [:settings "Settings"]]
             on-nav
             (:data router)))
         (case
           (:data router)
           :definitions
-          (comp-definitions definitions (:main-definition collection))
+          (comp-definitions definitions)
           :namespaces
           (comp-namespaces namespaces)
           :procedures
           (comp-procedures procedures)
           :orphans
           (comp-orphans)
+          :settings
+          (comp-settings (:main-definition collection))
           nil)))))
 
 (def comp-analyzer (create-comp :analyzer render))

@@ -35,7 +35,7 @@
     (dispatch! :collection/edit-definition definition-path)
     (focus!)))
 
-(defn render [definitions main-definition]
+(defn render [definitions]
   (fn [state mutate!]
     (div
       {:style (merge ui/flex ui/card {})}
@@ -51,8 +51,7 @@
            (merge ui/button {:line-height 2.2, :padding "0 8px"}),
            :event {:click (on-add-definition state mutate!)}}
           (comp-text "add definition"))
-        (comp-space "40px" nil)
-        (comp-main-def (or main-definition "")))
+        (comp-space "40px" nil))
       (comp-space nil "16px")
       (interpose-spaces
         (div

@@ -1,5 +1,5 @@
 
 [
 [ "ns" "stack-editor.style.widget" [ ":require" [ "[]" "hsl.core" ":refer" [ "[]" "hsl" ] ] ] ]
-[ "def" "entry" [ "{}" [ ":display" "|inline-block" ] [ ":background-color" [ "hsl" "200" "10" "40" ] ] [ ":color" [ "hsl" "0" "0" "100" ] ] [ ":padding" "|0 8px" ] [ ":cursor" "|pointer" ] [ ":margin-bottom" "|8px" ] ] ]
+[ "def" "entry" [ "{}" [ ":display" "|inline-block" ] [ ":background-color" [ "hsl" "200" "10" "40" "0" ] ] [ ":color" [ "hsl" "0" "0" "100" ] ] [ ":padding" "|0 8px" ] [ ":cursor" "|pointer" ] [ ":margin-bottom" "|8px" ] ] ]
 ]
