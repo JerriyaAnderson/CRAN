@@ -19,6 +19,6 @@
         :font-weight "lighter",
         :cursor "pointer"},
        :event {:click (on-switch router)}}
-      (comp-text "Analyzer" {:font-family "Helverica Neue"}))))
+      (comp-text "Analyzer" {:font-family "Helvetica Neue"}))))
 
 (def comp-hot-corner (create-comp :hot-corner render))

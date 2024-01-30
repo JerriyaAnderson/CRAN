@@ -8,9 +8,11 @@
             [stack-editor.comp.loading :refer [comp-loading]]
             [stack-editor.comp.analyzer :refer [comp-analyzer]]
             [stack-editor.comp.workspace :refer [comp-workspace]]
-            [stack-editor.comp.notifications :refer [comp-notifications]]))
+            [stack-editor.comp.notifications :refer [comp-notifications]]
+            [stack-editor.actions :refer [submit-collection!]]))
 
-(defn on-click [store] (fn [e dispatch!] (println (:collection store))))
+(defn on-click [store]
+  (fn [e dispatch!] (submit-collection! (:collection store) dispatch!)))
 
 (defn render [store]
   (fn [state mutate!]

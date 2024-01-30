@@ -5,7 +5,8 @@
             [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
             [stack-editor.updater.core :refer [updater]]
-            [stack-editor.util.time :refer [now]]))
+            [stack-editor.util.time :refer [now]]
+            [stack-editor.actions :refer [load-collection!]]))
 
 (defonce store-ref (atom schema/store))
 
@@ -26,6 +27,7 @@
   (add-watch store-ref :changes render-app!)
   (add-watch states-ref :changes render-app!)
   (println "app started!")
+  (load-collection! dispatch!)
   (let [configEl (.querySelector js/document "#config")
         config (read-string (.-innerHTML configEl))]
     (if (and (some? navigator.serviceWorker) (:build? config))

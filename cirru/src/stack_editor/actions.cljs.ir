@@ -1,0 +1,6 @@
+
+[
+[ "ns" "stack-editor.actions" [ ":require" [ "[]" "ajax.core" ":refer" [ "[]" "GET" "POST" "json-request-format" ] ] ] ]
+[ "defn" "load-collection!" [ "dispatch!" ] [ "GET" "|http://localhost:7010" [ "{}" [ ":handler" [ "fn" [ "response" ] [ "println" "response" ] ] ] [ ":error-handler" [ "fn" [ "error" ] [ "println" "error" ] ] ] ] ] ]
+[ "defn" "submit-collection!" [ "collection" "dispatch!" ] [ "POST" "|http://localhost:7010" [ "{}" [ ":format" [ "json-request-format" ] ] [ ":body" [ "pr-str" "collection" ] ] [ ":handler" [ "fn" [ "response" ] [ "println" "response" ] ] ] [ ":error-handler" [ "fn" [ "error" ] [ "println" "error" ] ] ] ] ] ]
+]
