@@ -64,3 +64,10 @@
            writer
            {:pointer 0, :kind :namespaces, :stack [namespace']})))
      (assoc :router {:name :workspace, :data nil}))))
+
+(defn load-remote [store op-data]
+  (let [collection op-data]
+    (println "loading:" collection)
+    (-> store
+     (update :collection (fn [cursor] (merge cursor collection)))
+     (assoc-in [:router :name] :analyzer))))

@@ -1,12 +1,16 @@
 
 (ns stack-editor.actions
-  (:require [ajax.core :refer [GET POST json-request-format]]))
+  (:require [cljs.reader :refer [read-string]]
+            [ajax.core :refer [GET POST json-request-format]]))
 
 (defn load-collection! [dispatch!]
   (GET
     "http://localhost:7010"
     {:error-handler (fn [error] (println error)),
-     :handler (fn [response] (println response))}))
+     :handler
+     (fn [response]
+       (println response)
+       (dispatch! :collection/load (read-string response)))}))
 
 (defn submit-collection! [collection dispatch!]
   (POST

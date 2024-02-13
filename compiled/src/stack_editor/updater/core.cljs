@@ -28,6 +28,8 @@
                   collection/edit-procedure
                   :collection/edit-namespace
                   collection/edit-namespace
+                  :collection/load
+                  collection/load-remote
                   :notification/add-one
                   notification/add-one
                   :notification/remove-one
