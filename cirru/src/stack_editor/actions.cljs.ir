@@ -1,6 +1,6 @@
 
 [
 [ "ns" "stack-editor.actions" [ ":require" [ "[]" "cljs.reader" ":refer" [ "[]" "read-string" ] ] [ "[]" "ajax.core" ":refer" [ "[]" "GET" "POST" "json-request-format" ] ] ] ]
-[ "defn" "load-collection!" [ "dispatch!" ] [ "GET" "|http://localhost:7010" [ "{}" [ ":handler" [ "fn" [ "response" ] [ "println" "response" ] [ "dispatch!" ":collection/load" [ "read-string" "response" ] ] ] ] [ ":error-handler" [ "fn" [ "error" ] [ "println" "error" ] ] ] ] ] ]
-[ "defn" "submit-collection!" [ "collection" "dispatch!" ] [ "POST" "|http://localhost:7010" [ "{}" [ ":format" [ "json-request-format" ] ] [ ":body" [ "pr-str" "collection" ] ] [ ":handler" [ "fn" [ "response" ] [ "println" "response" ] ] ] [ ":error-handler" [ "fn" [ "error" ] [ "println" "error" ] ] ] ] ] ]
+[ "defn" "load-collection!" [ "dispatch!" ] [ "GET" "|http://localhost:7010" [ "{}" [ ":handler" [ "fn" [ "response" ] [ "println" "response" ] [ "dispatch!" ":collection/load" [ "read-string" "response" ] ] ] ] [ ":error-handler" [ "fn" [ "error" ] [ "println" "error" ] [ "dispatch!" ":notification/add-one" "|failed to load collection" ] ] ] ] ] ]
+[ "defn" "submit-collection!" [ "collection" "dispatch!" ] [ "POST" "|http://localhost:7010" [ "{}" [ ":format" [ "json-request-format" ] ] [ ":body" [ "pr-str" "collection" ] ] [ ":handler" [ "fn" [ "response" ] [ "println" "response" ] ] ] [ ":error-handler" [ "fn" [ "error" ] [ "println" "error" ] [ "dispatch!" ":notification/add-one" "|failed to post collection" ] ] ] ] ] ]
 ]

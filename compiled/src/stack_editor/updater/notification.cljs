@@ -1,13 +1,13 @@
 
 (ns stack-editor.updater.notification)
 
-(defn add-one [store op-data]
+(defn add-one [store op-data op-id]
   (let [notification op-data]
     (-> store
      (update
        :notifications
        (fn [notifications]
-         (into [] (cons notification notifications)))))))
+         (into [] (cons [op-id notification] notifications)))))))
 
 (defn remove-one [store op-data]
   (let [notification-id op-data]

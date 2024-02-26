@@ -28,7 +28,7 @@
           (mutate! ""))
         (dispatch!
           :notification/add-one
-          [(now) (str "\"" content "\" is not valid!")])))))
+          (str "\"" content "\" is not valid!"))))))
 
 (defn on-edit-definition [definition-path]
   (fn [e dispatch!]

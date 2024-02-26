@@ -6,7 +6,10 @@
 (defn load-collection! [dispatch!]
   (GET
     "http://localhost:7010"
-    {:error-handler (fn [error] (println error)),
+    {:error-handler
+     (fn [error]
+       (println error)
+       (dispatch! :notification/add-one "failed to load collection")),
      :handler
      (fn [response]
        (println response)
@@ -16,6 +19,9 @@
   (POST
     "http://localhost:7010"
     {:format (json-request-format),
-     :error-handler (fn [error] (println error)),
+     :error-handler
+     (fn [error]
+       (println error)
+       (dispatch! :notification/add-one "failed to post collection")),
      :body (pr-str collection),
      :handler (fn [response] (println response))}))

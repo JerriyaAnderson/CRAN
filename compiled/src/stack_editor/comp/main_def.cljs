@@ -20,7 +20,7 @@
         (dispatch! :collection/set-main content)
         (dispatch!
           :notification/add-one
-          [(now) (str "\"" content "\" is invalid")])))))
+          (str "\"" content "\" is invalid"))))))
 
 (defn render [main-definition]
   (fn [state mutate!]
