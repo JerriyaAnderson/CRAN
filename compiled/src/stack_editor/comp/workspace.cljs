@@ -8,23 +8,30 @@
             [stack-editor.comp.stack :refer [comp-stack]]
             [cirru-editor.comp.editor :refer [comp-editor]]
             [stack-editor.util.keycode :as keycode]
-            [cirru-editor.util.dom :refer [focus!]]))
+            [cirru-editor.util.dom :refer [focus!]]
+            [stack-editor.actions :refer [submit-collection!]]))
 
 (defn on-update [snapshot dispatch!]
   (dispatch! :collection/write snapshot))
 
-(defn on-command [snapsnot dispatch! e]
-  (let [code (:key-code e) event (:original-event e)]
-    (cond
-      (= code keycode/key-d) (do
-                               (.preventDefault event)
-                               (dispatch! :stack/goto-definition nil)
-                               (focus!))
-      (= code keycode/key-b) (do
-                               (.preventDefault event)
-                               (dispatch! :stack/go-back nil)
-                               (focus!))
-      :else nil)))
+(defn on-command [store]
+  (fn [snapshot dispatch! e]
+    (let [code (:key-code e) event (:original-event e)]
+      (cond
+        (= code keycode/key-d) (do
+                                 (.preventDefault event)
+                                 (dispatch! :stack/goto-definition nil)
+                                 (focus!))
+        (= code keycode/key-b) (do
+                                 (.preventDefault event)
+                                 (dispatch! :stack/go-back nil)
+                                 (focus!))
+        (= code keycode/key-s) (do
+                                 (.preventDefault event)
+                                 (submit-collection!
+                                   (:collection store)
+                                   dispatch!))
+        :else nil))))
 
 (defn render [store]
   (fn [state mutate!]
@@ -56,6 +63,6 @@
              :clipboard (:clipboard writer),
              :focus (:focus writer)}
             on-update
-            on-command))))))
+            (on-command store)))))))
 
 (def comp-workspace (create-comp :workspace render))
