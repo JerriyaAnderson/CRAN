@@ -5,4 +5,6 @@
 
 (def key-d 68)
 
+(def key-p 80)
+
 (def key-s 83)
