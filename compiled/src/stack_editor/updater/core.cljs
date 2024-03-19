@@ -12,6 +12,8 @@
                   op
                   :router/route
                   router/route
+                  :router/toggle-palette
+                  router/toggle-palette
                   :collection/add-definition
                   collection/add-definition
                   :collection/add-procedure

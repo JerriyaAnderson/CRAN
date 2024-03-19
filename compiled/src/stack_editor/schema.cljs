@@ -2,7 +2,7 @@
 (ns stack-editor.schema)
 
 (def store
- {:router {:name :loading, :data :definitions},
+ {:router {:name :loading, :show-palette? false, :data :definitions},
   :notifications [],
   :writer
   {:pointer 0,

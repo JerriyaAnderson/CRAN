@@ -9,7 +9,8 @@
             [cirru-editor.comp.editor :refer [comp-editor]]
             [stack-editor.util.keycode :as keycode]
             [cirru-editor.util.dom :refer [focus!]]
-            [stack-editor.actions :refer [submit-collection!]]))
+            [stack-editor.actions :refer [submit-collection!]]
+            [stack-editor.util.dom :as dom]))
 
 (defn on-update [snapshot dispatch!]
   (dispatch! :collection/write snapshot))
@@ -31,6 +32,10 @@
                                  (submit-collection!
                                    (:collection store)
                                    dispatch!))
+        (= code keycode/key-p) (do
+                                 (.preventDefault event)
+                                 (dispatch! :router/toggle-palette nil)
+                                 (dom/focus-palette!))
         :else nil))))
 
 (defn render [store]
