@@ -71,3 +71,13 @@
     (-> store
      (update :collection (fn [cursor] (merge cursor collection)))
      (assoc-in [:router :name] :analyzer))))
+
+(defn remove-this [store op-data op-id]
+  (let [writer (:writer store)
+        stack (:stack writer)
+        pointer (:pointer writer)
+        kind (:kind writer)
+        path (get stack pointer)]
+    (-> store
+     (update-in [:collection kind] (fn [dict] (dissoc dict path)))
+     (assoc :router {:name :analyzer, :data kind}))))

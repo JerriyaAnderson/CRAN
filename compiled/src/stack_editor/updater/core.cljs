@@ -32,6 +32,8 @@
                   collection/edit-namespace
                   :collection/load
                   collection/load-remote
+                  :collection/remove-this
+                  collection/remove-this
                   :notification/add-one
                   notification/add-one
                   :notification/remove-one

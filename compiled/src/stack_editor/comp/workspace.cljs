@@ -2,6 +2,7 @@
 (ns stack-editor.comp.workspace
   (:require [hsl.core :refer [hsl]]
             [respo.alias :refer [create-comp div]]
+            [respo.comp.text :refer [comp-text]]
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
             [stack-editor.comp.hot-corner :refer [comp-hot-corner]]
@@ -38,6 +39,8 @@
                                  (dom/focus-palette!))
         :else nil))))
 
+(defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
+
 (defn render [store]
   (fn [state mutate!]
     (let [router (:router store)
@@ -62,12 +65,21 @@
           writer
           {:background-color (hsl 0 0 0), :z-index 999, :opacity 1})
         (div
-          {:style (merge ui/flex)}
+          {:style (merge ui/column ui/flex)}
           (comp-editor
             {:tree tree,
              :clipboard (:clipboard writer),
              :focus (:focus writer)}
             on-update
-            (on-command store)))))))
+            (on-command store))
+          (div
+            {:style
+             (merge
+               ui/row
+               {:background-color (hsl 0 0 0),
+                :justify-content "flex-end"})}
+            (div
+              {:style ui/button, :event {:click on-remove}}
+              (comp-text "remove" nil))))))))
 
 (def comp-workspace (create-comp :workspace render))
