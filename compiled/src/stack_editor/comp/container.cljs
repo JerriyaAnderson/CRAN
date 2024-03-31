@@ -18,12 +18,16 @@
   (fn [e dispatch!] (submit-collection! (:collection store) dispatch!)))
 
 (defn on-keydown [e dispatch!]
-  (let [event (:original-event e) code (:key-code e)]
+  (let [event (:original-event e)
+        code (:key-code e)
+        command? (or (.-metaKet event) (.-ctrlKet event))]
     (cond
-      (= code keycode/key-p) (do
-                               (.preventDefault event)
-                               (dispatch! :router/toggle-palette nil)
-                               (dom/focus-palette!))
+      (and command? (= code keycode/key-p)) (do
+                                              (.preventDefault event)
+                                              (dispatch!
+                                                :router/toggle-palette
+                                                nil)
+                                              (dom/focus-palette!))
       :else nil)))
 
 (defn render [store]

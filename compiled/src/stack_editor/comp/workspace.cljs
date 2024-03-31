@@ -18,7 +18,9 @@
 
 (defn on-command [store]
   (fn [snapshot dispatch! e]
-    (let [code (:key-code e) event (:original-event e)]
+    (let [code (:key-code e)
+          event (:original-event e)
+          command? (or (.-metaKey event) (.-ctrlKey event))]
       (cond
         (= code keycode/key-d) (do
                                  (.preventDefault event)
@@ -33,10 +35,12 @@
                                  (submit-collection!
                                    (:collection store)
                                    dispatch!))
-        (= code keycode/key-p) (do
-                                 (.preventDefault event)
-                                 (dispatch! :router/toggle-palette nil)
-                                 (dom/focus-palette!))
+        (and command? (= code keycode/key-p)) (do
+                                                (.preventDefault event)
+                                                (dispatch!
+                                                  :router/toggle-palette
+                                                  nil)
+                                                (dom/focus-palette!))
         :else nil))))
 
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
