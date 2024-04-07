@@ -11,13 +11,8 @@
             [stack-editor.comp.main-def :refer [comp-main-def]]
             [respo-border.transform.space :refer [interpose-spaces]]
             [stack-editor.style.widget :as widget]
-            [cirru-editor.util.dom :refer [focus!]]))
-
-(defn init-state [& args] "")
-
-(defn update-state [state new-text] new-text)
-
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
+            [cirru-editor.util.dom :refer [focus!]]
+            [stack-editor.comp.define :refer [comp-define]]))
 
 (defn on-add-definition [state mutate!]
   (fn [e dispatch!]
@@ -37,51 +32,59 @@
 
 (defn render [definitions]
   (fn [state mutate!]
-    (div
-      {:style (merge ui/flex ui/card {})}
+    (let [grouped (->>
+                    definitions
+                    (group-by
+                      (fn [entry]
+                        (let [path (first entry)
+                              ns-name (first
+                                        (string/split
+                                          path
+                                          (re-pattern "/")))]
+                          ns-name)))
+                    (into {}))]
       (div
-        {}
-        (input
-          {:style (merge ui/input {:width "320px"}),
-           :event {:input (on-input mutate!)},
-           :attrs {:placeholder "namespace/definition", :value state}})
-        (comp-space "8px" nil)
-        (div
-          {:style
-           (merge ui/button {:line-height 2.2, :padding "0 8px"}),
-           :event {:click (on-add-definition state mutate!)}}
-          (comp-text "add definition"))
-        (comp-space "40px" nil))
-      (comp-space nil "16px")
-      (interpose-spaces
-        (div
-          {}
-          (->>
-            definitions
-            (map-indexed
-              (fn [idx entry] [idx
-                               (let 
-                                 [[ns-part var-part]
-                                  (string/split (first entry) "/")]
-                                 (div
-                                   {:style
-                                    (merge
-                                      widget/entry
-                                      {:padding "4px 8px"}),
-                                    :event
-                                    {:click
-                                     (on-edit-definition
-                                       (first entry))}}
-                                   (div
-                                     {:style {:line-height 1.4}}
-                                     (comp-text var-part nil))
-                                   (div
-                                     {:style
-                                      {:line-height 1.4,
-                                       :color (hsl 0 0 70),
-                                       :font-size "11px"}}
-                                     (comp-text ns-part nil))))]))))
-        {:width "8px", :display "inline-block"}))))
+        {:style (merge ui/flex ui/card {})}
+        (comp-space nil "16px")
+        (interpose-spaces
+          (div
+            {}
+            (->>
+              grouped
+              (map
+                (fn [entry]
+                  (let [ns-name (first entry) def-codes (val entry)]
+                    [ns-name
+                     (div
+                       {}
+                       (comp-define ns-name)
+                       (interpose-spaces
+                         (div
+                           {}
+                           (->>
+                             def-codes
+                             (map
+                               (fn 
+                                 [code-entry]
+                                 (let 
+                                   [path (first code-entry)
+                                    var-part
+                                    (last
+                                      (string/split
+                                        path
+                                        (re-pattern "/")))]
+                                   [var-part
+                                    (div
+                                      {:style
+                                       {:color (hsl 0 0 100),
+                                        :cursor "pointer",
+                                        :display "inline-block"},
+                                       :event
+                                       {:click
+                                        (on-edit-definition path)}}
+                                      (comp-text var-part nil))])))))
+                         {:width "16px",
+                          :display "inline-block"}))])))))
+          {:height "32px"})))))
 
-(def comp-definitions
- (create-comp :definitions init-state update-state render))
+(def comp-definitions (create-comp :definitions render))

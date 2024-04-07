@@ -20,7 +20,7 @@
 (defn on-keydown [e dispatch!]
   (let [event (:original-event e)
         code (:key-code e)
-        command? (or (.-metaKet event) (.-ctrlKet event))]
+        command? (or (.-metaKey event) (.-ctrlKey event))]
     (cond
       (and command? (= code keycode/key-p)) (do
                                               (.preventDefault event)
