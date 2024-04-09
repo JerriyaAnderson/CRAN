@@ -14,17 +14,6 @@
             [cirru-editor.util.dom :refer [focus!]]
             [stack-editor.comp.define :refer [comp-define]]))
 
-(defn on-add-definition [state mutate!]
-  (fn [e dispatch!]
-    (let [content state]
-      (if (re-find (re-pattern "^.+/.+$") content)
-        (do
-          (dispatch! :collection/add-definition content)
-          (mutate! ""))
-        (dispatch!
-          :notification/add-one
-          (str "\"" content "\" is not valid!"))))))
-
 (defn on-edit-definition [definition-path]
   (fn [e dispatch!]
     (dispatch! :collection/edit-definition definition-path)
@@ -51,6 +40,7 @@
             {}
             (->>
               grouped
+              (sort-by first)
               (map
                 (fn [entry]
                   (let [ns-name (first entry) def-codes (val entry)]
@@ -63,6 +53,12 @@
                            {}
                            (->>
                              def-codes
+                             (sort-by
+                               (fn 
+                                 [code-entry]
+                                 (let 
+                                   [path (first code-entry)]
+                                   (last (string/split path "/")))))
                              (map
                                (fn 
                                  [code-entry]

@@ -48,17 +48,15 @@
           {}
           (->>
             procedures
-            (map-indexed
-              (fn [idx procedure] [idx
-                                   (div
-                                     {:style widget/entry,
-                                      :event
-                                      {:click
-                                       (on-edit-procedure
-                                         (first procedure))}}
-                                     (comp-text
-                                       (first procedure)
-                                       nil))]))))
+            (sort-by first)
+            (map
+              (fn [entry]
+                (let [ns-name (first entry)]
+                  [ns-name
+                   (div
+                     {:style widget/entry,
+                      :event {:click (on-edit-procedure ns-name)}}
+                     (comp-text ns-name nil))])))))
         {:width "8px", :display "inline-block"})
       (comment comp-debug procedures nil))))
 

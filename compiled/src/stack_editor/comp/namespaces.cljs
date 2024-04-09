@@ -46,13 +46,15 @@
           {}
           (->>
             namespaces
-            (map-indexed
-              (fn [idx entry] [idx
-                               (div
-                                 {:style widget/entry,
-                                  :event
-                                  {:click (on-edit-ns (first entry))}}
-                                 (comp-text (first entry) nil))]))))
+            (sort-by first)
+            (map
+              (fn [entry]
+                (let [ns-name (first entry)]
+                  [ns-name
+                   (div
+                     {:style widget/entry,
+                      :event {:click (on-edit-ns ns-name)}}
+                     (comp-text ns-name nil))])))))
         {:width "8px", :display "inline-block"}))))
 
 (def comp-namespaces

@@ -29,4 +29,7 @@
        (println error)
        (dispatch! :notification/add-one "failed to post collection")),
      :body (pr-str collection),
-     :handler (fn [response] (println response))}))
+     :handler
+     (fn [response]
+       (println response)
+       (dispatch! :notification/add-one "saved"))}))
