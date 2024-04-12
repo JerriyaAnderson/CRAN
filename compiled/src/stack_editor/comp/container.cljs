@@ -12,7 +12,8 @@
             [stack-editor.actions :refer [submit-collection!]]
             [stack-editor.comp.palette :refer [comp-palette]]
             [stack-editor.util.keycode :as keycode]
-            [stack-editor.util.dom :as dom]))
+            [stack-editor.util.dom :as dom]
+            [stack-editor.style.widget :as widget]))
 
 (defn on-click [store]
   (fn [e dispatch!] (submit-collection! (:collection store) dispatch!)))
@@ -54,7 +55,7 @@
         (div
           {:style
            (merge
-             ui/button
+             widget/button
              {:top "16px", :right "16px", :position "absolute"}),
            :event {:click (on-click store)}}
           (comp-text "Persist" nil))

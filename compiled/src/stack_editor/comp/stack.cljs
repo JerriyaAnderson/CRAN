@@ -38,7 +38,7 @@
                                 (div
                                   {:style
                                    {:line-height 1.4,
-                                    :color (hsl 0 0 40),
+                                    :color (hsl 0 0 50),
                                     :font-size "11px"}}
                                   (comp-text ns-part nil))))
                             (div

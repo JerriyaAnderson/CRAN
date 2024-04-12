@@ -5,8 +5,10 @@
             [respo.comp.text :refer [comp-text]]))
 
 (def style-entry
- {:line-height 3,
+ {:line-height "40px",
   :color (hsl 0 0 50),
+  :font-size "15px",
+  :font-weight "lighter",
   :cursor "pointer",
   :padding "0 16px"})
 

@@ -11,7 +11,8 @@
             [stack-editor.util.keycode :as keycode]
             [cirru-editor.util.dom :refer [focus!]]
             [stack-editor.actions :refer [submit-collection!]]
-            [stack-editor.util.dom :as dom]))
+            [stack-editor.util.dom :as dom]
+            [stack-editor.style.widget :as widget]))
 
 (defn on-update [snapshot dispatch!]
   (dispatch! :collection/write snapshot))
@@ -83,7 +84,7 @@
                {:background-color (hsl 0 0 0),
                 :justify-content "flex-end"})}
             (div
-              {:style ui/button, :event {:click on-remove}}
+              {:style widget/button, :event {:click on-remove}}
               (comp-text "remove" nil))))))))
 
 (def comp-workspace (create-comp :workspace render))

@@ -7,7 +7,8 @@
             [respo.comp.text :refer [comp-text]]
             [stack-editor.comp.command :refer [comp-command]]
             [stack-editor.util.keycode :as keycode]
-            [stack-editor.actions :refer [submit-collection!]]))
+            [stack-editor.actions :refer [submit-collection!]]
+            [stack-editor.style.widget :as widget]))
 
 (def basic-commands [["save"] ["load"]])
 
@@ -89,16 +90,17 @@
          (merge
            ui/fullscreen
            ui/row
-           {:background-color (hsl 200 40 20 0.6),
+           {:background-color (hsl 200 40 10 0.8),
             :justify-content "center",
             :position "fixed"})}
         (div
           {:style
            (merge
              ui/column
-             {:background-color (hsl 0 0 10 0.3), :width "600px"})}
+             {:background-color (hsl 0 0 0 0.8), :width "800px"})}
           (input
-            {:style ui/input,
+            {:style
+             (merge widget/input {:line-height "40px", :width "100%"}),
              :event
              {:keydown
               (on-keydown mutate! commands (:cursor state) collection),

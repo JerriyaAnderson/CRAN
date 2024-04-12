@@ -34,12 +34,12 @@
       (div
         {}
         (input
-          {:style ui/input,
+          {:style widget/input,
            :event {:input (on-input mutate!)},
            :attrs {:placeholder "namespace", :value state}})
         (comp-space "8px" nil)
         (div
-          {:style ui/button,
+          {:style widget/button,
            :event {:click (on-add-procedure mutate! state)}}
           (comp-text "add" nil)))
       (comp-space nil "16px")
@@ -54,7 +54,7 @@
                 (let [ns-name (first entry)]
                   [ns-name
                    (div
-                     {:style widget/entry,
+                     {:style widget/var-entry,
                       :event {:click (on-edit-procedure ns-name)}}
                      (comp-text ns-name nil))])))))
         {:width "8px", :display "inline-block"})

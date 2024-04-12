@@ -1,7 +1,7 @@
 
 [
-[ "ns" "stack-editor.updater.collection" ]
-[ "defn" "add-definition" [ "store" "op-data" ] [ "let" [ [ "definition-path" "op-data" ] [ "path" [ "[]" ":collection" ":definitions" "definition-path" ] ] [ "maybe-definition" [ "get-in" "store" "path" ] ] ] [ "if" [ "some?" "maybe-definition" ] "store" [ "assoc-in" "store" "path" [ "[]" ] ] ] ] ]
+[ "ns" "stack-editor.updater.collection" [ ":require" [ "[]" "clojure.string" ":as" "string" ] ] ]
+[ "defn" "add-definition" [ "store" "op-data" ] [ "let" [ [ "definition-path" "op-data" ] [ "path" [ "[]" ":collection" ":definitions" "definition-path" ] ] [ "maybe-definition" [ "get-in" "store" "path" ] ] [ "var-name" [ "last" [ "string/split" "definition-path" "|/" ] ] ] ] [ "if" [ "some?" "maybe-definition" ] "store" [ "assoc-in" "store" "path" [ "[]" "|defn" "var-name" [ "[]" ] ] ] ] ] ]
 [ "defn" "add-procedure" [ "store" "op-data" ] [ "let" [ [ "procedure" "op-data" ] ] [ "assoc-in" "store" [ "[]" ":collection" ":procedures" "procedure" ] [ "[]" ] ] ] ]
 [ "defn" "add-namespace" [ "store" "op-data" ] [ "let" [ [ "namespace'" "op-data" ] ] [ "assoc-in" "store" [ "[]" ":collection" ":namespaces" "namespace'" ] [ "[]" ] ] ] ]
 [ "defn" "set-main" [ "store" "op-data" ] [ "let" [ [ "main-definition" "op-data" ] ] [ "assoc-in" "store" [ "[]" ":collection" ":main-definition" ] "main-definition" ] ] ]

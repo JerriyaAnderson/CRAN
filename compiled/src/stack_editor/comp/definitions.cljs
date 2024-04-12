@@ -48,6 +48,7 @@
                      (div
                        {}
                        (comp-define ns-name)
+                       (comp-space nil "8px")
                        (interpose-spaces
                          (div
                            {}
@@ -71,10 +72,7 @@
                                         (re-pattern "/")))]
                                    [var-part
                                     (div
-                                      {:style
-                                       {:color (hsl 0 0 100),
-                                        :cursor "pointer",
-                                        :display "inline-block"},
+                                      {:style widget/var-entry,
                                        :event
                                        {:click
                                         (on-edit-definition path)}}

@@ -5,7 +5,8 @@
             [respo.alias :refer [create-comp div input]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
-            [stack-editor.util.time :refer [now]]))
+            [stack-editor.util.time :refer [now]]
+            [stack-editor.style.widget :as widget]))
 
 (defn init-state [& args] "")
 
@@ -27,14 +28,14 @@
     (div
       {:style {:display "inline-block"}}
       (input
-        {:style ui/input,
+        {:style widget/input,
          :event {:input (on-input mutate!)},
          :attrs {:placeholder "main/definition", :value state}})
       (comp-space "8px" nil)
       (div
         {:style
          (merge
-           ui/button
+           widget/button
            (if (= main-definition state)
              {:background-color (hsl 200 30 30)})),
          :event {:click (on-set-main state)}}

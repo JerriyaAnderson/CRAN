@@ -4,7 +4,8 @@
             [respo.alias :refer [create-comp div]]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.text :refer [comp-text]]
-            [stack-editor.comp.main-def :refer [comp-main-def]]))
+            [stack-editor.comp.main-def :refer [comp-main-def]]
+            [stack-editor.style.widget :as widget]))
 
 (defn render [main-definition]
   (fn [state mutate!]
