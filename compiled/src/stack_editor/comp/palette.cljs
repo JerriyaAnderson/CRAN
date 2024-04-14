@@ -8,7 +8,8 @@
             [stack-editor.comp.command :refer [comp-command]]
             [stack-editor.util.keycode :as keycode]
             [stack-editor.actions :refer [submit-collection!]]
-            [stack-editor.style.widget :as widget]))
+            [stack-editor.style.widget :as widget]
+            [stack-editor.util.detect :refer [fuzzy-search]]))
 
 (def basic-commands [["save"] ["load"]])
 
@@ -18,6 +19,23 @@
 
 (defn on-input [mutate!]
   (fn [e dispatch!] (mutate! {:cursor 0, :text (:value e)})))
+
+(defn handle-command [cursor commands collection dispatch!]
+  (let [command (get (into [] commands) cursor)]
+    (dispatch! :router/toggle-palette nil)
+    (case
+      (first command)
+      "load"
+      (println "load")
+      "save"
+      (submit-collection! collection dispatch!)
+      "definition"
+      (dispatch! :collection/edit-definition (last command))
+      "namespace"
+      (dispatch! :collection/edit-namespace (last command))
+      "procedure"
+      (dispatch! :collection/edit-procedure (last command))
+      nil)))
 
 (defn on-keydown [mutate! commands cursor collection]
   (fn [e dispatch!]
@@ -30,35 +48,18 @@
         (= code keycode/key-up) (if
                                   (> cursor 0)
                                   (mutate! {:cursor (dec cursor)}))
-        (= code keycode/key-enter) (let 
-                                     [command
-                                      (get (into [] commands) cursor)]
+        (= code keycode/key-enter) (do
                                      (mutate! {:text ""})
-                                     (dispatch!
-                                       :router/toggle-palette
-                                       nil)
-                                     (case
-                                       (first command)
-                                       "load"
-                                       (println "load")
-                                       "save"
-                                       (submit-collection!
-                                         collection
-                                         dispatch!)
-                                       "definition"
-                                       (dispatch!
-                                         :collection/edit-definition
-                                         (last command))
-                                       "namespace"
-                                       (dispatch!
-                                         :collection/edit-namespace
-                                         (last command))
-                                       "procedure"
-                                       (dispatch!
-                                         :collection/edit-procedure
-                                         (last command))
-                                       nil))
+                                     (handle-command
+                                       cursor
+                                       commands
+                                       collection
+                                       dispatch!))
         :else nil))))
+
+(defn on-select [cursor commands collection]
+  (fn [dispatch!]
+    (handle-command cursor commands collection dispatch!)))
 
 (defn render [collection]
   (fn [state mutate!]
@@ -73,6 +74,7 @@
                             (map
                               (fn [procedure-name] ["procedure"
                                                     procedure-name])))
+          queries (string/split (:text state) " ")
           commands (->>
                      (concat
                        basic-commands
@@ -80,11 +82,7 @@
                        ns-names
                        procedure-names)
                      (filter
-                       (fn [command]
-                         (some
-                           (fn [piece]
-                             (string/includes? piece (:text state)))
-                           command))))]
+                       (fn [command] (fuzzy-search command queries))))]
       (div
         {:style
          (merge
@@ -117,6 +115,10 @@
                 (fn [idx command] [idx
                                    (comp-command
                                      command
-                                     (= idx (:cursor state)))])))))))))
+                                     (= idx (:cursor state))
+                                     (on-select
+                                       idx
+                                       commands
+                                       collection))])))))))))
 
 (def comp-palette (create-comp :palette init-state update-state render))
