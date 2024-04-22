@@ -9,7 +9,7 @@
       (let [namespace-data (get namespaces this-namespace)]
         (if (nil? namespace-data)
           nil
-          (let [required (get namespace-data 1)
+          (let [required (get namespace-data 2)
                 rules (subvec required 1)
                 matched-rule (first
                                (filter
@@ -23,27 +23,35 @@
       nil)))
 
 (defn locate-ns-by-var [short-form this-namespace namespaces]
+  (println "searching" short-form this-namespace namespaces)
   (if (nil? this-namespace)
     nil
     (if (contains? namespaces this-namespace)
       (let [namespace-data (get namespaces this-namespace)]
+        (println "namespace-data" namespace-data)
         (if (nil? namespace-data)
           nil
-          (let [required (get namespace-data 1)
+          (let [required (get namespace-data 2)
                 rules (subvec required 1)
                 matched-rule (first
                                (filter
                                  (fn 
                                    [rule]
+                                   (println
+                                     "search rrule:"
+                                     rule
+                                     short-form
+                                     (= ":refer" (get rule 1)))
                                    (and
-                                     (= ":refer" (get rule 1))
+                                     (= ":refer" (get rule 2))
                                      (some
                                        (fn 
                                          [definition]
                                          (= definition short-form))
-                                       (get rule 2))))
+                                       (get rule 3))))
                                  rules))]
-            (if (some? matched-rule) (first matched-rule) nil))))
+            (println "rules" matched-rule)
+            (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
 
 (defn find-path [piece current-def namespaces definitions]
@@ -60,15 +68,15 @@
           (let [maybe-that-def (str maybe-namespace "/" that-var)]
             (if (contains? definitions maybe-that-def)
               {:ok true, :data maybe-that-def}
-              (let [maybe-that-ns (locate-ns-by-var
-                                    that-ns
-                                    this-namespace
-                                    namespaces)]
-                (if (some? maybe-that-ns)
-                  (str maybe-that-ns "/" that-var)
-                  {:ok false, :data nil}))))
+              {:ok false, :data nil}))
           {:ok false, :data nil}))
       (let [maybe-this-def (str current-ns "/" piece)]
         (if (contains? definitions maybe-this-def)
           {:ok true, :data maybe-this-def}
-          {:ok false, :data nil})))))
+          (let [maybe-that-ns (locate-ns-by-var
+                                piece
+                                current-ns
+                                namespaces)]
+            (if (some? maybe-that-ns)
+              {:ok true, :data (str maybe-that-ns "/" piece)}
+              {:ok false, :data nil})))))))

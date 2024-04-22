@@ -1,6 +1,7 @@
 
 (ns stack-editor.updater.stack
-  (:require [stack-editor.util.analyze :refer [find-path]]))
+  (:require [stack-editor.util.analyze :refer [find-path]]
+            [stack-editor.util.detect :refer [strip-atom]]))
 
 (defn goto-definition [store op-data op-id]
   (let [writer (:writer store)
@@ -20,10 +21,11 @@
                        focus))]
         (if (string? target)
           (let [maybe-path (find-path
-                             target
+                             (strip-atom target)
                              current-def
                              namespaces
                              definitions)]
+            (println "maybe-path" maybe-path)
             (if (:ok maybe-path)
               (let [path (:data maybe-path)]
                 (-> store

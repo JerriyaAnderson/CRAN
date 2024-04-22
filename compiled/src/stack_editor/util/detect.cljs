@@ -7,3 +7,6 @@
     (fn [query]
       (some (fn [piece] (string/includes? piece query)) pieces))
     queries))
+
+(defn strip-atom [token]
+  (if (string/starts-with? token "@") (subs token 1) token))
