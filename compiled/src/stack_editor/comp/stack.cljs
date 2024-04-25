@@ -25,7 +25,8 @@
                                 {:style
                                  {:color (hsl 0 0 60),
                                   :cursor "pointer",
-                                  :padding "8px 16px"},
+                                  :padding "8px 16px",
+                                  :font-family "Menlo,monospace"},
                                  :event {:click (on-click idx)}}
                                 (div
                                   {:style
@@ -47,7 +48,8 @@
                                  {:line-height 3,
                                   :color (hsl 0 0 60),
                                   :cursor "pointer",
-                                  :padding "0 16px"}
+                                  :padding "0 16px",
+                                  :font-family "Menlo,monospace"}
                                  (if
                                    (= idx pointer)
                                    {:color (hsl 0 0 90)})),

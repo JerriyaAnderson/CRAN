@@ -19,19 +19,26 @@
     (dispatch! :collection/edit-definition definition-path)
     (focus!)))
 
-(defn render [definitions]
+(defn render [definitions ns-names]
   (fn [state mutate!]
-    (let [grouped (->>
-                    definitions
-                    (group-by
-                      (fn [entry]
-                        (let [path (first entry)
-                              ns-name (first
-                                        (string/split
-                                          path
-                                          (re-pattern "/")))]
-                          ns-name)))
-                    (into {}))]
+    (let [ns-base (->>
+                    ns-names
+                    (map (fn [ns-name] [ns-name {}]))
+                    (into {}))
+          grouped (merge
+                    ns-base
+                    (->>
+                      definitions
+                      (group-by
+                        (fn [entry]
+                          (let [path (first entry)
+                                ns-name
+                                (first
+                                  (string/split
+                                    path
+                                    (re-pattern "/")))]
+                            ns-name)))
+                      (into {})))]
       (div
         {:style (merge ui/flex ui/card {})}
         (comp-space nil "16px")

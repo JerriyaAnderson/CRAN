@@ -15,11 +15,13 @@
                                (filter
                                  (fn 
                                    [rule]
+                                   (println "rule" rule short-form)
                                    (and
-                                     (= ":as" (get rule 1))
-                                     (= short-form (get rule 2))))
+                                     (= ":as" (get rule 2))
+                                     (= short-form (get rule 3))))
                                  rules))]
-            (if (some? matched-rule) (first matched-rule) nil))))
+            (println "matched-rule" matched-rule)
+            (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
 
 (defn locate-ns-by-var [short-form this-namespace namespaces]
@@ -60,10 +62,7 @@
     (if (string/includes? piece "/")
       (let [that-ns (first (string/split piece "/"))
             that-var (last (string/split piece "/"))
-            maybe-namespace (locate-ns
-                              that-ns
-                              this-namespace
-                              namespaces)]
+            maybe-namespace (locate-ns that-ns current-ns namespaces)]
         (if (some? maybe-namespace)
           (let [maybe-that-def (str maybe-namespace "/" that-var)]
             (if (contains? definitions maybe-that-def)

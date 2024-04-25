@@ -40,7 +40,7 @@
         (case
           (:data router)
           :definitions
-          (comp-definitions definitions)
+          (comp-definitions definitions (keys namespaces))
           :namespaces
           (comp-namespaces namespaces)
           :procedures
