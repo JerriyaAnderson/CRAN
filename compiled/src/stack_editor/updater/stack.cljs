@@ -28,19 +28,21 @@
             (println "maybe-path" maybe-path)
             (if (:ok maybe-path)
               (let [path (:data maybe-path)]
-                (-> store
-                 (update-in
-                   [:writer :stack]
-                   (fn [stack]
-                     (if (< (dec (count stack)) next-pointer)
-                       (conj stack path)
-                       (if (= path (get stack next-pointer))
-                         stack
-                         (conj
-                           (into [] (subvec stack 0 next-pointer))
-                           path)))))
-                 (update-in [:writer :pointer] inc)
-                 (assoc-in [:writer :focus] [])))
+                (if (= path (get stack pointer))
+                  store
+                  (-> store
+                   (update-in
+                     [:writer :stack]
+                     (fn [stack]
+                       (if (< (dec (count stack)) next-pointer)
+                         (conj stack path)
+                         (if (= path (get stack next-pointer))
+                           stack
+                           (conj
+                             (into [] (subvec stack 0 next-pointer))
+                             path)))))
+                   (update-in [:writer :pointer] inc)
+                   (assoc-in [:writer :focus] []))))
               (-> store
                (update
                  :notifications
