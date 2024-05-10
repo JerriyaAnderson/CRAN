@@ -51,7 +51,7 @@
           (comp-workspace store)
           (comp-debug router nil))
         (comp-notifications (:notifications store))
-        (comment comp-debug store nil)
+        (comp-debug router nil)
         (div
           {:style
            (merge

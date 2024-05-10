@@ -63,7 +63,7 @@
             :color (hsl 0 0 80),
             :background-color (hsl 0 0 0),
             :width "20%"}}
-          (comp-hot-corner router)
+          (comp-hot-corner router (:writer store))
           (comp-stack stack pointer))
         (comment
           comp-debug

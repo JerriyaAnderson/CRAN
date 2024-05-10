@@ -31,7 +31,10 @@
        (fn [writer]
          (merge
            writer
-           {:kind :definitions, :stack [definition-path], :focus []})))
+           {:pointer 0,
+            :kind :definitions,
+            :stack [definition-path],
+            :focus []})))
      (assoc-in [:router :name] :workspace))))
 
 (defn edit-procedure [store op-data]
@@ -42,7 +45,10 @@
        (fn [writer]
          (merge
            writer
-           {:pointer 0, :kind :procedures, :stack [procedure]})))
+           {:pointer 0,
+            :kind :procedures,
+            :stack [procedure],
+            :focus []})))
      (assoc :router {:name :workspace, :data nil}))))
 
 (defn write-code [store op-data]
@@ -66,7 +72,10 @@
        (fn [writer]
          (merge
            writer
-           {:pointer 0, :kind :namespaces, :stack [namespace']})))
+           {:pointer 0,
+            :kind :namespaces,
+            :stack [namespace'],
+            :focus []})))
      (assoc :router {:name :workspace, :data nil}))))
 
 (defn load-remote [store op-data]
