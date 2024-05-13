@@ -51,14 +51,14 @@
           (comp-workspace store)
           (comp-debug router nil))
         (comp-notifications (:notifications store))
-        (comp-debug router nil)
+        (comment comp-debug router nil)
         (div
           {:style
            (merge
              widget/button
              {:top "16px", :right "16px", :position "absolute"}),
            :event {:click (on-click store)}}
-          (comp-text "Persist" nil))
+          (comp-text "Save" nil))
         (if (:show-palette? router)
           (comp-palette (:collection store)))))))
 

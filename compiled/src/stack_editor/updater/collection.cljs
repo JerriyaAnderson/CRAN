@@ -16,8 +16,8 @@
     (assoc-in store [:collection :procedures procedure] [])))
 
 (defn add-namespace [store op-data]
-  (let [namespace' op-data]
-    (assoc-in store [:collection :namespaces namespace'] [])))
+  (let [namespace' op-data basic-code ["ns" namespace']]
+    (assoc-in store [:collection :namespaces namespace'] basic-code)))
 
 (defn set-main [store op-data]
   (let [main-definition op-data]
