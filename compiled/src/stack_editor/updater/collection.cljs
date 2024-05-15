@@ -23,64 +23,33 @@
   (let [main-definition op-data]
     (assoc-in store [:collection :main-definition] main-definition)))
 
-(defn edit-definition [store op-data]
-  (let [definition-path op-data]
-    (-> store
-     (update
-       :writer
-       (fn [writer]
-         (merge
-           writer
-           {:pointer 0,
-            :kind :definitions,
-            :stack [definition-path],
-            :focus []})))
-     (assoc-in [:router :name] :workspace))))
-
-(defn edit-procedure [store op-data]
-  (let [procedure op-data]
-    (-> store
-     (update
-       :writer
-       (fn [writer]
-         (merge
-           writer
-           {:pointer 0,
-            :kind :procedures,
-            :stack [procedure],
-            :focus []})))
-     (assoc :router {:name :workspace, :data nil}))))
-
 (defn write-code [store op-data]
   (let [tree (:tree op-data)
         focus (:focus op-data)
         writer (:writer store)
         stack (:stack writer)
-        kind (:kind writer)
         pointer (:pointer writer)
         clipboard (:clipboard op-data)]
     (-> store
      (assoc-in [:writer :focus] focus)
      (assoc-in [:writer :clipboard] clipboard)
-     (assoc-in [:collection kind (get stack pointer)] tree))))
+     (assoc-in (cons :collection (get stack pointer)) tree))))
 
-(defn edit-namespace [store op-data]
-  (let [namespace' op-data]
+(defn edit [store op-data]
+  (let [path op-data]
     (-> store
      (update
        :writer
        (fn [writer]
-         (merge
-           writer
-           {:pointer 0,
-            :kind :namespaces,
-            :stack [namespace'],
-            :focus []})))
+         (-> writer
+          (assoc :focus [])
+          (update :pointer (fn [p] (if (zero? p) p (inc p))))
+          (update :stack (fn [stack] (conj stack path))))))
      (assoc :router {:name :workspace, :data nil}))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]
-    (println "loading:" collection)
+    (comment println "loading:" collection)
     (-> store
      (update :collection (fn [cursor] (merge cursor collection)))
      (assoc-in [:router :name] :analyzer))))
@@ -89,8 +58,9 @@
   (let [writer (:writer store)
         stack (:stack writer)
         pointer (:pointer writer)
-        kind (:kind writer)
         path (get stack pointer)]
     (-> store
-     (update-in [:collection kind] (fn [dict] (dissoc dict path)))
-     (assoc :router {:name :analyzer, :data kind}))))
+     (update-in
+       [:collection (first path)]
+       (fn [dict] (dissoc dict (last path))))
+     (assoc :router {:name :analyzer, :data (first path)}))))

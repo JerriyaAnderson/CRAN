@@ -18,9 +18,9 @@
         stack
         (map-indexed
           (fn [idx item] [idx
-                          (if (string/includes? item "/")
+                          (if (string/includes? (last item) "/")
                             (let [[ns-part var-part]
-                                  (string/split item "/")]
+                                  (string/split (last item) "/")]
                               (div
                                 {:style
                                  {:color (hsl 0 0 60),
@@ -54,6 +54,6 @@
                                    (= idx pointer)
                                    {:color (hsl 0 0 90)})),
                                :event {:click (on-click idx)}}
-                              (comp-text item nil)))]))))))
+                              (comp-text (last item) nil)))]))))))
 
 (def comp-stack (create-comp :stack render))

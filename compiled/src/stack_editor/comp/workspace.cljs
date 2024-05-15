@@ -52,9 +52,7 @@
           writer (:writer store)
           stack (get-in store [:writer :stack])
           pointer (get-in store [:writer :pointer])
-          tree (get-in
-                 store
-                 [:collection (get writer :kind) (get stack pointer)])]
+          tree (get-in store (cons :collection (get stack pointer)))]
       (div
         {:style (merge ui/fullscreen ui/row)}
         (div

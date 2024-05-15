@@ -12,48 +12,45 @@
         next-pointer (inc pointer)
         definitions (get-in store [:collection :definitions])
         namespaces (get-in store [:collection :namespaces])
-        current-def (get stack pointer)]
-    (if (= :definitions (:kind writer))
-      (let [target (get-in
-                     store
-                     (concat
-                       [:collection :definitions current-def]
-                       focus))]
-        (if (string? target)
-          (let [maybe-path (find-path
-                             (strip-atom target)
-                             current-def
-                             namespaces
-                             definitions)]
-            (println "maybe-path" maybe-path)
-            (if (:ok maybe-path)
-              (let [path (:data maybe-path)]
-                (if (= path (get stack pointer))
-                  store
-                  (-> store
-                   (update-in
-                     [:writer :stack]
-                     (fn [stack]
-                       (if (< (dec (count stack)) next-pointer)
-                         (conj stack path)
-                         (if (= path (get stack next-pointer))
-                           stack
-                           (conj
-                             (into [] (subvec stack 0 next-pointer))
-                             path)))))
-                   (update-in [:writer :pointer] inc)
-                   (assoc-in [:writer :focus] []))))
-              (-> store
-               (update
-                 :notifications
-                 (fn [notifications]
-                   (into
-                     []
-                     (cons
-                       [op-id (str "\"" target "\" is not found!")]
-                       notifications)))))))
-          store))
-      store)))
+        current-def (last (get stack pointer))]
+    (println "writer" writer)
+    (let [target (get-in
+                   store
+                   (concat [:collection] (get stack pointer) focus))]
+      (if (string? target)
+        (let [maybe-path (find-path
+                           (strip-atom target)
+                           current-def
+                           namespaces
+                           definitions)]
+          (println "maybe-path" maybe-path)
+          (if (:ok maybe-path)
+            (let [path (:data maybe-path)]
+              (if (= path (last (get stack pointer)))
+                store
+                (-> store
+                 (update-in
+                   [:writer :stack]
+                   (fn [stack]
+                     (if (< (dec (count stack)) next-pointer)
+                       (conj stack [:definitions path])
+                       (if (= path (last (get stack next-pointer)))
+                         stack
+                         (conj
+                           (into [] (subvec stack 0 next-pointer))
+                           [:definitions path])))))
+                 (update-in [:writer :pointer] inc)
+                 (assoc-in [:writer :focus] []))))
+            (-> store
+             (update
+               :notifications
+               (fn [notifications]
+                 (into
+                   []
+                   (cons
+                     [op-id (str "\"" target "\" is not found!")]
+                     notifications)))))))
+        store))))
 
 (defn go-back [store op-data]
   (-> store

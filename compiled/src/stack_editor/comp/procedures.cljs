@@ -24,7 +24,7 @@
 
 (defn on-edit-procedure [procedure]
   (fn [e dispatch!]
-    (dispatch! :collection/edit-procedure procedure)
+    (dispatch! :collection/edit [:procedures procedure])
     (focus!)))
 
 (defn render [procedures]

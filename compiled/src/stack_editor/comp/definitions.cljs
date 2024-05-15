@@ -16,7 +16,7 @@
 
 (defn on-edit-definition [definition-path]
   (fn [e dispatch!]
-    (dispatch! :collection/edit-definition definition-path)
+    (dispatch! :collection/edit [:definitions definition-path])
     (focus!)))
 
 (defn render [definitions ns-names]

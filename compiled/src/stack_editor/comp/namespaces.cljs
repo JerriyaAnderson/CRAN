@@ -22,7 +22,7 @@
 
 (defn on-edit-ns [namespace']
   (fn [e dispatch!]
-    (dispatch! :collection/edit-namespace namespace')
+    (dispatch! :collection/edit [:namespaces namespace'])
     (focus!)))
 
 (defn render [namespaces]

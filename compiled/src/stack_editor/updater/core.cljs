@@ -22,14 +22,10 @@
                   collection/add-namespace
                   :collection/set-main
                   collection/set-main
-                  :collection/edit-definition
-                  collection/edit-definition
+                  :collection/edit
+                  collection/edit
                   :collection/write
                   collection/write-code
-                  :collection/edit-procedure
-                  collection/edit-procedure
-                  :collection/edit-namespace
-                  collection/edit-namespace
                   :collection/load
                   collection/load-remote
                   :collection/remove-this

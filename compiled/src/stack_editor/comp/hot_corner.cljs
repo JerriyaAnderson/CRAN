@@ -8,7 +8,12 @@
 
 (defn on-switch [writer]
   (fn [e dispatch!]
-    (dispatch! :router/route {:name :analyzer, :data (:kind writer)})))
+    (dispatch!
+      :router/route
+      {:name :analyzer,
+       :data
+       (let [path (get (:stack writer) (:pointer writer))]
+         (first path))})))
 
 (defn render [router writer]
   (fn [state mutate!]
