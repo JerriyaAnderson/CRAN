@@ -13,7 +13,7 @@
 (defonce states-ref (atom {}))
 
 (defn dispatch! [op op-data]
-  (comment println "dispatch!" op op-data)
+  (println "dispatch!" op op-data)
   (let [new-store (updater @store-ref op op-data (now))]
     (reset! store-ref new-store)))
 

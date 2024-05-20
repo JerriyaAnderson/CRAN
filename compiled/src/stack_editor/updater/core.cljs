@@ -40,5 +40,7 @@
                   stack/go-back
                   :stack/point-to
                   stack/point-to
+                  :stack/collapse
+                  stack/collapse
                   default-handler)]
     (handler store op-data op-id)))

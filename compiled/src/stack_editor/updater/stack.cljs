@@ -63,3 +63,14 @@
 
 (defn point-to [store op-data op-id]
   (let [pointer op-data] (assoc-in store [:writer :pointer] pointer)))
+
+(defn collapse [store op-data op-id]
+  (let [cursor op-data]
+    (println "collapse" cursor)
+    (update
+      store
+      :writer
+      (fn [writer]
+        (-> writer
+         (assoc :pointer 0)
+         (update :stack (fn [stack] (subvec stack cursor))))))))

@@ -8,12 +8,18 @@
             [respo.comp.space :refer [comp-space]]))
 
 (defn on-click [pointer]
-  (fn [e dispatch!] (dispatch! :stack/point-to pointer)))
+  (fn [e dispatch!]
+    (let [event (:original-event e)
+          command? (or (.-ctrlKey event) (.-metaKey event))]
+      (if command?
+        (dispatch! :stack/collapse pointer)
+        (dispatch! :stack/point-to pointer)))))
 
 (defn render [stack pointer]
   (fn [state mutate!]
     (div
-      {}
+      {:style
+       (merge ui/flex {:overflow "auto", :padding "40px 0 200px 0"})}
       (->>
         stack
         (map-indexed
