@@ -44,8 +44,32 @@
          (-> writer
           (assoc :focus [])
           (update :pointer (fn [p] (if (zero? p) p (inc p))))
-          (update :stack (fn [stack] (conj stack path))))))
+          (update
+            :stack
+            (fn [stack]
+              (conj (subvec stack 0 (inc (:pointer writer))) path))))))
      (assoc :router {:name :workspace, :data nil}))))
+
+(defn edit-ns [store op-data op-id]
+  (let [writer (:writer store)
+        stack (:stack writer)
+        pointer (:pointer writer)
+        path (get stack pointer)]
+    (if (= (first path) :namespaces)
+      store
+      (let [ns-part (first (string/split (last path) "/"))]
+        (update
+          store
+          :writer
+          (fn [writer]
+            (-> writer
+             (update :pointer inc)
+             (update
+               :stack
+               (fn [stack]
+                 (conj
+                   (subvec stack 0 (inc pointer))
+                   [:namespaces ns-part]))))))))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]

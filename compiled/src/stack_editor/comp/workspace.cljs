@@ -42,6 +42,12 @@
                                                   :router/toggle-palette
                                                   nil)
                                                 (dom/focus-palette!))
+        (and command? (= code keycode/key-e)) (do
+                                                (.preventDefault event)
+                                                (dispatch!
+                                                  :collection/edit-ns
+                                                  nil)
+                                                (dom/focus-palette!))
         :else nil))))
 
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))

@@ -24,6 +24,8 @@
                   collection/set-main
                   :collection/edit
                   collection/edit
+                  :collection/edit-ns
+                  collection/edit-ns
                   :collection/write
                   collection/write-code
                   :collection/load

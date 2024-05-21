@@ -66,7 +66,6 @@
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
-    (println "collapse" cursor)
     (update
       store
       :writer
