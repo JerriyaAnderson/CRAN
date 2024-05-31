@@ -56,7 +56,32 @@
         pointer (:pointer writer)
         path (get stack pointer)]
     (if (= (first path) :namespaces)
-      store
+      (let [ns-name (get-in
+                      store
+                      (concat [:collection] path (:focus writer)))]
+        (if (some? (get-in store [:collection :namespaces ns-name]))
+          (update
+            store
+            :writer
+            (fn [writer]
+              (-> writer
+               (update :pointer inc)
+               (assoc :focus [])
+               (update
+                 :stack
+                 (fn [stack]
+                   (conj
+                     (subvec stack 0 (inc pointer))
+                     [:namespaces ns-name]))))))
+          (update
+            store
+            :notifications
+            (fn [notifications]
+              (into
+                []
+                (cons
+                  [op-id (str "\"" ns-name "\" not found")]
+                  notifications))))))
       (let [ns-part (first (string/split (last path) "/"))]
         (update
           store
@@ -64,6 +89,7 @@
           (fn [writer]
             (-> writer
              (update :pointer inc)
+             (assoc :focus [])
              (update
                :stack
                (fn [stack]

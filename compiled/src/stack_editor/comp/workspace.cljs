@@ -47,7 +47,7 @@
                                                 (dispatch!
                                                   :collection/edit-ns
                                                   nil)
-                                                (dom/focus-palette!))
+                                                (focus!))
         :else nil))))
 
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
