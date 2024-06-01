@@ -61,6 +61,15 @@
          (-> writer (update :pointer dec) (assoc :focus []))
          writer)))))
 
+(defn go-next [store op-data]
+  (-> store
+   (update
+     :writer
+     (fn [writer]
+       (if (< (:pointer writer) (dec (count (:stack writer))))
+         (-> writer (update :pointer inc) (assoc :focus []))
+         writer)))))
+
 (defn point-to [store op-data op-id]
   (let [pointer op-data] (assoc-in store [:writer :pointer] pointer)))
 

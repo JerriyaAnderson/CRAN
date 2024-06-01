@@ -5,6 +5,7 @@
             [respo.alias :refer [create-comp div input]]
             [respo-ui.style :as ui]
             [respo.comp.text :refer [comp-text]]
+            [cirru-editor.util.dom :refer [focus!]]
             [stack-editor.comp.command :refer [comp-command]]
             [stack-editor.util.keycode :as keycode]
             [stack-editor.actions :refer [submit-collection!]]
@@ -30,11 +31,17 @@
       "save"
       (submit-collection! collection dispatch!)
       "definition"
-      (dispatch! :collection/edit-definition (last command))
+      (do
+        (dispatch! :collection/edit [:definitions (last command)])
+        (focus!))
       "namespace"
-      (dispatch! :collection/edit-namespace (last command))
+      (do
+        (dispatch! :collection/edit [:namespaces (last command)])
+        (focus!))
       "procedure"
-      (dispatch! :collection/edit-procedure (last command))
+      (do
+        (dispatch! :collection/edit [:procedures (last command)])
+        (focus!))
       nil)))
 
 (defn on-keydown [mutate! commands cursor collection]

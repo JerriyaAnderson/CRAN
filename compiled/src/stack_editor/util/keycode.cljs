@@ -7,6 +7,10 @@
 
 (def key-e 69)
 
+(def key-j 74)
+
+(def key-k 75)
+
 (def key-p 80)
 
 (def key-s 83)

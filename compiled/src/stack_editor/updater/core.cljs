@@ -40,6 +40,8 @@
                   stack/goto-definition
                   :stack/go-back
                   stack/go-back
+                  :stack/go-next
+                  stack/go-next
                   :stack/point-to
                   stack/point-to
                   :stack/collapse

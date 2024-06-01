@@ -54,10 +54,10 @@
                 (let [ns-name (first entry)]
                   [ns-name
                    (div
-                     {:style widget/var-entry,
+                     {:style widget/entry-line,
                       :event {:click (on-edit-procedure ns-name)}}
                      (comp-text ns-name nil))])))))
-        {:width "8px", :display "inline-block"})
+        {:height "8px"})
       (comment comp-debug procedures nil))))
 
 (def comp-procedures

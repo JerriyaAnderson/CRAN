@@ -43,7 +43,9 @@
        (fn [writer]
          (-> writer
           (assoc :focus [])
-          (update :pointer (fn [p] (if (zero? p) p (inc p))))
+          (update
+            :pointer
+            (fn [p] (if (zero? (count (:stack writer))) p (inc p))))
           (update
             :stack
             (fn [stack]

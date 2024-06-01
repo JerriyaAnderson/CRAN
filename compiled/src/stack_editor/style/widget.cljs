@@ -12,10 +12,12 @@
 
 (def var-entry
  {:color (hsl 0 0 80),
-  :font-size "16px",
+  :font-size "15px",
   :cursor "pointer",
   :display "inline-block",
   :font-family "Menlo,monospace"})
+
+(def entry-line (merge var-entry {:display "block"}))
 
 (def button
  (merge

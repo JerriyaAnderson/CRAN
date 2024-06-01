@@ -52,10 +52,10 @@
                 (let [ns-name (first entry)]
                   [ns-name
                    (div
-                     {:style widget/var-entry,
+                     {:style widget/entry-line,
                       :event {:click (on-edit-ns ns-name)}}
                      (comp-text ns-name nil))])))))
-        {:width "16px", :display "inline-block"}))))
+        {:height "8px"}))))
 
 (def comp-namespaces
  (create-comp :namespaces init-state update-state render))

@@ -27,9 +27,13 @@
                                  (.preventDefault event)
                                  (dispatch! :stack/goto-definition nil)
                                  (focus!))
-        (= code keycode/key-b) (do
+        (= code keycode/key-k) (do
                                  (.preventDefault event)
                                  (dispatch! :stack/go-back nil)
+                                 (focus!))
+        (= code keycode/key-j) (do
+                                 (.preventDefault event)
+                                 (dispatch! :stack/go-next nil)
                                  (focus!))
         (= code keycode/key-s) (do
                                  (.preventDefault event)
