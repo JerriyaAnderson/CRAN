@@ -21,11 +21,14 @@
   (fn [snapshot dispatch! e]
     (let [code (:key-code e)
           event (:original-event e)
-          command? (or (.-metaKey event) (.-ctrlKey event))]
+          command? (or (.-metaKey event) (.-ctrlKey event))
+          shift? (.-shiftKey event)]
       (cond
         (= code keycode/key-d) (do
                                  (.preventDefault event)
-                                 (dispatch! :stack/goto-definition nil)
+                                 (dispatch!
+                                   :stack/goto-definition
+                                   shift?)
                                  (focus!))
         (= code keycode/key-k) (do
                                  (.preventDefault event)

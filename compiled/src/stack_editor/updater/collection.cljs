@@ -41,15 +41,18 @@
      (update
        :writer
        (fn [writer]
-         (-> writer
-          (assoc :focus [])
-          (update
-            :pointer
-            (fn [p] (if (zero? (count (:stack writer))) p (inc p))))
-          (update
-            :stack
-            (fn [stack]
-              (conj (subvec stack 0 (inc (:pointer writer))) path))))))
+         (let [stack (:stack writer)]
+           (-> writer
+            (assoc :focus [])
+            (update :pointer (fn [p] (if (empty? stack) p (inc p))))
+            (update
+              :stack
+              (fn [stack]
+                (if (empty? stack)
+                  [path]
+                  (conj
+                    (subvec stack 0 (inc (:pointer writer)))
+                    path))))))))
      (assoc :router {:name :workspace, :data nil}))))
 
 (defn edit-ns [store op-data op-id]

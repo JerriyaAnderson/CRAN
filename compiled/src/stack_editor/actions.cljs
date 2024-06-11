@@ -17,7 +17,7 @@
        (dispatch! :notification/add-one "failed to load collection")),
      :handler
      (fn [response]
-       (println response)
+       (println "response...")
        (dispatch! :collection/load (read-string response)))}))
 
 (defn submit-collection! [collection dispatch!]

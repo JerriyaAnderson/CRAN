@@ -5,7 +5,8 @@
             [respo-ui.style :as ui]
             [respo.alias :refer [create-comp div]]
             [respo.comp.text :refer [comp-text]]
-            [respo.comp.space :refer [comp-space]]))
+            [respo.comp.space :refer [comp-space]]
+            [respo.comp.debug :refer [comp-debug]]))
 
 (defn on-click [pointer]
   (fn [e dispatch!]

@@ -1,10 +1,12 @@
 
 (ns stack-editor.updater.stack
-  (:require [stack-editor.util.analyze :refer [find-path]]
+  (:require [clojure.string :as string]
+            [stack-editor.util.analyze :refer [find-path]]
             [stack-editor.util.detect :refer [strip-atom]]))
 
 (defn goto-definition [store op-data op-id]
-  (let [writer (:writer store)
+  (let [forced? op-data
+        writer (:writer store)
         pointer (:pointer writer)
         focus (:focus writer)
         stack (:stack writer)
@@ -41,15 +43,35 @@
                            [:definitions path])))))
                  (update-in [:writer :pointer] inc)
                  (assoc-in [:writer :focus] []))))
-            (-> store
-             (update
-               :notifications
-               (fn [notifications]
-                 (into
-                   []
-                   (cons
-                     [op-id (str "\"" target "\" is not found!")]
-                     notifications)))))))
+            (if (and forced? (not (string/includes? target "/")))
+              (let [ns-part (first (string/split current-def "/"))
+                    path (str ns-part "/" target)]
+                (-> store
+                 (update-in
+                   [:collection :definitions]
+                   (fn [definitions]
+                     (assoc definitions path ["defn" target []])))
+                 (update
+                   :writer
+                   (fn [writer]
+                     (-> writer
+                      (assoc :focus [])
+                      (update :pointer inc)
+                      (update
+                        :stack
+                        (fn [stack]
+                          (conj
+                            (subvec stack 0 next-pointer)
+                            [:definitions path]))))))))
+              (-> store
+               (update
+                 :notifications
+                 (fn [notifications]
+                   (into
+                     []
+                     (cons
+                       [op-id (str "\"" target "\" is not found!")]
+                       notifications))))))))
         store))))
 
 (defn go-back [store op-data]
