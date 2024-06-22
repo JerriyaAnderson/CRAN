@@ -6,14 +6,16 @@
             [respo.comp.space :refer [comp-space]]
             [respo-ui.style :as ui]))
 
-(defn on-switch [writer]
+(defn on-switch [router writer]
   (fn [e dispatch!]
-    (dispatch!
-      :router/route
-      {:name :analyzer,
-       :data
-       (let [path (get (:stack writer) (:pointer writer))]
-         (first path))})))
+    (if (= (:name router) :workspace)
+      (dispatch!
+        :router/route
+        {:name :analyzer,
+         :data
+         (let [path (get (:stack writer) (:pointer writer))]
+           (first path))})
+      (dispatch! :router/route {:name :workspace, :data nil}))))
 
 (defn render [router writer]
   (fn [state mutate!]
@@ -23,7 +25,7 @@
         :font-size "24px",
         :font-weight "lighter",
         :cursor "pointer"},
-       :event {:click (on-switch writer)}}
+       :event {:click (on-switch router writer)}}
       (comp-text "Analyzer" {:font-family "Helvetica Neue"}))))
 
 (def comp-hot-corner (create-comp :hot-corner render))

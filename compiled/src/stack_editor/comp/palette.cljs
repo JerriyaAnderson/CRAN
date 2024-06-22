@@ -48,7 +48,12 @@
   (fn [e dispatch!]
     (let [code (:key-code e) total (count commands)]
       (cond
-        (= code keycode/key-esc) (dispatch! :router/toggle-palette nil)
+        (= code keycode/key-esc) (do
+                                   (mutate! {:text ""})
+                                   (dispatch!
+                                     :router/toggle-palette
+                                     nil)
+                                   (focus!))
         (= code keycode/key-down) (if
                                     (< cursor (dec total))
                                     (mutate! {:cursor (inc cursor)}))
