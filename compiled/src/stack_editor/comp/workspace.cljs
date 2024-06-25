@@ -67,7 +67,8 @@
           pointer (get-in store [:writer :pointer])
           tree (get-in store (cons :collection (get stack pointer)))]
       (div
-        {:style (merge ui/fullscreen ui/row)}
+        {:style
+         (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
         (div
           {:style
            (merge
