@@ -67,8 +67,9 @@
           (let [maybe-that-def (str maybe-namespace "/" that-var)]
             (if (contains? definitions maybe-that-def)
               {:ok true, :data maybe-that-def}
-              {:ok false, :data nil}))
-          {:ok false, :data nil}))
+              {:ok false,
+               :data "variable in that namespace not existed"}))
+          {:ok false, :data "namespace not drafted yet"}))
       (let [maybe-this-def (str current-ns "/" piece)]
         (if (contains? definitions maybe-this-def)
           {:ok true, :data maybe-this-def}
@@ -77,5 +78,8 @@
                                 current-ns
                                 namespaces)]
             (if (some? maybe-that-ns)
-              {:ok true, :data (str maybe-that-ns "/" piece)}
-              {:ok false, :data nil})))))))
+              (if (contains? namespaces maybe-that-ns)
+                {:ok true, :data (str maybe-that-ns "/" piece)}
+                {:ok false, :data "probably foreign namespace"})
+              {:ok false,
+               :data "can find a namespace from :refer"})))))))

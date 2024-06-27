@@ -70,7 +70,7 @@
                    (into
                      []
                      (cons
-                       [op-id (str "\"" target "\" is not found!")]
+                       [op-id (:data maybe-path)]
                        notifications))))))))
         store))))
 
