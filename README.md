@@ -6,26 +6,56 @@ ClojureScript editor inspired by Clouditor.
 
 Editor http://repo.cirru.org/stack-editor/
 
+![Workspace](https://pbs.twimg.com/media/Cp50FsiWcAEe-bH.png:large)
+![Definitions](https://pbs.twimg.com/media/Cp50FuUWcAACfOi.png:large)
+![Command Palette](https://pbs.twimg.com/media/Cp50MD6WcAEXq0B.png:large)
+
 ### Usage
 
-This is the web interface for Stack Editor, we also need a server.
-I made a workflow https://github.com/mvc-works/stack-workflow for starting.
+I have to say it's quite hard to pick up. You may need to watch the video first:
+https://www.youtube.com/watch?v=uCNJUxGVcqs
 
-Steps to use it:
+QuickStart template project https://github.com/mvc-works/stack-workflow
 
-* create a project with a `stack-sepal.ir`
+I've listed the keyboard shortcuts here, you will need it:
+https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts
 
-Default content should be `{}` or a snapshot from another project(need to update namespace).
+Stack Editor is built on top of [Boot](http://boot-clj.com).
+You can find more about the task at: https://github.com/Cirru/boot-stack-server
 
-* run boot task
+### Steps to use it
 
-Read more here https://github.com/Cirru/boot-stack-server
+If you choose to setup by yourself, here's a short guide:
 
-Use `boot repl` and `(boot (start-stack-editor!))` to start the server.
+**Step 1:**
 
-* edit with web
+Create a file named `stack-sepal.ir` beside `build.boot` file.
+Add `{}` in the file as the default data.
 
-Open http://repo.cirru.org/stack-editor/ to connect http://localhost:7001
+**Step 2:**
+
+Add a task in `build.boot`, which listens to
+
+```clojure
+(deftask run-stack-server! []
+  (comp
+    (watch)
+    (start-stack-editor!)
+    (target :dir #{"src/"})))
+```
+
+The function maybe be obtained from:
+
+```clojure
+# from package [cirru/stack-server "0.1.6" :scope "test"]
+(require '[stack-server.core  :refer [start-stack-editor! transform-stack]])
+```
+
+Now you can run `boot run-stack-server!` and it will listen to http://localhost:7010 .
+
+**Step 3:**
+
+Open http://repo.cirru.org/stack-editor/ to find the editor.
 
 ### Develop
 
