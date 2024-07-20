@@ -2,7 +2,7 @@
 Stack Editor
 ----
 
-ClojureScript editor inspired by Clouditor.
+ClojureScript editor inspired by [Clouditor](https://github.com/Cirru/clouditor/).
 
 Editor http://repo.cirru.org/stack-editor/
 
@@ -15,7 +15,7 @@ Editor http://repo.cirru.org/stack-editor/
 I have to say it's quite hard to pick up. You may need to watch the video first:
 https://www.youtube.com/watch?v=uCNJUxGVcqs
 
-QuickStart template project https://github.com/mvc-works/stack-workflow
+The template project in the video is: https://github.com/mvc-works/stack-workflow
 
 I've listed the keyboard shortcuts here, you will need it:
 https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts
@@ -34,7 +34,7 @@ Add `{}` in the file as the default data.
 
 **Step 2:**
 
-Add a task in `build.boot`, which listens to
+Add a task in `build.boot`:
 
 ```clojure
 (deftask run-stack-server! []
@@ -44,18 +44,21 @@ Add a task in `build.boot`, which listens to
     (target :dir #{"src/"})))
 ```
 
-The function maybe be obtained from:
+The function may be obtained from:
 
 ```clojure
-# from package [cirru/stack-server "0.1.6" :scope "test"]
+; from package [cirru/stack-server "0.1.6" :scope "test"]
 (require '[stack-server.core  :refer [start-stack-editor! transform-stack]])
 ```
 
-Now you can run `boot run-stack-server!` and it will listen to http://localhost:7010 .
+Run `boot run-stack-server!` and it will listen to http://localhost:7010 .
 
 **Step 3:**
 
 Open http://repo.cirru.org/stack-editor/ to find the editor.
+
+Probably there will be mistakes, refer to my demo for the details:
+https://github.com/mvc-works/stack-workflow
 
 ### Develop
 
