@@ -32,9 +32,7 @@
           (comp-navigator
             [[:definitions "Definitions"]
              [:namespaces "Namespaces"]
-             [:procedures "Procedures"]
-             [:orphans "Orphans"]
-             [:settings "Settings"]]
+             [:procedures "Procedures"]]
             on-nav
             (:data router)))
         (case

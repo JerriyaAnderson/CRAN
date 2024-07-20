@@ -27,12 +27,12 @@
   (fn [state mutate!]
     (div
       {}
-      (comp-text (str ns-name "/") {:font-family "Menlo,monospace"})
+      (comp-text ns-name {:font-family "Menlo,monospace"})
       (comp-space "8px" nil)
       (input
         {:style (merge widget/input),
          :event {:input (on-input mutate!)},
-         :attrs {:placeholder "var", :value state}})
+         :attrs {:placeholder "...", :value state}})
       (comp-space "8px" nil)
       (div
         {:style widget/button,

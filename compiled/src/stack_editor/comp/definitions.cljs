@@ -40,11 +40,11 @@
                             ns-name)))
                       (into {})))]
       (div
-        {:style (merge ui/flex ui/card {})}
+        {:style (merge ui/flex ui/column ui/card {})}
         (comp-space nil "16px")
         (interpose-spaces
           (div
-            {}
+            {:style (merge ui/flex {:overflow "auto"})}
             (->>
               grouped
               (sort-by first)

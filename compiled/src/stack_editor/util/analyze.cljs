@@ -7,7 +7,7 @@
     nil
     (if (contains? namespaces this-namespace)
       (let [namespace-data (get namespaces this-namespace)]
-        (if (nil? namespace-data)
+        (if (or (nil? namespace-data) (<= (count namespace-data) 2))
           nil
           (let [required (get namespace-data 2)
                 rules (subvec required 1)
@@ -31,7 +31,7 @@
     (if (contains? namespaces this-namespace)
       (let [namespace-data (get namespaces this-namespace)]
         (println "namespace-data" namespace-data)
-        (if (nil? namespace-data)
+        (if (and (nil? namespace-data) (<= (count namespace-data) 2))
           nil
           (let [required (get namespace-data 2)
                 rules (subvec required 1)
