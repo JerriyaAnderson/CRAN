@@ -44,7 +44,8 @@
         (comp-space nil "16px")
         (interpose-spaces
           (div
-            {:style (merge ui/flex {:overflow "auto"})}
+            {:style
+             (merge ui/flex {:overflow "auto", :padding-bottom 200})}
             (->>
               grouped
               (sort-by first)
