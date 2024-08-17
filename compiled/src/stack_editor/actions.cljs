@@ -5,12 +5,14 @@
             [stack-editor.util.querystring :refer [parse-query]]))
 
 (def options
- (merge {"port" "7010"} (parse-query (.-search js/location))))
+ (merge
+   {"host" "localhost", "port" "7010"}
+   (parse-query (.-search js/location))))
 
 (defn load-collection! [dispatch!]
   (println (pr-str options))
   (GET
-    (str "http://localhost:" (get options "port"))
+    (str "http://" (get options "host") ":" (get options "port"))
     {:error-handler
      (fn [error]
        (println error)

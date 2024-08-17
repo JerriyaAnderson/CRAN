@@ -60,6 +60,14 @@ Open http://repo.cirru.org/stack-editor/ to find the editor.
 Probably there will be mistakes, refer to my demo for the details:
 https://github.com/mvc-works/stack-workflow
 
+### Options
+
+For remote working, there are two parameters:
+
+http://repo.cirru.org/stack-editor/?host=tiye.me&port=7011
+
+Default values are `{"host" "localhost", "port" "7010"}`.
+
 ### Develop
 
 https://github.com/mvc-works/boot-workflow
