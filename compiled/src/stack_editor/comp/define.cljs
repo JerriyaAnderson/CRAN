@@ -8,6 +8,14 @@
             [respo-ui.style :as ui]
             [stack-editor.style.widget :as widget]))
 
+(def style-namespace {:cursor "pointer", :display "inline-block"})
+
+(def style-proc
+ {:line-height "24px",
+  :width "60px",
+  :cursor "pointer",
+  :height "24px"})
+
 (defn init-state [& args] "")
 
 (defn update-state [state text] text)
@@ -23,20 +31,35 @@
           :collection/add-definition
           (str ns-name "/" text))))))
 
+(defn on-click [ns-text]
+  (fn [e dispatch!] (dispatch! :collection/edit [:namespaces ns-text])))
+
+(defn on-proc [ns-name]
+  (fn [e dispatch!] (dispatch! :collection/edit [:procedures ns-name])))
+
 (defn render [ns-name]
   (fn [state mutate!]
     (div
       {}
-      (comp-text ns-name {:font-family "Menlo,monospace"})
+      (div
+        {:style style-namespace, :event {:click (on-click ns-name)}}
+        (comp-text ns-name {:font-family "Menlo,monospace"}))
       (comp-space "8px" nil)
       (input
-        {:style (merge widget/input),
+        {:style
+         (merge (merge widget/input {:width "200px", :height "24px"})),
          :event {:input (on-input mutate!)},
-         :attrs {:placeholder "...", :value state}})
+         :attrs {:placeholder "", :value state}})
       (comp-space "8px" nil)
       (div
-        {:style widget/button,
+        {:style
+         (merge widget/button {:line-height "24px", :height "24px"}),
          :event {:click (on-add state mutate! ns-name)}}
-        (comp-text "add" nil)))))
+        (comp-text "add" nil))
+      (comp-space "8px" nil)
+      (div
+        {:style (merge widget/button style-proc),
+         :event {:click (on-proc ns-name)}}
+        (comp-text "proc" nil)))))
 
 (def comp-define (create-comp :define init-state update-state render))

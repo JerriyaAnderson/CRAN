@@ -12,7 +12,8 @@
             [respo-border.transform.space :refer [interpose-spaces]]
             [stack-editor.style.widget :as widget]
             [cirru-editor.util.dom :refer [focus!]]
-            [stack-editor.comp.define :refer [comp-define]]))
+            [stack-editor.comp.define :refer [comp-define]]
+            [stack-editor.comp.proc :refer [comp-proc]]))
 
 (defn on-edit-definition [definition-path]
   (fn [e dispatch!]
@@ -42,6 +43,8 @@
       (div
         {:style (merge ui/flex ui/column ui/card {})}
         (comp-space nil "16px")
+        (comp-proc)
+        (comp-space nil "32px")
         (interpose-spaces
           (div
             {:style

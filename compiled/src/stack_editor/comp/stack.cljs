@@ -3,6 +3,7 @@
   (:require [hsl.core :refer [hsl]]
             [clojure.string :as string]
             [respo-ui.style :as ui]
+            [cirru-editor.util.dom :refer [focus!]]
             [respo.alias :refer [create-comp div]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
@@ -14,7 +15,7 @@
           command? (or (.-ctrlKey event) (.-metaKey event))]
       (if command?
         (dispatch! :stack/collapse pointer)
-        (dispatch! :stack/point-to pointer)))))
+        (do (dispatch! :stack/point-to pointer) (focus!))))))
 
 (defn render [stack pointer]
   (fn [state mutate!]

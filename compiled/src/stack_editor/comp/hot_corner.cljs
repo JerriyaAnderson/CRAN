@@ -9,12 +9,7 @@
 (defn on-switch [router writer]
   (fn [e dispatch!]
     (if (= (:name router) :workspace)
-      (dispatch!
-        :router/route
-        {:name :analyzer,
-         :data
-         (let [path (get (:stack writer) (:pointer writer))]
-           (first path))})
+      (dispatch! :router/route {:name :analyzer, :data :definitions})
       (dispatch! :router/route {:name :workspace, :data nil}))))
 
 (defn render [router writer]

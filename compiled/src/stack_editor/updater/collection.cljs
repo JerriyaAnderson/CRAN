@@ -17,7 +17,9 @@
 
 (defn add-namespace [store op-data]
   (let [namespace' op-data basic-code ["ns" namespace']]
-    (assoc-in store [:collection :namespaces namespace'] basic-code)))
+    (-> store
+     (assoc-in [:collection :namespaces namespace'] basic-code)
+     (assoc-in [:collection :procedures namespace'] []))))
 
 (defn set-main [store op-data]
   (let [main-definition op-data]
@@ -115,9 +117,48 @@
   (let [writer (:writer store)
         stack (:stack writer)
         pointer (:pointer writer)
-        path (get stack pointer)]
+        path (get stack pointer)
+        path-name (last path)]
     (-> store
-     (update-in
-       [:collection (first path)]
-       (fn [dict] (dissoc dict (last path))))
-     (assoc :router {:name :analyzer, :data (first path)}))))
+     (update
+       :collection
+       (fn [collection]
+         (case
+           (first path)
+           :definitions
+           (update
+             collection
+             :definitions
+             (fn [definitions] (dissoc definitions path-name)))
+           :procedures
+           (update
+             collection
+             :procedures
+             (fn [procedures]
+               (if (contains? (:namespaces collection) path-name)
+                 (assoc procedures path-name [])
+                 (dissoc procedures path-name))))
+           :namespaces
+           (-> collection
+            (update
+              :definitions
+              (fn [definitions]
+                (->>
+                  definitions
+                  (filter
+                    (fn [entry]
+                      (not
+                        (string/starts-with?
+                          (first entry)
+                          path-name))))
+                  (into {}))))
+            (update
+              :namespaces
+              (fn [namespaces] (dissoc namespaces path-name)))
+            (update
+              :procudures
+              (fn [procedures]
+                (println procedures)
+                (dissoc procedures path-name))))
+           collection)))
+     (assoc :router {:name :analyzer, :data :definitions}))))
