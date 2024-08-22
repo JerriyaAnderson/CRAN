@@ -1,12 +1,16 @@
 
 (ns stack-editor.comp.proc
-  (:require [respo.alias :refer [create-comp div input]]
+  (:require [clojure.string :as string]
+            [respo.alias :refer [create-comp div input]]
             [hsl.core :refer [hsl]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
             [stack-editor.style.widget :as widget]))
 
-(defn init-state [] "")
+(defn init-state [key-names]
+  (if (empty? key-names)
+    ""
+    (first (string/split (first key-names) "."))))
 
 (defn update-state [state text] text)
 
@@ -15,7 +19,7 @@
 (defn on-click [state mutate!]
   (fn [e dispatch!]
     (dispatch! :collection/add-namespace state)
-    (mutate! "")))
+    (mutate! (first (string/split state ".")))))
 
 (defn render []
   (fn [state mutate!]

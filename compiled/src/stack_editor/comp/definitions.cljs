@@ -43,7 +43,7 @@
       (div
         {:style (merge ui/flex ui/column ui/card {})}
         (comp-space nil "16px")
-        (comp-proc)
+        (comp-proc (keys definitions))
         (comp-space nil "32px")
         (interpose-spaces
           (div
