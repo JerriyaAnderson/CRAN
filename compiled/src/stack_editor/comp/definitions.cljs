@@ -13,7 +13,7 @@
             [stack-editor.style.widget :as widget]
             [cirru-editor.util.dom :refer [focus!]]
             [stack-editor.comp.define :refer [comp-define]]
-            [stack-editor.comp.proc :refer [comp-proc]]))
+            [stack-editor.comp.ns-creator :refer [comp-ns-creator]]))
 
 (defn on-edit-definition [definition-path]
   (fn [e dispatch!]
@@ -43,7 +43,7 @@
       (div
         {:style (merge ui/flex ui/column ui/card {})}
         (comp-space nil "16px")
-        (comp-proc (keys definitions))
+        (comp-ns-creator (keys definitions))
         (comp-space nil "32px")
         (interpose-spaces
           (div

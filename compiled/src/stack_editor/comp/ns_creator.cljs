@@ -1,5 +1,5 @@
 
-(ns stack-editor.comp.proc
+(ns stack-editor.comp.ns-creator
   (:require [clojure.string :as string]
             [respo.alias :refer [create-comp div input]]
             [hsl.core :refer [hsl]]
@@ -35,4 +35,5 @@
          :event {:click (on-click state mutate!)}}
         (comp-text "add" nil)))))
 
-(def comp-proc (create-comp :proc init-state update-state render))
+(def comp-ns-creator
+ (create-comp :ns-creator init-state update-state render))

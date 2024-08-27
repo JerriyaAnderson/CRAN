@@ -14,6 +14,16 @@
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
 
+(def style-removed
+ {:color (hsl 0 80 100),
+  :font-size "14px",
+  :font-weight "lighter",
+  :background-color (hsl 0 80 40),
+  :max-width "400px",
+  :padding "0 16px",
+  :display "inline-block",
+  :margin "32px 16px"})
+
 (defn on-update [snapshot dispatch!]
   (dispatch! :collection/write snapshot))
 
@@ -85,12 +95,16 @@
           {:background-color (hsl 0 0 0), :z-index 999, :opacity 1})
         (div
           {:style (merge ui/column ui/flex)}
-          (comp-editor
-            {:tree tree,
-             :clipboard (:clipboard writer),
-             :focus (:focus writer)}
-            on-update
-            (on-command store))
+          (if (nil? tree)
+            (div
+              {:style style-removed}
+              (comp-text "Tree is be removed." nil))
+            (comp-editor
+              {:tree tree,
+               :clipboard (:clipboard writer),
+               :focus (:focus writer)}
+              on-update
+              (on-command store)))
           (div
             {:style
              (merge
