@@ -11,7 +11,8 @@
   :margin-bottom "8px"})
 
 (def var-entry
- {:color (hsl 0 0 80),
+ {:min-width "160px",
+  :color (hsl 0 0 80),
   :font-size "15px",
   :cursor "pointer",
   :display "inline-block",

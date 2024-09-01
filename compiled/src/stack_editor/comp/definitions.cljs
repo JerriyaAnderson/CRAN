@@ -60,36 +60,33 @@
                        {}
                        (comp-define ns-name)
                        (comp-space nil "8px")
-                       (interpose-spaces
-                         (div
-                           {}
-                           (->>
-                             def-codes
-                             (sort-by
-                               (fn 
-                                 [code-entry]
-                                 (let 
-                                   [path (first code-entry)]
-                                   (last (string/split path "/")))))
-                             (map
-                               (fn 
-                                 [code-entry]
-                                 (let 
-                                   [path (first code-entry)
-                                    var-part
-                                    (last
-                                      (string/split
-                                        path
-                                        (re-pattern "/")))]
-                                   [var-part
-                                    (div
-                                      {:style widget/var-entry,
-                                       :event
-                                       {:click
-                                        (on-edit-definition path)}}
-                                      (comp-text var-part nil))])))))
-                         {:width "16px",
-                          :display "inline-block"}))])))))
+                       (div
+                         {}
+                         (->>
+                           def-codes
+                           (sort-by
+                             (fn [code-entry]
+                               (let 
+                                 [path (first code-entry)]
+                                 (last (string/split path "/")))))
+                           (map
+                             (fn [code-entry]
+                               (let 
+                                 [path (first code-entry)
+                                  var-part
+                                  (last
+                                    (string/split
+                                      path
+                                      (re-pattern "/")))]
+                                 [var-part
+                                  (div
+                                    {:style widget/var-entry,
+                                     :event
+                                     {:click
+                                      (on-edit-definition path)}}
+                                    (comp-text
+                                      var-part
+                                      nil))]))))))])))))
           {:height "32px"})))))
 
 (def comp-definitions (create-comp :definitions render))

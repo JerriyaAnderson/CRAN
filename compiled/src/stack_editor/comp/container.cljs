@@ -15,9 +15,6 @@
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
 
-(defn on-click [store]
-  (fn [e dispatch!] (submit-collection! (:collection store) dispatch!)))
-
 (defn on-keydown [e dispatch!]
   (let [event (:original-event e)
         code (:key-code e)
@@ -52,13 +49,6 @@
           (comp-debug router nil))
         (comp-notifications (:notifications store))
         (comment comp-debug router nil)
-        (div
-          {:style
-           (merge
-             widget/button
-             {:top "16px", :right "16px", :position "absolute"}),
-           :event {:click (on-click store)}}
-          (comp-text "Save" nil))
         (if (:show-palette? router)
           (comp-palette (:collection store)))))))
 
