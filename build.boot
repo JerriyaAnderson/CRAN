@@ -9,7 +9,7 @@
                  [mvc-works/hsl             "0.1.2"]
                  [respo                     "0.3.9"]
                  [respo/ui                  "0.1.1"]
-                 [cirru/editor              "0.1.12"]
+                 [cirru/editor              "0.1.13"]
                  [respo/border              "0.1.0"]
                  [cljs-ajax                 "0.5.8"]])
 
@@ -103,7 +103,7 @@
 
 (deftask rsync []
   (with-pre-wrap fileset
-    (sh "rsync" "-r" "target/" "tiye:repo/Cirru/stack-editor" "--exclude" "main.out" "--delete")
+    (sh "rsync" "-r" "target/" "tiye.me:repo/Cirru/stack-editor" "--exclude" "main.out" "--delete")
     fileset))
 
 (deftask send-tiye []
