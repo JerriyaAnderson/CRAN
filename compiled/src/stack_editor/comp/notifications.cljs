@@ -6,21 +6,21 @@
             [respo.comp.text :refer [comp-text]]))
 
 (def style-notification
- {:line-height 3,
+ {:line-height "32px",
   :color (hsl 0 0 80),
-  :transition "300ms",
-  :top "16px",
-  :background-color (hsl 200 30 30),
+  :white-space "nowrap",
+  :transition "320ms",
+  :top "8px",
+  :background-color (hsl 200 30 30 0.6),
   :width "320px",
   :cursor "pointer",
   :z-index 999,
-  :padding "0 16px",
-  :right "16px",
+  :padding "0 8px",
+  :right "8px",
   :position "fixed"})
 
-(defn on-click [notification-id]
-  (fn [e dispatch!]
-    (dispatch! :notification/remove-one notification-id)))
+(defn on-click [idx]
+  (fn [e dispatch!] (dispatch! :notification/remove-since idx)))
 
 (defn render [notifications]
   (fn [state mutate!]
@@ -34,8 +34,8 @@
                              {:style
                               (merge
                                 style-notification
-                                {:top (str (+ 16 (* 50 idx)) "px")}),
-                              :event {:click (on-click (first entry))}}
+                                {:top (str (+ 8 (* 40 idx)) "px")}),
+                              :event {:click (on-click idx)}}
                              (comp-text (last entry) nil))]))))))
 
 (def comp-notifications (create-comp :notifications render))
