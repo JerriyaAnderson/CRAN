@@ -9,7 +9,7 @@
                  [mvc-works/hsl             "0.1.2"]
                  [respo                     "0.3.9"]
                  [respo/ui                  "0.1.1"]
-                 [cirru/editor              "0.1.13"]
+                 [cirru/editor              "0.1.14"]
                  [respo/border              "0.1.0"]
                  [cljs-ajax                 "0.5.8"]])
 
