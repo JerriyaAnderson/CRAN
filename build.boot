@@ -11,6 +11,7 @@
                  [respo/ui                  "0.1.1"]
                  [cirru/editor              "0.1.15"]
                  [respo/border              "0.1.0"]
+                 [cumulo/shallow-diff       "0.1.1"]
                  [cljs-ajax                 "0.5.8"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
