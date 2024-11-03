@@ -10,7 +10,8 @@
   (fn [e dispatch!]
     (if (= (:name router) :workspace)
       (dispatch! :router/route {:name :analyzer, :data :definitions})
-      (dispatch! :router/route {:name :workspace, :data nil}))))
+      (if (not (empty? (:stack writer)))
+        (dispatch! :router/route {:name :workspace, :data nil})))))
 
 (defn render [router writer]
   (fn [state mutate!]

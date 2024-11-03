@@ -39,7 +39,7 @@
      :handler
      (fn [response]
        (println response)
-       (dispatch! :notification/add-one "saved")
+       (dispatch! :notification/add-one "patched")
        (reset! remote-sepal-ref collection))}))
 
 (defn submit-collection! [collection dispatch!]
@@ -54,5 +54,5 @@
      :handler
      (fn [response]
        (println response)
-       (dispatch! :notification/add-one "patched")
+       (dispatch! :notification/add-one "saved")
        (reset! remote-sepal-ref collection))}))
