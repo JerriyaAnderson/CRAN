@@ -7,7 +7,7 @@
                  [cirru/boot-cirru-sepal    "0.1.9"       :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.9"]
+                 [respo                     "0.3.11"]
                  [respo/ui                  "0.1.1"]
                  [cirru/editor              "0.1.15"]
                  [respo/border              "0.1.0"]
