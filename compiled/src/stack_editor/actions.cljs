@@ -29,7 +29,7 @@
 
 (defn submit-changes! [collection dispatch!]
   (PATCH
-    (str "http://localhost:" (get options "port"))
+    (str "http://" (get options "host") ":" (get options "port"))
     {:format (json-request-format),
      :error-handler
      (fn [error]
@@ -44,7 +44,7 @@
 
 (defn submit-collection! [collection dispatch!]
   (POST
-    (str "http://localhost:" (get options "port"))
+    (str "http://" (get options "host") ":" (get options "port"))
     {:format (json-request-format),
      :error-handler
      (fn [error]

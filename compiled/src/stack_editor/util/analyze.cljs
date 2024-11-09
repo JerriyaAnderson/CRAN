@@ -33,27 +33,29 @@
         (println "namespace-data" namespace-data)
         (if (and (nil? namespace-data) (<= (count namespace-data) 2))
           nil
-          (let [required (get namespace-data 2)
-                rules (subvec required 1)
-                matched-rule (first
-                               (filter
-                                 (fn 
-                                   [rule]
-                                   (println
-                                     "search rrule:"
-                                     rule
-                                     short-form
-                                     (= ":refer" (get rule 1)))
-                                   (and
-                                     (= ":refer" (get rule 2))
-                                     (some
-                                       (fn 
-                                         [definition]
-                                         (= definition short-form))
-                                       (get rule 3))))
-                                 rules))]
-            (println "rules" matched-rule)
-            (if (some? matched-rule) (get matched-rule 1) nil))))
+          (if (>= (count namespace-data) 3)
+            (let [required (get namespace-data 2)
+                  rules (subvec required 1)
+                  matched-rule (first
+                                 (filter
+                                   (fn 
+                                     [rule]
+                                     (println
+                                       "search rrule:"
+                                       rule
+                                       short-form
+                                       (= ":refer" (get rule 1)))
+                                     (and
+                                       (= ":refer" (get rule 2))
+                                       (some
+                                         (fn 
+                                           [definition]
+                                           (= definition short-form))
+                                         (get rule 3))))
+                                   rules))]
+              (println "rules" matched-rule)
+              (if (some? matched-rule) (get matched-rule 1) nil))
+            nil)))
       nil)))
 
 (defn find-path [piece current-def namespaces definitions]

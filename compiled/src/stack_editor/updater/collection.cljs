@@ -161,4 +161,6 @@
                 (println procedures)
                 (dissoc procedures path-name))))
            collection)))
-     (assoc :router {:name :analyzer, :data :definitions}))))
+     (update-in
+       [:writer :pointer]
+       (fn [pointer] (if (pos? pointer) (dec pointer) pointer))))))
