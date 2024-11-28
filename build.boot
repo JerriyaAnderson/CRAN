@@ -4,19 +4,19 @@
                  [org.clojure/clojure       "1.8.0"       :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.11"      :scope "test"]
-                 [cirru/boot-cirru-sepal    "0.1.9"       :scope "test"]
+                 [cirru/boot-stack-server   "0.1.12"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.19"]
-                 [respo/ui                  "0.1.1"]
-                 [cirru/editor              "0.1.15"]
+                 [respo                     "0.3.23"]
+                 [respo/ui                  "0.1.2"]
+                 [cirru/editor              "0.1.17"]
                  [respo/border              "0.1.0"]
                  [cumulo/shallow-diff       "0.1.1"]
                  [cljs-ajax                 "0.5.8"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]]
-         '[cirru-sepal.core   :refer [transform-cirru]]
+         '[stack-server.core  :refer [start-stack-editor! transform-stack]]
          '[respo.alias        :refer [html head title script style meta' div link body]]
          '[respo.render.static-html :refer [make-html]]
          '[adzerk.boot-test   :refer :all]
@@ -32,13 +32,6 @@
        :scm         {:url "https://github.com/Cirru/stack-editor"}
        :license     {"MIT" "http://opensource.org/licenses/mit-license.php"}})
 
-(deftask compile-cirru []
-  (set-env!
-    :source-paths #{"cirru/"})
-  (comp
-    (transform-cirru)
-    (target :dir #{"compiled/"})))
-
 (defn use-text [x] {:attrs {:innerHTML x}})
 (defn html-dsl [data fileset]
   (make-html
@@ -46,10 +39,9 @@
     (head {}
       (title (use-text "Stack Editor"))
       (link {:attrs {:rel "icon" :type "image/png" :href "http://repo.cirru.org/logo.cirru.org/cirru-400x400.png"}})
-      (if (:build? data)
-        (link (:attrs {:rel "manifest" :href "manifest.json"})))
       (meta'{:attrs {:charset "utf-8"}})
       (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
+      (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
       (style (use-text "body {margin: 0;}"))
       (style (use-text "body * {box-sizing: border-box;}"))
       (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
@@ -62,61 +54,49 @@
   [d data VAL edn "data piece for rendering"]
   (with-pre-wrap fileset
     (let [tmp (tmp-dir!)
-          out (io/file tmp "index.html")]
+          out (io/file tmp "dev.html")]
       (empty-dir! tmp)
       (spit out (html-dsl data fileset))
       (-> fileset
         (add-resource tmp)
         (commit!)))))
 
-(deftask dev []
+(deftask dev! []
   (set-env!
-    :asset-paths #{"assets"}
-    :source-paths #{"cirru/src"})
+    :asset-paths #{"assets"})
   (comp
+    (repl)
+    (start-stack-editor!)
+    (target :dir #{"src/"})
     (html-file :data {:build? false})
-    (watch)
-    (transform-cirru)
     (reload :on-jsload 'stack-editor.core/on-jsload
             :cljs-asset-path ".")
-    (cljs)
+    (cljs :compiler-options {:language-in :ecmascript5})
     (target)))
 
-(deftask build-simple []
-  (set-env!
-    :asset-paths #{"assets"}
-    :source-paths #{"cirru/src"})
+(deftask generate-code []
   (comp
-    (transform-cirru)
-    (cljs :optimizations :simple)
-    (html-file :data {:build? false})
-    (target)))
+    (transform-stack :filename "stack-sepal.ir")
+    (target :dir #{"src/"})))
 
 (deftask build-advanced []
   (set-env!
-    :asset-paths #{"assets"}
-    :source-paths #{"cirru/src"})
+    :asset-paths #{"assets"})
   (comp
-    (transform-cirru)
-    (cljs :optimizations :advanced)
+    (transform-stack :filename "stack-sepal.ir")
+    (cljs :optimizations :advanced
+          :compiler-options {:language-in :ecmascript5})
     (html-file :data {:build? true})
     (target)))
 
 (deftask rsync []
   (with-pre-wrap fileset
-    (sh "rsync" "-r" "target/" "tiye.me:repo/Cirru/stack-editor" "--exclude" "main.out" "--delete")
+    (sh "rsync" "-r" "target/" "cirru.org:repo/Cirru/stack-editor" "--exclude" "main.out" "--delete")
     fileset))
 
-(deftask send-tiye []
-  (comp
-    (build-simple)
-    (rsync)))
-
 (deftask build []
-  (set-env!
-    :source-paths #{"cirru/src"})
   (comp
-    (transform-cirru)
+    (transform-stack :filename "stack-sepal.ir")
     (pom)
     (jar)
     (install)
@@ -134,5 +114,4 @@
     :source-paths #{"cirru/src" "cirru/test"})
   (comp
     (watch)
-    (transform-cirru)
     (test :namespaces '#{stack-editor.test})))

@@ -70,7 +70,7 @@ Default values are `{"host" "localhost", "port" "7010"}`.
 
 ### Develop
 
-https://github.com/mvc-works/boot-workflow
+https://github.com/mvc-works/stack-workflow
 
 ### License
 

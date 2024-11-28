@@ -1,9 +1,0 @@
-
-[
-[ "ns" "stack-editor.style.widget" [ ":require" [ "[]" "hsl.core" ":refer" [ "[]" "hsl" ] ] [ "[]" "respo-ui.style" ":as" "ui" ] ] ]
-[ "def" "entry" [ "{}" [ ":display" "|inline-block" ] [ ":background-color" [ "hsl" "200" "10" "40" "0" ] ] [ ":color" [ "hsl" "0" "0" "100" ] ] [ ":padding" "|0 8px" ] [ ":cursor" "|pointer" ] [ ":margin-bottom" "|8px" ] ] ]
-[ "def" "var-entry" [ "{}" [ ":color" [ "hsl" "0" "0" "80" ] ] [ ":display" "|inline-block" ] [ ":cursor" "|pointer" ] [ ":font-family" "|Menlo,monospace" ] [ ":font-size" "|15px" ] [ ":min-width" "|160px" ] ] ]
-[ "def" "entry-line" [ "merge" "var-entry" [ "{}" [ ":display" "|block" ] ] ] ]
-[ "def" "button" [ "merge" "ui/button" [ "{}" [ ":background-color" [ "hsl" "0" "0" "100" "0.2" ] ] [ ":color" [ "hsl" "0" "0" "100" "0.6" ] ] ] ] ]
-[ "def" "input" [ "merge" "ui/input" [ "{}" [ ":background-color" [ "hsl" "0" "0" "100" "0.14" ] ] [ ":color" [ "hsl" "0" "0" "100" ] ] [ ":font-family" "|Menlo,monospace" ] [ ":width" "|320px" ] ] ] ]
-]

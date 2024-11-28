@@ -1,8 +1,0 @@
-
-[
-[ "ns" "stack-editor.comp.navigator" [ ":require" [ "[]" "hsl.core" ":refer" [ "[]" "hsl" ] ] [ "[]" "respo.alias" ":refer" [ "[]" "create-comp" "div" ] ] [ "[]" "respo.comp.text" ":refer" [ "[]" "comp-text" ] ] ] ]
-[ "def" "style-entry" [ "{}" [ ":padding" "|0 16px" ] [ ":line-height" "|40px" ] [ ":color" [ "hsl" "0" "0" "50" ] ] [ ":cursor" "|pointer" ] [ ":font-size" "|15px" ] [ ":font-weight" "|lighter" ] ] ]
-[ "defn" "handle-nav" [ "entry-id" "on-nav" ] [ "fn" [ "e" "dispatch!" ] [ "on-nav" "entry-id" "dispatch!" ] ] ]
-[ "defn" "render" [ "entries" "on-nav" "router-data" ] [ "fn" [ "state" "mutate!" ] [ "div" [ "{}" ] [ "->>" "entries" [ "map-indexed" [ "fn" [ "idx" "entry" ] [ "[]" "idx" [ "div" [ "{}" [ ":event" [ "{}" [ ":click" [ "handle-nav" [ "first" "entry" ] "on-nav" ] ] ] ] [ ":style" [ "merge" "style-entry" [ "if" [ "=" "router-data" [ "first" "entry" ] ] [ "{}" [ ":color" [ "hsl" "0" "0" "80" ] ] ] ] ] ] ] [ "comp-text" [ "last" "entry" ] "nil" ] ] ] ] ] ] ] ] ]
-[ "def" "comp-navigator" [ "create-comp" ":navigator" "render" ] ]
-]
