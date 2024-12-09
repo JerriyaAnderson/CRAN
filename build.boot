@@ -27,7 +27,7 @@
 (task-options!
   pom {:project     'Cirru/stack-editor
        :version     +version+
-       :description "Workflow"
+       :description "Stack editor"
        :url         "https://github.com/Cirru/stack-editor"
        :scm         {:url "https://github.com/Cirru/stack-editor"}
        :license     {"MIT" "http://opensource.org/licenses/mit-license.php"}})
@@ -54,7 +54,7 @@
   [d data VAL edn "data piece for rendering"]
   (with-pre-wrap fileset
     (let [tmp (tmp-dir!)
-          out (io/file tmp "dev.html")]
+          out (io/file tmp "index.html")]
       (empty-dir! tmp)
       (spit out (html-dsl data fileset))
       (-> fileset
