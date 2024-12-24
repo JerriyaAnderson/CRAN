@@ -55,12 +55,15 @@
                  (assoc-in [:writer :focus] []))))
             (if (and forced? (not (string/includes? target "/")))
               (let [ns-part (first (string/split current-def "/"))
-                    path (str ns-part "/" target)]
+                    path (str ns-part "/" (strip-atom target))]
                 (-> store
                  (update-in
                    [:collection :definitions]
                    (fn [definitions]
-                     (assoc definitions path ["defn" target []])))
+                     (assoc
+                       definitions
+                       path
+                       ["defn" (strip-atom target) []])))
                  (update
                    :writer
                    (fn [writer]

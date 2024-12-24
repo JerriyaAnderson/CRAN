@@ -27,4 +27,4 @@
        (fn [notifications]
          (into
            []
-           (cons [op-id notification] (take 6 notifications))))))))
+           (cons [op-id notification] (take 4 notifications))))))))

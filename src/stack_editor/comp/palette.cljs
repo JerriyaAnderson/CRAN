@@ -120,7 +120,7 @@
               :value (:text state),
               :id "command-palette"}})
           (div
-            {:style ui/flex}
+            {:style (merge ui/flex {:overflow "auto"})}
             (->>
               commands
               (map-indexed
