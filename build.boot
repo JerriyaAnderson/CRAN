@@ -38,7 +38,7 @@
     (html {}
     (head {}
       (title (use-text "Stack Editor"))
-      (link {:attrs {:rel "icon" :type "image/png" :href "http://repo.cirru.org/logo.cirru.org/cirru-400x400.png"}})
+      (link {:attrs {:rel "icon" :type "image/png" :href "http://logo.cirru.org/cirru-400x400.png"}})
       (meta'{:attrs {:charset "utf-8"}})
       (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
       (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
