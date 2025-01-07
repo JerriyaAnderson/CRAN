@@ -10,17 +10,18 @@
 
 (def style-notification
  {:line-height "32px",
-  :color (hsl 0 0 80),
+  :min-width "160px",
+  :color (hsl 0 0 100),
   :white-space "nowrap",
   :transition "320ms",
   :top "8px",
-  :background-color (hsl 200 30 30 0.6),
-  :width "320px",
+  :background-color (hsl 300 30 70 0.3),
   :cursor "pointer",
   :z-index 999,
-  :padding "0 8px",
+  :padding "0 16px",
   :right "8px",
-  :position "fixed"})
+  :position "fixed",
+  :border-radius "2px"})
 
 (defn render [notifications]
   (fn [state mutate!]
