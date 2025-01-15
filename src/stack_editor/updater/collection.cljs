@@ -55,6 +55,21 @@
                 (dissoc procedures path-name))))
            collection)))
      (update-in
+       [:writer :stack]
+       (fn [stack]
+         (cond
+           (empty? stack) stack
+           (zero? pointer) (subvec stack 1)
+           (= (inc pointer) (count stack)) (subvec
+                                             stack
+                                             0
+                                             (dec (count stack)))
+           :else (into
+                   []
+                   (concat
+                     (subvec stack 0 pointer)
+                     (subvec stack (inc pointer)))))))
+     (update-in
        [:writer :pointer]
        (fn [pointer] (if (pos? pointer) (dec pointer) pointer))))))
 
