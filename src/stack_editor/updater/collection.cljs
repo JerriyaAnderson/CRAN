@@ -43,7 +43,7 @@
                       (not
                         (string/starts-with?
                           (first entry)
-                          path-name))))
+                          (str path-name "/")))))
                   (into {}))))
             (update
               :namespaces
