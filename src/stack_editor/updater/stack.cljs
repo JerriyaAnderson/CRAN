@@ -63,7 +63,20 @@
                      (assoc
                        definitions
                        path
-                       ["defn" (strip-atom target) []])))
+                       (if (and
+                             (not (empty? focus))
+                             (zero? (last focus)))
+                         (let [expression (get-in
+                                            (get
+                                              definitions
+                                              current-def)
+                                            (into [] (butlast focus)))]
+                           (if (> (count expression) 1)
+                             ["defn"
+                              (strip-atom target)
+                              (subvec expression 1)]
+                             ["defn" (strip-atom target) []]))
+                         ["defn" (strip-atom target) []]))))
                  (update
                    :writer
                    (fn [writer]
