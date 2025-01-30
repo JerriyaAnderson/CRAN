@@ -14,6 +14,23 @@
          (assoc :pointer 0)
          (update :stack (fn [stack] (subvec stack cursor))))))))
 
+(defn helper-put-path [path]
+  (fn [writer]
+    (-> writer
+     (update
+       :stack
+       (fn [stack]
+         (let [next-pointer (inc (:pointer writer))]
+           (if (< (dec (count stack)) next-pointer)
+             (conj stack [:definitions path])
+             (if (= path (last (get stack next-pointer)))
+               stack
+               (conj
+                 (into [] (subvec stack 0 next-pointer))
+                 [:definitions path]))))))
+     (update :pointer inc)
+     (assoc :focus []))))
+
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
         writer (:writer store)
@@ -21,7 +38,6 @@
         focus (:focus writer)
         stack (:stack writer)
         pointer (:pointer writer)
-        next-pointer (inc pointer)
         definitions (get-in store [:collection :definitions])
         namespaces (get-in store [:collection :namespaces])
         current-def (last (get stack pointer))]
@@ -40,55 +56,33 @@
             (let [path (:data maybe-path)]
               (if (= path (last (get stack pointer)))
                 store
-                (-> store
-                 (update-in
-                   [:writer :stack]
-                   (fn [stack]
-                     (if (< (dec (count stack)) next-pointer)
-                       (conj stack [:definitions path])
-                       (if (= path (last (get stack next-pointer)))
-                         stack
-                         (conj
-                           (into [] (subvec stack 0 next-pointer))
-                           [:definitions path])))))
-                 (update-in [:writer :pointer] inc)
-                 (assoc-in [:writer :focus] []))))
-            (if (and forced? (not (string/includes? target "/")))
-              (let [ns-part (first (string/split current-def "/"))
-                    path (str ns-part "/" (strip-atom target))]
-                (-> store
-                 (update-in
-                   [:collection :definitions]
-                   (fn [definitions]
-                     (assoc
-                       definitions
-                       path
-                       (if (and
-                             (not (empty? focus))
-                             (zero? (last focus)))
-                         (let [expression (get-in
-                                            (get
-                                              definitions
-                                              current-def)
-                                            (into [] (butlast focus)))]
-                           (if (> (count expression) 1)
-                             ["defn"
-                              (strip-atom target)
-                              (subvec expression 1)]
-                             ["defn" (strip-atom target) []]))
-                         ["defn" (strip-atom target) []]))))
-                 (update
-                   :writer
-                   (fn [writer]
-                     (-> writer
-                      (assoc :focus [])
-                      (update :pointer inc)
-                      (update
-                        :stack
-                        (fn [stack]
-                          (conj
-                            (subvec stack 0 next-pointer)
-                            [:definitions path]))))))))
+                (update store :writer (helper-put-path path))))
+            (if forced?
+              (if (string/includes? target "/")
+                store
+                (let [ns-part (first (string/split current-def "/"))
+                      path (str ns-part "/" (strip-atom target))]
+                  (-> store
+                   (update-in
+                     [:collection :definitions]
+                     (fn [definitions]
+                       (assoc
+                         definitions
+                         path
+                         (if (and
+                               (not (empty? focus))
+                               (zero? (last focus)))
+                           (let [expression
+                                 (get-in
+                                   (get definitions current-def)
+                                   (into [] (butlast focus)))]
+                             (if (> (count expression) 1)
+                               ["defn"
+                                (strip-atom target)
+                                (subvec expression 1)]
+                               ["defn" (strip-atom target) []]))
+                           ["defn" (strip-atom target) []]))))
+                   (update :writer (helper-put-path path)))))
               (-> store
                (update
                  :notifications
