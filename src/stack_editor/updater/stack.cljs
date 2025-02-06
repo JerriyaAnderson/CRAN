@@ -31,6 +31,20 @@
      (update :pointer inc)
      (assoc :focus []))))
 
+(defn helper-create-def [path focus current-def target]
+  (fn [definitions]
+    (assoc
+      definitions
+      path
+      (if (and (not (empty? focus)) (zero? (last focus)))
+        (let [expression (-> definitions
+                          (get current-def)
+                          (get-in (butlast focus)))]
+          (if (> (count expression) 1)
+            ["defn" (strip-atom target) (subvec expression 1)]
+            ["defn" (strip-atom target) []]))
+        ["defn" (strip-atom target) []]))))
+
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
         writer (:writer store)
@@ -65,23 +79,7 @@
                   (-> store
                    (update-in
                      [:collection :definitions]
-                     (fn [definitions]
-                       (assoc
-                         definitions
-                         path
-                         (if (and
-                               (not (empty? focus))
-                               (zero? (last focus)))
-                           (let [expression
-                                 (get-in
-                                   (get definitions current-def)
-                                   (into [] (butlast focus)))]
-                             (if (> (count expression) 1)
-                               ["defn"
-                                (strip-atom target)
-                                (subvec expression 1)]
-                               ["defn" (strip-atom target) []]))
-                           ["defn" (strip-atom target) []]))))
+                     (helper-create-def path focus current-def target))
                    (update :writer (helper-put-path path)))))
               (-> store
                (update
