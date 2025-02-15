@@ -58,6 +58,8 @@
             (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
 
+(defn respond [status data] {:ok status, :data data})
+
 (defn find-path [piece current-def namespaces definitions]
   (let [current-ns (first (string/split current-def "/"))
         this-namespace (get namespaces current-ns)]
@@ -68,20 +70,20 @@
         (if (some? maybe-namespace)
           (let [maybe-that-def (str maybe-namespace "/" that-var)]
             (if (contains? definitions maybe-that-def)
-              {:ok true, :data maybe-that-def}
-              {:ok false,
-               :data "variable in that namespace not existed"}))
-          {:ok false, :data "namespace not drafted yet"}))
+              (respond true maybe-that-def)
+              (respond
+                false
+                "variable in that namespace not existed")))
+          (respond false "namespace not drafted yet")))
       (let [maybe-this-def (str current-ns "/" piece)]
         (if (contains? definitions maybe-this-def)
-          {:ok true, :data maybe-this-def}
+          (respond true maybe-this-def)
           (let [maybe-that-ns (locate-ns-by-var
                                 piece
                                 current-ns
                                 namespaces)]
             (if (some? maybe-that-ns)
               (if (contains? namespaces maybe-that-ns)
-                {:ok true, :data (str maybe-that-ns "/" piece)}
-                {:ok false, :data "probably foreign namespace"})
-              {:ok false,
-               :data "can find a namespace from :refer"})))))))
+                (respond true (str maybe-that-ns "/" piece))
+                (respond false "probably foreign namespace"))
+              (respond false "can find a namespace from :refer"))))))))
