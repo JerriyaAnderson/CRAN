@@ -14,7 +14,8 @@
           (if (>= (count namespace-data) 3)
             (let [required (get namespace-data 2)
                   rules (subvec required 1)
-                  matched-rule (first
+                  matched-rule (->>
+                                 rules
                                  (filter
                                    (fn 
                                      [rule]
@@ -29,8 +30,8 @@
                                          (fn 
                                            [definition]
                                            (= definition short-form))
-                                         (get rule 3))))
-                                   rules))]
+                                         (get rule 3)))))
+                                 (first))]
               (println "rules" matched-rule)
               (if (some? matched-rule) (get matched-rule 1) nil))
             nil)))
@@ -45,15 +46,16 @@
           nil
           (let [required (get namespace-data 2)
                 rules (subvec required 1)
-                matched-rule (first
+                matched-rule (->>
+                               rules
                                (filter
                                  (fn 
                                    [rule]
                                    (println "rule" rule short-form)
                                    (and
                                      (= ":as" (get rule 2))
-                                     (= short-form (get rule 3))))
-                                 rules))]
+                                     (= short-form (get rule 3)))))
+                               (first))]
             (println "matched-rule" matched-rule)
             (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
