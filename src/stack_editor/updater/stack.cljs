@@ -60,8 +60,9 @@
                    store
                    (concat [:collection] (get stack pointer) focus))]
       (if (string? target)
-        (let [maybe-path (find-path
-                           (strip-atom target)
+        (let [stripped-target (strip-atom target)
+              maybe-path (find-path
+                           stripped-target
                            current-def
                            namespaces
                            definitions)]
@@ -72,14 +73,18 @@
                 store
                 (update store :writer (helper-put-path path))))
             (if forced?
-              (if (string/includes? target "/")
+              (if (string/includes? stripped-target "/")
                 store
                 (let [ns-part (first (string/split current-def "/"))
-                      path (str ns-part "/" (strip-atom target))]
+                      path (str ns-part "/" stripped-target)]
                   (-> store
                    (update-in
                      [:collection :definitions]
-                     (helper-create-def path focus current-def target))
+                     (helper-create-def
+                       path
+                       focus
+                       current-def
+                       stripped-target))
                    (update :writer (helper-put-path path)))))
               (-> store
                (update
