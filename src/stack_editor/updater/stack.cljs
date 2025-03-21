@@ -1,7 +1,7 @@
 
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
-            [stack-editor.util.analyze :refer [find-path]]
+            [stack-editor.util.analyze :refer [find-path locate-ns]]
             [stack-editor.util.detect :refer [strip-atom]]))
 
 (defn collapse [store op-data op-id]
@@ -30,6 +30,9 @@
                  [:definitions path]))))))
      (update :pointer inc)
      (assoc :focus []))))
+
+(defn helper-notify [op-id data]
+  (fn [notifications] (into [] (cons [op-id data] notifications))))
 
 (defn helper-create-def [path focus current-def target]
   (fn [definitions]
@@ -73,28 +76,50 @@
                 store
                 (update store :writer (helper-put-path path))))
             (if forced?
-              (if (string/includes? stripped-target "/")
-                store
+              (if (string/includes? target "/")
+                (let [[ns-part name-part] (string/split target "/")
+                      current-ns (first (string/split current-def "/"))
+                      that-ns (locate-ns
+                                ns-part
+                                current-ns
+                                namespaces)]
+                  (if (contains? namespaces that-ns)
+                    (let [new-path (str that-ns "/" name-part)]
+                      (if (contains? definitions new-path)
+                        (update
+                          store
+                          :writer
+                          (helper-put-path new-path))
+                        (-> store
+                         (update-in
+                           [:collection :definitions]
+                           (helper-create-def
+                             new-path
+                             focus
+                             current-def
+                             name-part))
+                         (update :writer (helper-put-path new-path)))))
+                    (-> store
+                     (update
+                       :notifications
+                       (helper-notify
+                         op-id
+                         (str "foreign namespace: " that-ns))))))
                 (let [ns-part (first (string/split current-def "/"))
-                      path (str ns-part "/" stripped-target)]
+                      new-path (str ns-part "/" stripped-target)]
                   (-> store
                    (update-in
                      [:collection :definitions]
                      (helper-create-def
-                       path
+                       new-path
                        focus
                        current-def
                        stripped-target))
-                   (update :writer (helper-put-path path)))))
+                   (update :writer (helper-put-path new-path)))))
               (-> store
                (update
                  :notifications
-                 (fn [notifications]
-                   (into
-                     []
-                     (cons
-                       [op-id (:data maybe-path)]
-                       notifications))))))))
+                 (helper-notify op-id (:data maybe-path)))))))
         store))))
 
 (defn go-next [store op-data]
