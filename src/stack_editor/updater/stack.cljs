@@ -34,19 +34,19 @@
 (defn helper-notify [op-id data]
   (fn [notifications] (into [] (cons [op-id data] notifications))))
 
-(defn helper-create-def [path focus current-def target]
+(defn helper-create-def [ns-part focus current-def var-part]
   (fn [definitions]
     (assoc
       definitions
-      path
+      (str ns-part "/" var-part)
       (if (and (not (empty? focus)) (zero? (last focus)))
         (let [expression (-> definitions
                           (get current-def)
                           (get-in (butlast focus)))]
           (if (> (count expression) 1)
-            ["defn" (strip-atom target) (subvec expression 1)]
-            ["defn" (strip-atom target) []]))
-        ["defn" (strip-atom target) []]))))
+            ["defn" var-part (subvec expression 1)]
+            ["defn" var-part []]))
+        ["defn" var-part []]))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
@@ -77,14 +77,14 @@
                 (update store :writer (helper-put-path path))))
             (if forced?
               (if (string/includes? target "/")
-                (let [[ns-part name-part] (string/split target "/")
+                (let [[ns-part var-part] (string/split target "/")
                       current-ns (first (string/split current-def "/"))
                       that-ns (locate-ns
                                 ns-part
                                 current-ns
                                 namespaces)]
                   (if (contains? namespaces that-ns)
-                    (let [new-path (str that-ns "/" name-part)]
+                    (let [new-path (str that-ns "/" var-part)]
                       (if (contains? definitions new-path)
                         (update
                           store
@@ -94,10 +94,10 @@
                          (update-in
                            [:collection :definitions]
                            (helper-create-def
-                             new-path
+                             that-ns
                              focus
                              current-def
-                             name-part))
+                             var-part))
                          (update :writer (helper-put-path new-path)))))
                     (-> store
                      (update
@@ -111,7 +111,7 @@
                    (update-in
                      [:collection :definitions]
                      (helper-create-def
-                       new-path
+                       ns-part
                        focus
                        current-def
                        stripped-target))
