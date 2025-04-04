@@ -60,6 +60,17 @@
             (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
 
+(defn compute-ns [piece current-def namespaces definitions]
+  (let [current-ns (first (string/split current-def "/"))
+        this-namespace (get namespaces current-ns)]
+    (if (string/includes? piece "/")
+      (let [[that-ns that-value] (string/split piece "/")]
+        (locate-ns that-ns current-ns namespaces))
+      (let [maybe-this-def (str current-ns "/" piece)]
+        (if (contains? definitions maybe-this-def)
+          current-ns
+          (locate-ns-by-var piece current-ns namespaces))))))
+
 (defn respond [status data] {:ok status, :data data})
 
 (defn find-path [piece current-def namespaces definitions]
@@ -86,6 +97,9 @@
                                 namespaces)]
             (if (some? maybe-that-ns)
               (if (contains? namespaces maybe-that-ns)
-                (respond true (str maybe-that-ns "/" piece))
+                (let [that-def (str maybe-that-ns "/" piece)]
+                  (if (contains? definitions that-def)
+                    (respond true that-def)
+                    (respond false "undefined def")))
                 (respond false "probably foreign namespace"))
               (respond false "can find a namespace from :refer"))))))))

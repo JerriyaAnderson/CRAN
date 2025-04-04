@@ -9,4 +9,6 @@
     queries))
 
 (defn strip-atom [token]
-  (if (string/starts-with? token "@") (subs token 1) token))
+  (-> token
+   (string/replace (re-pattern "^@") "")
+   (string/replace (re-pattern "/@") "/")))

@@ -1,7 +1,9 @@
 
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
-            [stack-editor.util.analyze :refer [find-path locate-ns]]
+            [stack-editor.util.analyze :refer [find-path
+                                               locate-ns
+                                               compute-ns]]
             [stack-editor.util.detect :refer [strip-atom]]))
 
 (defn collapse [store op-data op-id]
@@ -105,8 +107,13 @@
                        (helper-notify
                          op-id
                          (str "foreign namespace: " that-ns))))))
-                (let [ns-part (first (string/split current-def "/"))
+                (let [ns-part (compute-ns
+                                stripped-target
+                                current-def
+                                namespaces
+                                definitions)
                       new-path (str ns-part "/" stripped-target)]
+                  (println "forced piece:" ns-part stripped-target)
                   (-> store
                    (update-in
                      [:collection :definitions]
