@@ -1,9 +1,7 @@
 
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
-            [stack-editor.util.analyze :refer [find-path
-                                               locate-ns
-                                               compute-ns]]
+            [stack-editor.util.analyze :refer [locate-ns compute-ns]]
             [stack-editor.util.detect :refer [strip-atom]]))
 
 (defn collapse [store op-data op-id]
@@ -65,68 +63,72 @@
                    store
                    (concat [:collection] (get stack pointer) focus))]
       (if (string? target)
-        (let [stripped-target (strip-atom target)
-              maybe-path (find-path
-                           stripped-target
+        (let [stripped-target (strip-atom target)]
+          (if forced?
+            (if (string/includes? target "/")
+              (let [[ns-part var-part] (string/split target "/")
+                    current-ns (first (string/split current-def "/"))
+                    that-ns (locate-ns ns-part current-ns namespaces)]
+                (if (contains? namespaces that-ns)
+                  (let [new-path (str that-ns "/" var-part)]
+                    (if (contains? definitions new-path)
+                      (update store :writer (helper-put-path new-path))
+                      (-> store
+                       (update-in
+                         [:collection :definitions]
+                         (helper-create-def
+                           that-ns
+                           focus
                            current-def
-                           namespaces
-                           definitions)]
-          (println "maybe-path" maybe-path)
-          (if (:ok maybe-path)
-            (let [path (:data maybe-path)]
-              (if (= path (last (get stack pointer)))
-                store
-                (update store :writer (helper-put-path path))))
-            (if forced?
-              (if (string/includes? target "/")
-                (let [[ns-part var-part] (string/split target "/")
-                      current-ns (first (string/split current-def "/"))
-                      that-ns (locate-ns
-                                ns-part
-                                current-ns
-                                namespaces)]
-                  (if (contains? namespaces that-ns)
-                    (let [new-path (str that-ns "/" var-part)]
-                      (if (contains? definitions new-path)
-                        (update
-                          store
-                          :writer
-                          (helper-put-path new-path))
-                        (-> store
-                         (update-in
-                           [:collection :definitions]
-                           (helper-create-def
-                             that-ns
-                             focus
-                             current-def
-                             var-part))
-                         (update :writer (helper-put-path new-path)))))
-                    (-> store
-                     (update
-                       :notifications
-                       (helper-notify
-                         op-id
-                         (str "foreign namespace: " that-ns))))))
-                (let [ns-part (compute-ns
-                                stripped-target
-                                current-def
-                                namespaces
-                                definitions)
-                      new-path (str ns-part "/" stripped-target)]
-                  (println "forced piece:" ns-part stripped-target)
+                           var-part))
+                       (update :writer (helper-put-path new-path)))))
                   (-> store
-                   (update-in
-                     [:collection :definitions]
-                     (helper-create-def
-                       ns-part
-                       focus
-                       current-def
-                       stripped-target))
-                   (update :writer (helper-put-path new-path)))))
-              (-> store
-               (update
-                 :notifications
-                 (helper-notify op-id (:data maybe-path)))))))
+                   (update
+                     :notifications
+                     (helper-notify
+                       op-id
+                       (str "foreign namespace: " that-ns))))))
+              (let [ns-part (compute-ns
+                              stripped-target
+                              current-def
+                              namespaces
+                              definitions)
+                    new-path (str ns-part "/" stripped-target)]
+                (println "forced piece:" ns-part stripped-target)
+                (-> store
+                 (update-in
+                   [:collection :definitions]
+                   (helper-create-def
+                     ns-part
+                     focus
+                     current-def
+                     stripped-target))
+                 (update :writer (helper-put-path new-path)))))
+            (let [that-ns (compute-ns
+                            stripped-target
+                            current-def
+                            namespaces
+                            definitions)
+                  var-part (last (string/split stripped-target "/"))
+                  current-ns (first (string/split current-def "/"))
+                  local-def (str current-ns var-part)]
+              (if (contains? definitions local-def)
+                (update store :writer (helper-put-path local-def))
+                (if (and
+                      (some? that-ns)
+                      (contains? namespaces that-ns))
+                  (let [path (str that-ns "/" var-part)]
+                    (if (= path current-def)
+                      store
+                      (update store :writer (helper-put-path path))))
+                  (-> store
+                   (update
+                     :notifications
+                     (helper-notify
+                       op-id
+                       (str
+                         "no namespace for: "
+                         stripped-target)))))))))
         store))))
 
 (defn go-next [store op-data]

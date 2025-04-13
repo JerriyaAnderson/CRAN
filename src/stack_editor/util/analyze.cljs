@@ -70,36 +70,3 @@
         (if (contains? definitions maybe-this-def)
           current-ns
           (locate-ns-by-var piece current-ns namespaces))))))
-
-(defn respond [status data] {:ok status, :data data})
-
-(defn find-path [piece current-def namespaces definitions]
-  (let [current-ns (first (string/split current-def "/"))
-        this-namespace (get namespaces current-ns)]
-    (if (string/includes? piece "/")
-      (let [that-ns (first (string/split piece "/"))
-            that-var (last (string/split piece "/"))
-            maybe-namespace (locate-ns that-ns current-ns namespaces)]
-        (if (some? maybe-namespace)
-          (let [maybe-that-def (str maybe-namespace "/" that-var)]
-            (if (contains? definitions maybe-that-def)
-              (respond true maybe-that-def)
-              (respond
-                false
-                "variable in that namespace not existed")))
-          (respond false "namespace not drafted yet")))
-      (let [maybe-this-def (str current-ns "/" piece)]
-        (if (contains? definitions maybe-this-def)
-          (respond true maybe-this-def)
-          (let [maybe-that-ns (locate-ns-by-var
-                                piece
-                                current-ns
-                                namespaces)]
-            (if (some? maybe-that-ns)
-              (if (contains? namespaces maybe-that-ns)
-                (let [that-def (str maybe-that-ns "/" piece)]
-                  (if (contains? definitions that-def)
-                    (respond true that-def)
-                    (respond false "undefined def")))
-                (respond false "probably foreign namespace"))
-              (respond false "can find a namespace from :refer"))))))))
