@@ -6,7 +6,9 @@
             [cljs.reader :refer [read-string]]
             [stack-editor.updater.core :refer [updater]]
             [stack-editor.util.time :refer [now]]
-            [stack-editor.actions :refer [load-collection!]]))
+            [stack-editor.actions :refer [load-collection!]]
+            [stack-editor.util.keycode :as keycode]
+            [stack-editor.util.dom :as dom]))
 
 (defonce store-ref (atom schema/store))
 
@@ -31,16 +33,24 @@
   (render-app!)
   (add-watch store-ref :changes render-app!)
   (add-watch states-ref :changes render-app!)
+  (.addEventListener
+    js/window
+    "keydown"
+    (fn [event]
+      (let [code (.-keyCode event)
+            command? (or (.-metaKey event) (.-ctrlKey event))]
+        (cond
+          (and command? (= code keycode/key-p)) (do
+                                                  (.preventDefault
+                                                    event)
+                                                  (.stopPropagation
+                                                    event)
+                                                  (dispatch!
+                                                    :router/toggle-palette
+                                                    nil)
+                                                  (dom/focus-palette!))
+          :else nil))))
   (println "app started!")
-  (load-collection! dispatch!)
-  (let [configEl (.querySelector js/document "#config")
-        config (read-string (.-innerHTML configEl))]
-    (if (and (some? navigator.serviceWorker) (:build? config))
-      (-> navigator.serviceWorker
-       (.register "./sw.js")
-       (.then
-         (fn [registration]
-           (println "resigtered:" registration.scope)))
-       (.catch (fn [error] (println "failed:" error)))))))
+  (load-collection! dispatch!))
 
 (set! js/window.onload -main)

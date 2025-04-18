@@ -15,18 +15,7 @@
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
 
-(defn on-keydown [e dispatch!]
-  (let [event (:original-event e)
-        code (:key-code e)
-        command? (or (.-metaKey event) (.-ctrlKey event))]
-    (cond
-      (and command? (= code keycode/key-p)) (do
-                                              (.preventDefault event)
-                                              (dispatch!
-                                                :router/toggle-palette
-                                                nil)
-                                              (dom/focus-palette!))
-      :else nil)))
+(defn on-keydown [e dispatch!])
 
 (defn render [store]
   (fn [state mutate!]

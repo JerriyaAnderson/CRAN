@@ -5,4 +5,4 @@
   (js/requestAnimationFrame
     (fn []
       (let [target (.querySelector js/document "#command-palette")]
-        (.focus target)))))
+        (if (some? target) (.focus target))))))
