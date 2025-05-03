@@ -48,6 +48,8 @@
                                      dispatch!)))
         (and command? (= code keycode/key-p)) (do
                                                 (.preventDefault event)
+                                                (.stopPropagation
+                                                  event)
                                                 (dispatch!
                                                   :router/toggle-palette
                                                   nil)
