@@ -88,18 +88,20 @@
                      (helper-notify
                        op-id
                        (str "foreign namespace: " that-ns))))))
-              (let [ns-part (compute-ns
+              (let [current-ns (first (string/split current-def "/"))
+                    ns-part (compute-ns
                               stripped-target
                               current-def
                               namespaces
                               definitions)
-                    new-path (str ns-part "/" stripped-target)]
+                    that-ns (if (some? ns-part) ns-part current-ns)
+                    new-path (str that-ns "/" stripped-target)]
                 (println "forced piece:" ns-part stripped-target)
                 (-> store
                  (update-in
                    [:collection :definitions]
                    (helper-create-def
-                     ns-part
+                     that-ns
                      focus
                      current-def
                      stripped-target))
