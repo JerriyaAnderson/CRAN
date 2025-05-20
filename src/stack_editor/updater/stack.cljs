@@ -97,15 +97,22 @@
                     that-ns (if (some? ns-part) ns-part current-ns)
                     new-path (str that-ns "/" stripped-target)]
                 (println "forced piece:" ns-part stripped-target)
-                (-> store
-                 (update-in
-                   [:collection :definitions]
-                   (helper-create-def
-                     that-ns
-                     focus
-                     current-def
-                     stripped-target))
-                 (update :writer (helper-put-path new-path)))))
+                (if (contains? namespaces ns-part)
+                  (-> store
+                   (update-in
+                     [:collection :definitions]
+                     (helper-create-def
+                       that-ns
+                       focus
+                       current-def
+                       stripped-target))
+                   (update :writer (helper-put-path new-path)))
+                  (-> store
+                   (update
+                     :notifications
+                     (helper-notify
+                       op-id
+                       (str "foreign namespace: " ns-part)))))))
             (let [that-ns (compute-ns
                             stripped-target
                             current-def
