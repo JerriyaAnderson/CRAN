@@ -96,8 +96,8 @@
                               definitions)
                     that-ns (if (some? ns-part) ns-part current-ns)
                     new-path (str that-ns "/" stripped-target)]
-                (println "forced piece:" ns-part stripped-target)
-                (if (contains? namespaces ns-part)
+                (println "forced piece:" that-ns stripped-target)
+                (if (contains? namespaces that-ns)
                   (-> store
                    (update-in
                      [:collection :definitions]
