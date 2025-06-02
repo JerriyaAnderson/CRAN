@@ -1,13 +1,13 @@
 
 (set-env!
- :dependencies '[[org.clojure/clojurescript "1.9.216"      :scope "test"]
-                 [org.clojure/clojure       "1.8.0"       :scope "test"]
+ :dependencies '[[org.clojure/clojure       "1.8.0"       :scope "test"]
+                 [org.clojure/clojurescript "1.9.293"     :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
-                 [adzerk/boot-reload        "0.4.11"      :scope "test"]
-                 [cirru/boot-stack-server   "0.1.12"      :scope "test"]
+                 [adzerk/boot-reload        "0.4.12"      :scope "test"]
+                 [cirru/boot-stack-server   "0.1.19"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.23"]
+                 [respo                     "0.3.25"]
                  [respo/ui                  "0.1.2"]
                  [cirru/editor              "0.1.17"]
                  [respo/border              "0.1.0"]
@@ -18,7 +18,7 @@
          '[adzerk.boot-reload :refer [reload]]
          '[stack-server.core  :refer [start-stack-editor! transform-stack]]
          '[respo.alias        :refer [html head title script style meta' div link body]]
-         '[respo.render.static-html :refer [make-html]]
+         '[respo.render.html  :refer [make-html]]
          '[adzerk.boot-test   :refer :all]
          '[clojure.java.io    :as    io])
 
@@ -85,7 +85,12 @@
   (comp
     (transform-stack :filename "stack-sepal.ir")
     (cljs :optimizations :advanced
-          :compiler-options {:language-in :ecmascript5})
+          :compiler-options {:language-in :ecmascript5
+                             :pseudo-names true
+                             :static-fns true
+                             :parallel-build true
+                             :optimize-constants true
+                             :source-map true})
     (html-file :data {:build? true})
     (target)))
 
