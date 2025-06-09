@@ -1,5 +1,5 @@
 
-(ns stack-editor.util.keycode)
+(ns stack-editor.util.keycode )
 
 (def key-esc 27)
 

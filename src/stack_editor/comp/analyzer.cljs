@@ -12,8 +12,7 @@
             [stack-editor.comp.orphans :refer [comp-orphans]]
             [stack-editor.comp.settings :refer [comp-settings]]))
 
-(defn on-nav [nav-id dispatch!]
-  (dispatch! :router/route {:name :analyzer, :data nav-id}))
+(defn on-nav [nav-id dispatch!] (dispatch! :router/route {:name :analyzer, :data nav-id}))
 
 (defn render [store]
   (fn [state mutate!]
@@ -23,30 +22,23 @@
           namespaces (:namespaces collection)
           procedures (:procedures collection)]
       (div
-        {:style
-         (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
-        (div
-          {:style {:width "20%"}}
-          (comp-hot-corner router (:writer store))
-          (comp-space nil "32px")
-          (comp-navigator
-            [[:definitions "Definitions"]
-             [:namespaces "Namespaces"]
-             [:procedures "Procedures"]]
-            on-nav
-            (:data router)))
-        (case
-          (:data router)
-          :definitions
-          (comp-definitions definitions (keys namespaces))
-          :namespaces
-          (comp-namespaces namespaces)
-          :procedures
-          (comp-procedures procedures)
-          :orphans
-          (comp-orphans)
-          :settings
-          (comp-settings (:main-definition collection))
-          nil)))))
+       {:style (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
+       (div
+        {:style {:width "20%"}}
+        (comp-hot-corner router (:writer store))
+        (comp-space nil "32px")
+        (comp-navigator
+         [[:definitions "Definitions"]
+          [:namespaces "Namespaces"]
+          [:procedures "Procedures"]]
+         on-nav
+         (:data router)))
+       (case (:data router)
+         :definitions (comp-definitions definitions (keys namespaces))
+         :namespaces (comp-namespaces namespaces)
+         :procedures (comp-procedures procedures)
+         :orphans (comp-orphans)
+         :settings (comp-settings (:main-definition collection))
+         nil)))))
 
 (def comp-analyzer (create-comp :analyzer render))

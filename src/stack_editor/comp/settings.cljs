@@ -10,8 +10,8 @@
 (defn render [main-definition]
   (fn [state mutate!]
     (div
-      {:style (merge ui/column ui/flex ui/card)}
-      (div {} (comp-main-def (or main-definition "")))
-      (comp-space nil "16px"))))
+     {:style (merge ui/column ui/flex ui/card)}
+     (div {} (comp-main-def (or main-definition "")))
+     (comp-space nil "16px"))))
 
 (def comp-settings (create-comp :settings render))

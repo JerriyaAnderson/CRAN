@@ -1,6 +1,5 @@
 
-(ns stack-editor.util.analyze
-  (:require [clojure.string :as string]))
+(ns stack-editor.util.analyze (:require [clojure.string :as string]))
 
 (defn locate-ns-by-var [short-form this-namespace namespaces]
   (println "searching" short-form this-namespace namespaces)
@@ -14,24 +13,19 @@
           (if (>= (count namespace-data) 3)
             (let [required (get namespace-data 2)
                   rules (subvec required 1)
-                  matched-rule (->>
-                                 rules
-                                 (filter
-                                   (fn 
-                                     [rule]
-                                     (println
-                                       "search rrule:"
-                                       rule
-                                       short-form
-                                       (= ":refer" (get rule 1)))
-                                     (and
-                                       (= ":refer" (get rule 2))
-                                       (some
-                                         (fn 
-                                           [definition]
-                                           (= definition short-form))
-                                         (get rule 3)))))
-                                 (first))]
+                  matched-rule (->> rules
+                                    (filter
+                                     (fn [rule]
+                                       (println
+                                        "search rrule:"
+                                        rule
+                                        short-form
+                                        (= ":refer" (get rule 1)))
+                                       (and (= ":refer" (get rule 2))
+                                            (some
+                                             (fn [definition] (= definition short-form))
+                                             (get rule 3)))))
+                                    (first))]
               (println "rules" matched-rule)
               (if (some? matched-rule) (get matched-rule 1) nil))
             nil)))
@@ -46,16 +40,13 @@
           nil
           (let [required (get namespace-data 2)
                 rules (subvec required 1)
-                matched-rule (->>
-                               rules
-                               (filter
-                                 (fn 
-                                   [rule]
-                                   (println "rule" rule short-form)
-                                   (and
-                                     (= ":as" (get rule 2))
-                                     (= short-form (get rule 3)))))
-                               (first))]
+                matched-rule (->> rules
+                                  (filter
+                                   (fn [rule]
+                                     (println "rule" rule short-form)
+                                     (and (= ":as" (get rule 2))
+                                          (= short-form (get rule 3)))))
+                                  (first))]
             (println "matched-rule" matched-rule)
             (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))

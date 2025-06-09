@@ -13,11 +13,7 @@
 (defn on-add [text mutate! ns-name]
   (fn [e dispatch!]
     (if (> (count text) 0)
-      (do
-        (mutate! "")
-        (dispatch!
-          :collection/add-definition
-          (str ns-name "/" text))))))
+      (do (mutate! "") (dispatch! :collection/add-definition (str ns-name "/" text))))))
 
 (defn update-state [state text] text)
 
@@ -31,35 +27,28 @@
 
 (defn init-state [& args] "")
 
-(def style-proc
- {:line-height "24px",
-  :width "60px",
-  :cursor "pointer",
-  :height "24px"})
+(def style-proc {:line-height "24px", :width "60px", :cursor "pointer", :height "24px"})
 
 (defn render [ns-name]
   (fn [state mutate!]
     (div
-      {}
-      (div
-        {:style style-namespace, :event {:click (on-click ns-name)}}
-        (comp-text ns-name {:font-family "Menlo,monospace"}))
-      (comp-space "8px" nil)
-      (input
-        {:style
-         (merge (merge widget/input {:width "200px", :height "24px"})),
-         :event {:input (on-input mutate!)},
-         :attrs {:placeholder "", :value state}})
-      (comp-space "8px" nil)
-      (div
-        {:style
-         (merge widget/button {:line-height "24px", :height "24px"}),
-         :event {:click (on-add state mutate! ns-name)}}
-        (comp-text "add" nil))
-      (comp-space "8px" nil)
-      (div
-        {:style (merge widget/button style-proc),
-         :event {:click (on-proc ns-name)}}
-        (comp-text "proc" nil)))))
+     {}
+     (div
+      {:style style-namespace, :event {:click (on-click ns-name)}}
+      (comp-text ns-name {:font-family "Menlo,monospace"}))
+     (comp-space "8px" nil)
+     (input
+      {:style (merge (merge widget/input {:width "200px", :height "24px"})),
+       :event {:input (on-input mutate!)},
+       :attrs {:placeholder "", :value state}})
+     (comp-space "8px" nil)
+     (div
+      {:style (merge widget/button {:line-height "24px", :height "24px"}),
+       :event {:click (on-add state mutate! ns-name)}}
+      (comp-text "add" nil))
+     (comp-space "8px" nil)
+     (div
+      {:style (merge widget/button style-proc), :event {:click (on-proc ns-name)}}
+      (comp-text "proc" nil)))))
 
 (def comp-define (create-comp :define init-state update-state render))

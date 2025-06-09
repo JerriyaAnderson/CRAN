@@ -17,23 +17,19 @@
     (mutate! (first (string/split state ".")))))
 
 (defn init-state [key-names]
-  (if (empty? key-names)
-    ""
-    (first (string/split (first key-names) "."))))
+  (if (empty? key-names) "" (first (string/split (first key-names) "."))))
 
 (defn render []
   (fn [state mutate!]
     (div
-      {}
-      (input
-        {:style widget/input,
-         :event {:input (on-input mutate!)},
-         :attrs {:placeholder "", :value state}})
-      (comp-space "8px" nil)
-      (div
-        {:style widget/button,
-         :event {:click (on-click state mutate!)}}
-        (comp-text "add" nil)))))
+     {}
+     (input
+      {:style widget/input,
+       :event {:input (on-input mutate!)},
+       :attrs {:placeholder "", :value state}})
+     (comp-space "8px" nil)
+     (div
+      {:style widget/button, :event {:click (on-click state mutate!)}}
+      (comp-text "add" nil)))))
 
-(def comp-ns-creator
- (create-comp :ns-creator init-state update-state render))
+(def comp-ns-creator (create-comp :ns-creator init-state update-state render))

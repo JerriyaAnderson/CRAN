@@ -16,12 +16,11 @@
 (defn render [router writer]
   (fn [state mutate!]
     (div
-      {:style
-       {:text-align "center",
-        :font-size "24px",
-        :font-weight "lighter",
-        :cursor "pointer"},
-       :event {:click (on-switch router writer)}}
-      (comp-text "Analyzer" {:font-family "Helvetica Neue"}))))
+     {:style {:text-align "center",
+              :font-size "24px",
+              :font-weight "lighter",
+              :cursor "pointer"},
+      :event {:click (on-switch router writer)}}
+     (comp-text "Analyzer" {:font-family "Helvetica Neue"}))))
 
 (def comp-hot-corner (create-comp :hot-corner render))

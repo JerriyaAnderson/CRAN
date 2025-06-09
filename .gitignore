@@ -2,3 +2,5 @@
 /target/
 .nrepl-history
 .nrepl-port
+/src/*.*
+/src/.*
