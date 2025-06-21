@@ -7,7 +7,7 @@
                  [cirru/boot-stack-server   "0.1.19"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.25"]
+                 [respo                     "0.3.28"]
                  [respo/ui                  "0.1.2"]
                  [cirru/editor              "0.1.17"]
                  [respo/border              "0.1.0"]
@@ -73,6 +73,12 @@
             :cljs-asset-path ".")
     (cljs :compiler-options {:language-in :ecmascript5})
     (target)))
+
+(deftask editor! []
+  (comp
+    (repl)
+    (start-stack-editor!)
+    (target :dir #{"src/"})))
 
 (deftask generate-code []
   (comp
