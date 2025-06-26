@@ -8,7 +8,6 @@
             [cirru-editor.util.dom :refer [focus!]]
             [stack-editor.comp.command :refer [comp-command]]
             [stack-editor.util.keycode :as keycode]
-            [stack-editor.actions :refer [submit-collection!]]
             [stack-editor.style.widget :as widget]
             [stack-editor.util.detect :refer [fuzzy-search]]))
 
@@ -19,7 +18,7 @@
     (dispatch! :router/toggle-palette nil)
     (case (first command)
       "load" (println "load")
-      "save" (submit-collection! collection dispatch!)
+      "save" (dispatch! :effect/submit [false collection])
       "definition" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
       "namespace" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
       "procedure" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))

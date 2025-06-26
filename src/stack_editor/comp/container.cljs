@@ -9,7 +9,6 @@
             [stack-editor.comp.analyzer :refer [comp-analyzer]]
             [stack-editor.comp.workspace :refer [comp-workspace]]
             [stack-editor.comp.notifications :refer [comp-notifications]]
-            [stack-editor.actions :refer [submit-collection!]]
             [stack-editor.comp.palette :refer [comp-palette]]
             [stack-editor.util.keycode :as keycode]
             [stack-editor.util.dom :as dom]

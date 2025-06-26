@@ -10,7 +10,6 @@
             [cirru-editor.comp.editor :refer [comp-editor]]
             [stack-editor.util.keycode :as keycode]
             [cirru-editor.util.dom :refer [focus!]]
-            [stack-editor.actions :refer [submit-collection! submit-changes!]]
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
 
@@ -28,11 +27,7 @@
         (= code keycode/key-j)
           (do (.preventDefault event) (dispatch! :stack/go-next nil) (focus!))
         (= code keycode/key-s)
-          (do
-           (.preventDefault event)
-           (if shift?
-             (submit-collection! (:collection store) dispatch!)
-             (submit-changes! (:collection store) dispatch!)))
+          (do (.preventDefault event) (dispatch! :effect/submit [shift? (:collection store)]))
         (and command? (= code keycode/key-p))
           (do
            (.preventDefault event)

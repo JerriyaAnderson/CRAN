@@ -36,25 +36,25 @@
 (defn html-dsl [data fileset]
   (make-html
     (html {}
-    (head {}
-      (title (use-text "Stack Editor"))
-      (link {:attrs {:rel "icon" :type "image/png" :href "http://logo.cirru.org/cirru-400x400.png"}})
-      (meta'{:attrs {:charset "utf-8"}})
-      (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
-      (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
-      (style (use-text "body {margin: 0;}"))
-      (style (use-text "body * {box-sizing: border-box;}"))
-      (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
-    (body {}
-      (div {:attrs {:id "app"}})
-      (script {:attrs {:src "main.js"}})))))
+      (head {}
+        (title (use-text "Stack Editor"))
+        (link {:attrs {:rel "icon" :type "image/png" :href "http://logo.cirru.org/cirru-400x400.png"}})
+        (meta'{:attrs {:charset "utf-8"}})
+        (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
+        (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
+        (style (use-text "body {margin: 0;}"))
+        (style (use-text "body * {box-sizing: border-box;}"))
+        (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
+      (body {}
+        (div {:attrs {:id "app"}})
+        (script {:attrs {:src "main.js"}})))))
 
 (deftask html-file
   "task to generate HTML file"
   [d data VAL edn "data piece for rendering"]
   (with-pre-wrap fileset
     (let [tmp (tmp-dir!)
-          out (io/file tmp "index.html")]
+          out (io/file tmp "dev.html")]
       (empty-dir! tmp)
       (spit out (html-dsl data fileset))
       (-> fileset
