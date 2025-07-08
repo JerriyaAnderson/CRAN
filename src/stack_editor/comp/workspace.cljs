@@ -64,10 +64,7 @@
        (div
         {:style (merge
                  ui/column
-                 {:min-width "280px",
-                  :color (hsl 0 0 80),
-                  :background-color (hsl 0 0 0),
-                  :width "20%"})}
+                 {:color (hsl 0 0 80), :background-color (hsl 0 0 0), :width "300px"})}
         (comp-hot-corner router (:writer store))
         (comp-stack stack pointer))
        (comment comp-debug writer {:background-color (hsl 0 0 0), :z-index 999, :opacity 1})

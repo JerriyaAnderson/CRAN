@@ -24,7 +24,7 @@
       (div
        {:style (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
        (div
-        {:style {:width "20%"}}
+        {:style {:width 300}}
         (comp-hot-corner router (:writer store))
         (comp-space nil "32px")
         (comp-navigator

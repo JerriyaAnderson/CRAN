@@ -6,14 +6,10 @@
             [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
-            [stack-editor.style.widget :as widget]))
+            [stack-editor.style.widget :as widget]
+            [stack-editor.util.keycode :as keycode]))
 
 (defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
-
-(defn on-add [text mutate! ns-name]
-  (fn [e dispatch!]
-    (if (> (count text) 0)
-      (do (mutate! "") (dispatch! :collection/add-definition (str ns-name "/" text))))))
 
 (defn update-state [state text] text)
 
@@ -29,6 +25,11 @@
 
 (def style-proc {:line-height "24px", :width "60px", :cursor "pointer", :height "24px"})
 
+(defn on-keydown [text mutate! ns-name]
+  (fn [e dispatch!]
+    (if (and (= keycode/key-enter (:key-code e)) (pos? (count text)))
+      (do (mutate! "") (dispatch! :collection/add-definition (str ns-name "/" text))))))
+
 (defn render [ns-name]
   (fn [state mutate!]
     (div
@@ -39,13 +40,8 @@
      (comp-space "8px" nil)
      (input
       {:style (merge (merge widget/input {:width "200px", :height "24px"})),
-       :event {:input (on-input mutate!)},
+       :event {:keydown (on-keydown state mutate! ns-name), :input (on-input mutate!)},
        :attrs {:placeholder "", :value state}})
-     (comp-space "8px" nil)
-     (div
-      {:style (merge widget/button {:line-height "24px", :height "24px"}),
-       :event {:click (on-add state mutate! ns-name)}}
-      (comp-text "add" nil))
      (comp-space "8px" nil)
      (div
       {:style (merge widget/button style-proc), :event {:click (on-proc ns-name)}}

@@ -21,7 +21,8 @@
                     (let [[shift? collection] op-data]
                       (if shift?
                         (submit-collection! collection dispatch!)
-                        (submit-changes! collection dispatch!)))
+                        (submit-changes! collection dispatch!))
+                      @store-ref)
                     (updater @store-ref op op-data (now)))]
     (reset! store-ref new-store)))
 
