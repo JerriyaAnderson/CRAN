@@ -48,7 +48,9 @@
    js/window
    "keydown"
    (fn [event]
-     (let [code (.-keyCode event), command? (or (.-metaKey event) (.-ctrlKey event))]
+     (let [code (.-keyCode event)
+           command? (or (.-metaKey event) (.-ctrlKey event))
+           shift? (.-shiftKey event)]
        (cond
          (and command? (= code keycode/key-p))
            (do
@@ -56,6 +58,13 @@
             (.stopPropagation event)
             (dispatch! :router/toggle-palette nil)
             (dom/focus-palette!))
+         (and shift? command? (= code keycode/key-a))
+           (do
+            (let [router (:router @store-ref), writer (:writer @store-ref)]
+              (if (= (:name router) :workspace)
+                (dispatch! :router/route {:name :analyzer, :data :definitions})
+                (if (not (empty? (:stack writer)))
+                  (dispatch! :router/route {:name :workspace, :data nil})))))
          :else nil))))
   (if (not (empty? ssr-stages))
     (let [target (.querySelector js/document "#app")]
