@@ -14,7 +14,7 @@
               {:color (hsl 0 0 100),
                :font-size "20px",
                :font-weight "light",
-               :background-color (hsl 200 80 70),
+               :background-color (hsl 200 40 10),
                :justify-content "center"})}
      (comp-text "Loading" nil))))
 

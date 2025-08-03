@@ -30,7 +30,7 @@
 
 (defn render-app! []
   (let [target (.querySelector js/document "#app")]
-    (render! (comp-container @store-ref) target dispatch! states-ref)))
+    (render! (comp-container @store-ref #{:dynamic :shell}) target dispatch! states-ref)))
 
 (defn on-jsload [] (clear-cache!) (render-app!) (println "code updated."))
 
@@ -41,6 +41,12 @@
 
 (defn -main []
   (enable-console-print!)
+  (if (not (empty? ssr-stages))
+    (let [target (.querySelector js/document "#app")]
+      (falsify-stage!
+       target
+       (mute-element (render-element (comp-container @store-ref ssr-stages) states-ref))
+       dispatch!)))
   (render-app!)
   (add-watch store-ref :changes render-app!)
   (add-watch states-ref :changes render-app!)
@@ -66,12 +72,6 @@
                 (if (not (empty? (:stack writer)))
                   (dispatch! :router/route {:name :workspace, :data nil})))))
          :else nil))))
-  (if (not (empty? ssr-stages))
-    (let [target (.querySelector js/document "#app")]
-      (falsify-stage!
-       target
-       (mute-element (render-element (comp-container @store-ref ssr-stages) states-ref))
-       dispatch!)))
   (println "app started!")
   (load-collection! dispatch!))
 
