@@ -58,7 +58,8 @@
           writer (:writer store)
           stack (get-in store [:writer :stack])
           pointer (get-in store [:writer :pointer])
-          tree (get-in store (cons :collection (get stack pointer)))]
+          code-path (get stack pointer)
+          tree (if (some? code-path) (get-in store (cons :collection code-path)) nil)]
       (div
        {:style (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
        (div
