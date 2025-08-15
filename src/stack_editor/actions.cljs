@@ -29,11 +29,12 @@
    {:format (json-request-format),
     :error-handler (fn [error]
       (println error)
-      (dispatch! :notification/add-one "failed to post collection")),
+      (let [response (read-string (:response error))]
+        (dispatch! :notification/add-one (:status response)))),
     :body (pr-str collection),
     :handler (fn [response]
       (println response)
-      (dispatch! :notification/add-one "saved")
+      (dispatch! :notification/add-one "Saved")
       (reset! remote-sepal-ref collection))}))
 
 (defn submit-changes! [collection dispatch!]
@@ -42,9 +43,10 @@
    {:format (json-request-format),
     :error-handler (fn [error]
       (println error)
-      (dispatch! :notification/add-one "failed to post collection")),
+      (let [response (read-string (:response error))]
+        (dispatch! :notification/add-one (:status response)))),
     :body (pr-str (diff @remote-sepal-ref collection)),
     :handler (fn [response]
       (println response)
-      (dispatch! :notification/add-one "patched")
+      (dispatch! :notification/add-one "Patched")
       (reset! remote-sepal-ref collection))}))
