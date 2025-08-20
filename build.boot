@@ -4,11 +4,11 @@
                  [org.clojure/clojurescript "1.9.293"     :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.12"      :scope "test"]
-                 [cirru/boot-stack-server   "0.1.19"      :scope "test"]
+                 [cirru/boot-stack-server   "0.1.22"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.28"]
-                 [respo/ui                  "0.1.2"]
+                 [respo                     "0.3.31"]
+                 [respo/ui                  "0.1.3"]
                  [cirru/editor              "0.1.17"]
                  [respo/border              "0.1.0"]
                  [cumulo/shallow-diff       "0.1.1"]
@@ -61,24 +61,22 @@
         (add-resource tmp)
         (commit!)))))
 
-(deftask dev! []
-  (set-env!
-    :asset-paths #{"assets"})
-  (comp
-    (repl)
-    (start-stack-editor!)
-    (target :dir #{"src/"})
-    (html-file :data {:build? false})
-    (reload :on-jsload 'stack-editor.main/on-jsload
-            :cljs-asset-path ".")
-    (cljs :compiler-options {:language-in :ecmascript5})
-    (target)))
-
 (deftask editor! []
   (comp
     (repl)
     (start-stack-editor!)
     (target :dir #{"src/"})))
+
+(deftask dev! []
+  (set-env!
+    :asset-paths #{"assets"})
+  (comp
+    (editor!)
+    (html-file :data {:build? false})
+    (reload :on-jsload 'stack-editor.main/on-jsload!
+            :cljs-asset-path ".")
+    (cljs :compiler-options {:language-in :ecmascript5})
+    (target)))
 
 (deftask generate-code []
   (comp

@@ -1,7 +1,6 @@
 
 (ns stack-editor.main
   (:require [respo.core :refer [render! clear-cache! render-element falsify-stage!]]
-            [respo.util.format :refer [mute-element]]
             [stack-editor.schema :as schema]
             [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
@@ -32,20 +31,18 @@
   (let [target (.querySelector js/document "#app")]
     (render! (comp-container @store-ref #{:dynamic :shell}) target dispatch! states-ref)))
 
-(defn on-jsload [] (clear-cache!) (render-app!) (println "code updated."))
-
 (def ssr-stages
   (let [ssr-element (.querySelector js/document "#ssr-stages")
         ssr-markup (.getAttribute ssr-element "content")]
     (read-string ssr-markup)))
 
-(defn -main []
+(defn -main! []
   (enable-console-print!)
   (if (not (empty? ssr-stages))
     (let [target (.querySelector js/document "#app")]
       (falsify-stage!
        target
-       (mute-element (render-element (comp-container @store-ref ssr-stages) states-ref))
+       (render-element (comp-container @store-ref ssr-stages) states-ref)
        dispatch!)))
   (render-app!)
   (add-watch store-ref :changes render-app!)
@@ -75,4 +72,6 @@
   (println "app started!")
   (load-collection! dispatch!))
 
-(set! js/window.onload -main)
+(defn on-jsload! [] (clear-cache!) (render-app!) (println "code updated."))
+
+(set! js/window.onload -main!)
