@@ -12,10 +12,10 @@
 (def var-entry
   {:min-width "160px",
    :color (hsl 0 0 80),
-   :font-size "15px",
+   :font-size "14px",
    :cursor "pointer",
    :display "inline-block",
-   :font-family "Menlo,monospace"})
+   :font-family "Source Code Pro,Menlo,monospace"})
 
 (def entry-line (merge var-entry {:display "block"}))
 
@@ -25,7 +25,7 @@
    {:color (hsl 0 0 100),
     :background-color (hsl 0 0 100 0.14),
     :width "320px",
-    :font-family "Menlo,monospace"}))
+    :font-family "Source Code Pro,Menlo,monospace"}))
 
 (def button
   (merge ui/button {:color (hsl 0 0 100 0.6), :background-color (hsl 0 0 100 0.2)}))

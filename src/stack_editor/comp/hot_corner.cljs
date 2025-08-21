@@ -18,9 +18,9 @@
     (div
      {:style {:text-align "center",
               :font-size "24px",
-              :font-weight "lighter",
+              :font-weight "300",
               :cursor "pointer"},
       :event {:click (on-switch router writer)}}
-     (comp-text "Analyzer" {:font-family "Helvetica Neue"}))))
+     (comp-text "Analyzer" {:font-family "Josefin Sans"}))))
 
 (def comp-hot-corner (create-comp :hot-corner render))

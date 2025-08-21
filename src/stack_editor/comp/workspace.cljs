@@ -13,6 +13,8 @@
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
 
+(defn update-state [state new-state] (merge state new-state))
+
 (defn on-command [store]
   (fn [snapshot dispatch! e]
     (let [code (:key-code e)
@@ -40,6 +42,8 @@
 
 (defn on-update [snapshot dispatch!] (dispatch! :collection/write snapshot))
 
+(defn init-state [& args] {:scaled? false})
+
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
 
 (def style-removed
@@ -65,7 +69,7 @@
        (div
         {:style (merge
                  ui/column
-                 {:color (hsl 0 0 80), :background-color (hsl 0 0 0), :width "300px"})}
+                 {:color (hsl 0 0 80), :background-color (hsl 0 0 0), :width "180px"})}
         (comp-hot-corner router (:writer store))
         (comp-stack stack pointer))
        (comment comp-debug writer {:background-color (hsl 0 0 0), :z-index 999, :opacity 1})
@@ -81,4 +85,4 @@
          {:style (merge ui/row {:background-color (hsl 0 0 0), :justify-content "flex-end"})}
          (div {:style widget/button, :event {:click on-remove}} (comp-text "remove" nil))))))))
 
-(def comp-workspace (create-comp :workspace render))
+(def comp-workspace (create-comp :workspace init-state update-state render))

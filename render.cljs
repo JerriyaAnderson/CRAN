@@ -14,6 +14,7 @@
       (head {}
         (title (use-text (str "Stack Editor")))
         (link {:attrs {:rel "icon" :type "image/png" :href "http://logo.cirru.org/cirru-400x400.png"}})
+        (link {:attrs {:rel "stylesheet" :href "style.css"}})
         (meta' {:attrs {:charset "utf-8"}})
         (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
         (meta' {:attrs {:id "ssr-stages" :content (pr-str ssr-stages)}})

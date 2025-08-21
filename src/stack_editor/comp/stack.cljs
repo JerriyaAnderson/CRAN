@@ -22,11 +22,13 @@
   {:line-height 1.4,
    :color (hsl 0 0 60),
    :white-space "nowrap",
+   :font-size 13,
    :cursor "pointer",
    :padding "8px 16px",
-   :font-family "Menlo,monospace"})
+   :font-family "Source Code Pro,Menlo,monospace"})
 
-(def style-ns {:line-height 1.4, :color (hsl 0 0 50), :font-size "11px"})
+(def style-ns
+  {:line-height 1.4, :color (hsl 0 0 50), :font-size "11px", :font-family "Hind"})
 
 (def style-container {:overflow "auto", :padding "40px 0 200px 0"})
 
@@ -37,7 +39,7 @@
    :font-size "11px",
    :cursor "pointer",
    :padding "0 16px",
-   :font-family "Menlo,monospace"})
+   :font-family "Hind"})
 
 (defn render [stack pointer]
   (fn [state mutate!]

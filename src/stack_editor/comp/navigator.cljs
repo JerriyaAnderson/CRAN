@@ -9,7 +9,7 @@
 (def style-entry
   {:line-height "40px",
    :color (hsl 0 0 50),
-   :font-size "15px",
+   :font-size "18px",
    :font-weight "lighter",
    :cursor "pointer",
    :padding "0 16px"})

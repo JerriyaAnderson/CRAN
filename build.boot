@@ -39,6 +39,7 @@
       (head {}
         (title (use-text "Stack Editor"))
         (link {:attrs {:rel "icon" :type "image/png" :href "http://logo.cirru.org/cirru-400x400.png"}})
+        (link {:attrs {:rel "stylesheet" :href "style.css"}})
         (meta'{:attrs {:charset "utf-8"}})
         (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
         (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
@@ -76,7 +77,7 @@
     (reload :on-jsload 'stack-editor.main/on-jsload!
             :cljs-asset-path ".")
     (cljs :compiler-options {:language-in :ecmascript5})
-    (target)))
+    (target :no-clean true)))
 
 (deftask generate-code []
   (comp

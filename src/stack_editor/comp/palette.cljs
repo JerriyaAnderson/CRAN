@@ -26,6 +26,9 @@
 
 (def update-state merge)
 
+(def style-container
+  {:background-color (hsl 200 40 10 0.8), :justify-content "center", :position "fixed"})
+
 (defn on-select [cursor commands collection]
   (fn [dispatch!] (handle-command cursor commands collection dispatch!)))
 
@@ -58,12 +61,7 @@
           commands (->> (concat basic-commands def-paths ns-names procedure-names)
                         (filter (fn [command] (fuzzy-search command queries))))]
       (div
-       {:style (merge
-                ui/fullscreen
-                ui/row
-                {:background-color (hsl 200 40 10 0.8),
-                 :justify-content "center",
-                 :position "fixed"})}
+       {:style (merge ui/fullscreen ui/row style-container)}
        (div
         {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
         (input

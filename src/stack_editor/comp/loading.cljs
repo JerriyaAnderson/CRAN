@@ -5,17 +5,15 @@
             [respo.comp.text :refer [comp-text]]
             [respo-ui.style :as ui]))
 
+(def style-loading
+  {:color (hsl 0 0 100),
+   :font-size "20px",
+   :font-weight "light",
+   :background-color (hsl 200 40 10),
+   :justify-content "center"})
+
 (defn render [store]
   (fn [state mutate!]
-    (div
-     {:style (merge
-              ui/fullscreen
-              ui/row-center
-              {:color (hsl 0 0 100),
-               :font-size "20px",
-               :font-weight "light",
-               :background-color (hsl 200 40 10),
-               :justify-content "center"})}
-     (comp-text "Loading" nil))))
+    (div {:style (merge ui/fullscreen ui/row-center style-loading)} (comp-text "Loading" nil))))
 
 (def comp-loading (create-comp :loading render))

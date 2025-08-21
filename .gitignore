@@ -4,3 +4,4 @@
 .nrepl-port
 /src/*.*
 /src/.*
+/node_modules
