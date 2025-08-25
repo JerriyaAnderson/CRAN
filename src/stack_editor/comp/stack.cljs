@@ -24,7 +24,7 @@
    :white-space "nowrap",
    :font-size 13,
    :cursor "pointer",
-   :padding "8px 16px",
+   :padding "4px 8px",
    :font-family "Source Code Pro,Menlo,monospace"})
 
 (def style-ns
@@ -33,12 +33,12 @@
 (def style-container {:overflow "auto", :padding "40px 0 200px 0"})
 
 (def style-ns-main
-  {:line-height 4,
+  {:line-height "36px",
    :color (hsl 0 0 60),
    :white-space "nowrap",
-   :font-size "11px",
+   :font-size "13px",
    :cursor "pointer",
-   :padding "0 16px",
+   :padding "0 8px",
    :font-family "Hind"})
 
 (defn render [stack pointer]

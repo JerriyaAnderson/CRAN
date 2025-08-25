@@ -10,11 +10,11 @@
    :margin-bottom "8px"})
 
 (def var-entry
-  {:min-width "160px",
+  {:line-height "24px",
+   :min-width "160px",
    :color (hsl 0 0 80),
    :font-size "14px",
    :cursor "pointer",
-   :display "inline-block",
    :font-family "Source Code Pro,Menlo,monospace"})
 
 (def entry-line (merge var-entry {:display "block"}))
