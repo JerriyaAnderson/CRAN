@@ -6,14 +6,17 @@
             [respo-ui.style :as ui]))
 
 (def style-loading
-  {:color (hsl 0 0 100),
-   :font-size "20px",
-   :font-weight "light",
+  {:color (hsl 0 0 80),
+   :font-size "32px",
+   :font-weight "100",
    :background-color (hsl 200 40 10),
-   :justify-content "center"})
+   :justify-content "center",
+   :font-family "Josefin Sans"})
 
 (defn render [store]
   (fn [state mutate!]
-    (div {:style (merge ui/fullscreen ui/row-center style-loading)} (comp-text "Loading" nil))))
+    (div
+     {:style (merge ui/fullscreen ui/row-center style-loading)}
+     (comp-text "Loading..." nil))))
 
 (def comp-loading (create-comp :loading render))

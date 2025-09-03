@@ -29,35 +29,30 @@ If you choose to setup by yourself, here's a short guide:
 
 **Step 1:**
 
-Create a file named `stack-sepal.ir` beside `build.boot` file.
-Add `{}` in the file as the default data.
+Create a file `stack-sepal.ir` with content `{}` in project root directory.
 
 **Step 2:**
 
 Add a task in `build.boot`:
 
 ```clojure
-(deftask run-stack-server! []
-  (comp
-    (watch)
-    (start-stack-editor!)
-    (target :dir #{"src/"})))
-```
-
-The function may be obtained from:
-
-```clojure
-; from package [cirru/stack-server "0.1.6" :scope "test"]
+; from package [cirru/boot-stack-server "0.1.22" :scope "test"]
 (require '[stack-server.core  :refer [start-stack-editor! transform-stack]])
+
+(deftask editor! []
+  (comp
+    (start-stack-editor!)
+    (target :dir #{"src/"})
+    (repl)))
 ```
 
-Run `boot run-stack-server!` and it will listen to http://localhost:7010 .
+Run `boot editor!` to listen on http://localhost:7010 .
 
 **Step 3:**
 
-Open http://repo.cirru.org/stack-editor/ to find the editor.
+Open editor at http://repo.cirru.org/stack-editor/
 
-Probably there will be mistakes, refer to my demo for the details:
+Probably there will be bugs, refer to my demo for details:
 https://github.com/mvc-works/stack-workflow
 
 ### Options
@@ -71,6 +66,16 @@ Default values are `{"host" "localhost", "port" "7010"}`.
 ### Develop
 
 https://github.com/mvc-works/stack-workflow
+
+Build steps:
+
+```bash
+boot build-advanced
+export boot_deps=`boot show -c`
+planck -c $boot_deps:src/ -i render.cljs
+webpack
+# boot rsync
+```
 
 ### License
 

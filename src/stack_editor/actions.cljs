@@ -16,7 +16,7 @@
    (str "http://" (get options "host") ":" (get options "port"))
    {:error-handler (fn [error]
       (println error)
-      (dispatch! :notification/add-one "failed to load collection")),
+      (dispatch! :notification/add-one "Failed to fetch Sepal collection")),
     :handler (fn [response]
       (println "response...")
       (let [sepal-data (read-string response)]
