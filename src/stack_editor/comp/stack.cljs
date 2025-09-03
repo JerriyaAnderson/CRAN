@@ -11,10 +11,13 @@
 
 (defn on-click [pointer]
   (fn [e dispatch!]
-    (let [event (:original-event e), command? (or (.-ctrlKey event) (.-metaKey event))]
-      (if command?
-        (dispatch! :stack/collapse pointer)
-        (do (dispatch! :stack/point-to pointer) (focus!))))))
+    (let [event (:original-event e)
+          command? (or (.-ctrlKey event) (.-metaKey event))
+          shift? (.-shiftKey event)]
+      (cond
+        command? (dispatch! :stack/collapse pointer)
+        shift? (do (.preventDefault event) (dispatch! :stack/shift pointer))
+        :else (do (dispatch! :stack/point-to pointer) (focus!))))))
 
 (def style-bright {:color (hsl 0 0 90)})
 
@@ -30,7 +33,7 @@
 (def style-ns
   {:line-height 1.4, :color (hsl 0 0 50), :font-size "11px", :font-family "Hind"})
 
-(def style-container {:overflow "auto", :padding "40px 0 200px 0"})
+(def style-container {:overflow "auto", :padding "40px 0 200px 0", :user-select :none})
 
 (def style-ns-main
   {:line-height "36px",

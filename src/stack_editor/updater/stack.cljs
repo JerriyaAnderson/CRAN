@@ -2,7 +2,8 @@
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
             [stack-editor.util.analyze :refer [locate-ns compute-ns]]
-            [stack-editor.util.detect :refer [strip-atom]]))
+            [stack-editor.util.detect :refer [strip-atom]]
+            [stack-editor.util :refer [remove-idx]]))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -126,3 +127,16 @@
          (if (pos? (:pointer writer))
            (-> writer (update :pointer dec) (assoc :focus []))
            writer)))))
+
+(defn shift-one [store op-data op-id]
+  (let [pointer op-data]
+    (update
+     store
+     :writer
+     (fn [writer]
+       (-> writer
+           (update :stack (fn [stack] (remove-idx stack pointer)))
+           (update
+            :pointer
+            (fn [pointer]
+              (if (= pointer (dec (count (:stack writer)))) (dec pointer) pointer))))))))

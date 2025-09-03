@@ -25,7 +25,12 @@
   (let [path (first entry), ns-name (first (string/split path (re-pattern "/")))] ns-name))
 
 (def style-proc
-  {:line-height "24px", :min-width 48, :width 48, :cursor "pointer", :height "24px"})
+  {:line-height "24px",
+   :min-width 48,
+   :margin-top 8,
+   :width 48,
+   :cursor "pointer",
+   :height "24px"})
 
 (defn by-var-part [code-entry]
   (let [path (first code-entry)] (last (string/split path "/"))))

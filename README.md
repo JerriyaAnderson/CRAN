@@ -6,8 +6,8 @@ ClojureScript editor inspired by [Clouditor](https://github.com/Cirru/clouditor/
 
 Editor http://repo.cirru.org/stack-editor/
 
-![Workspace](https://pbs.twimg.com/media/Cp50FsiWcAEe-bH.png:large)
-![Definitions](https://pbs.twimg.com/media/Cp50FuUWcAACfOi.png:large)
+![Workspace](https://pbs.twimg.com/media/Cw0tNoCUAAAgJLe.png:large)
+![Definitions](https://pbs.twimg.com/media/Cw0tPbHVQAIGIt0.png:large)
 ![Command Palette](https://pbs.twimg.com/media/Cp50MD6WcAEXq0B.png:large)
 
 ### Usage

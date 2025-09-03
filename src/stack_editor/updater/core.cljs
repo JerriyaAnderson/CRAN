@@ -28,5 +28,6 @@
                   :stack/go-next stack/go-next
                   :stack/point-to stack/point-to
                   :stack/collapse stack/collapse
+                  :stack/shift stack/shift-one
                   default-handler)]
     (handler store op-data op-id)))
