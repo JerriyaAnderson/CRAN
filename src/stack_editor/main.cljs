@@ -5,9 +5,9 @@
             [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
             [stack-editor.updater.core :refer [updater]]
-            [stack-editor.util.time :refer [now]]
             [stack-editor.util.keycode :as keycode]
             [stack-editor.util.dom :as dom]
+            [stack-editor.util :refer [now!]]
             [stack-editor.actions
              :refer
              [load-collection! submit-collection! submit-changes!]]))
@@ -22,7 +22,7 @@
                         (submit-collection! collection dispatch!)
                         (submit-changes! collection dispatch!))
                       @store-ref)
-                    (updater @store-ref op op-data (now)))]
+                    (updater @store-ref op op-data (now!)))]
     (reset! store-ref new-store)))
 
 (defonce states-ref (atom {}))

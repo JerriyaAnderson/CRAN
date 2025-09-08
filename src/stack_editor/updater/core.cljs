@@ -3,7 +3,8 @@
   (:require [stack-editor.updater.router :as router]
             [stack-editor.updater.collection :as collection]
             [stack-editor.updater.notification :as notification]
-            [stack-editor.updater.stack :as stack]))
+            [stack-editor.updater.stack :as stack]
+            [stack-editor.updater.modal :as modal]))
 
 (defn default-handler [store op-data] store)
 
@@ -20,6 +21,7 @@
                   :collection/write collection/write-code
                   :collection/load collection/load-remote
                   :collection/remove-this collection/remove-this
+                  :collection/rename collection/rename
                   :notification/add-one notification/add-one
                   :notification/remove-one notification/remove-one
                   :notification/remove-since notification/remove-since
@@ -29,5 +31,7 @@
                   :stack/point-to stack/point-to
                   :stack/collapse stack/collapse
                   :stack/shift stack/shift-one
+                  :modal/mould modal/mould
+                  :modal/recycle modal/recycle
                   default-handler)]
     (handler store op-data op-id)))

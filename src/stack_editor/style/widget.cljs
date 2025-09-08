@@ -28,4 +28,9 @@
     :font-family "Source Code Pro,Menlo,monospace"}))
 
 (def button
-  (merge ui/button {:color (hsl 0 0 100 0.6), :background-color (hsl 0 0 100 0.2)}))
+  (merge
+   ui/button
+   {:line-height "28px",
+    :color (hsl 0 0 100 0.6),
+    :background-color (hsl 0 0 100 0.2),
+    :height 28}))

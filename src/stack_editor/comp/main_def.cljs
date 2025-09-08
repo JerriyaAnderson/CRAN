@@ -5,7 +5,6 @@
             [respo.alias :refer [create-comp div input]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
-            [stack-editor.util.time :refer [now]]
             [stack-editor.style.widget :as widget]))
 
 (defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))

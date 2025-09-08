@@ -3,6 +3,7 @@
   (:require [hsl.core :refer [hsl]]
             [respo.alias :refer [create-comp div]]
             [respo.comp.text :refer [comp-text]]
+            [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
             [stack-editor.comp.hot-corner :refer [comp-hot-corner]]
@@ -44,6 +45,11 @@
 
 (defn init-state [& args] {:scaled? false})
 
+(defn on-rename [code-path]
+  (fn [e dispatch!]
+    (println "the code path:" code-path)
+    (dispatch! :modal/mould {:title :rename-path, :data code-path})))
+
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
 
 (def style-removed
@@ -73,16 +79,26 @@
         (comp-hot-corner router (:writer store))
         (comp-stack stack pointer))
        (comment comp-debug writer {:background-color (hsl 0 0 0), :z-index 999, :opacity 1})
-       (div
-        {:style (merge ui/column ui/flex)}
-        (if (nil? tree)
-          (div {:style style-removed} (comp-text "Tree is be removed." nil))
+       (if (some? tree)
+         (div
+          {:style (merge ui/column ui/flex)}
           (comp-editor
            {:tree tree, :clipboard (:clipboard writer), :focus (:focus writer)}
            on-update
-           (on-command store)))
-        (div
-         {:style (merge ui/row {:background-color (hsl 0 0 0), :justify-content "flex-end"})}
-         (div {:style widget/button, :event {:click on-remove}} (comp-text "remove" nil))))))))
+           (on-command store))
+          (div
+           {:style (merge
+                    ui/row
+                    {:background-color (hsl 0 0 0), :justify-content "flex-end"})}
+           (div
+            {:style widget/button,
+             :event {:click (on-rename code-path)},
+             :attrs {:inner-text "Rename"}})
+           (comp-space 8 nil)
+           (div
+            {:style widget/button, :event {:click on-remove}, :attrs {:inner-text "Remove"}})))
+         (div
+          {:style (merge ui/column ui/flex)}
+          (div {:style style-removed} (comp-text "Tree is be removed." nil))))))))
 
 (def comp-workspace (create-comp :workspace init-state update-state render))

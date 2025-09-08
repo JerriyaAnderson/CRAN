@@ -10,6 +10,7 @@
             [stack-editor.comp.workspace :refer [comp-workspace]]
             [stack-editor.comp.notifications :refer [comp-notifications]]
             [stack-editor.comp.palette :refer [comp-palette]]
+            [stack-editor.comp.modal-stack :refer [comp-modal-stack]]
             [stack-editor.util.keycode :as keycode]
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
@@ -30,6 +31,7 @@
          (comp-debug router nil))
        (comp-notifications (:notifications store))
        (comment comp-debug router nil)
-       (if (:show-palette? router) (comp-palette (:collection store)))))))
+       (if (:show-palette? router) (comp-palette (:collection store)))
+       (comp-modal-stack (:modal-stack store))))))
 
 (def comp-container (create-comp :container render))
