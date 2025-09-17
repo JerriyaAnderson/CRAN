@@ -33,7 +33,7 @@
 (def style-ns
   {:line-height 1.4, :color (hsl 0 0 50), :font-size "11px", :font-family "Hind"})
 
-(def style-container {:overflow "auto", :padding "40px 0 200px 0", :user-select :none})
+(def style-container {:overflow "auto", :padding "16px 0 160px 0", :user-select :none})
 
 (def style-ns-main
   {:line-height "36px",

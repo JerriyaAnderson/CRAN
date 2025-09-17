@@ -4,13 +4,7 @@
             [respo-ui.style :as ui]
             [respo.alias :refer [create-comp div]]
             [respo.comp.space :refer [comp-space]]
-            [stack-editor.comp.hot-corner :refer [comp-hot-corner]]
-            [stack-editor.comp.navigator :refer [comp-navigator]]
-            [stack-editor.comp.definitions :refer [comp-definitions]]
-            [stack-editor.comp.namespaces :refer [comp-namespaces]]
-            [stack-editor.comp.procedures :refer [comp-procedures]]
-            [stack-editor.comp.orphans :refer [comp-orphans]]
-            [stack-editor.comp.settings :refer [comp-settings]]))
+            [stack-editor.comp.definitions :refer [comp-definitions]]))
 
 (defn on-nav [nav-id dispatch!] (dispatch! :router/route {:name :analyzer, :data nav-id}))
 
@@ -23,22 +17,6 @@
           procedures (:procedures collection)]
       (div
        {:style (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
-       (div
-        {:style {:width 180}}
-        (comp-hot-corner router (:writer store))
-        (comp-space nil "32px")
-        (comp-navigator
-         [[:definitions "Definitions"]
-          [:namespaces "Namespaces"]
-          [:procedures "Procedures"]]
-         on-nav
-         (:data router)))
-       (case (:data router)
-         :definitions (comp-definitions definitions (keys namespaces))
-         :namespaces (comp-namespaces namespaces)
-         :procedures (comp-procedures procedures)
-         :orphans (comp-orphans)
-         :settings (comp-settings (:main-definition collection))
-         nil)))))
+       (comp-definitions definitions (keys namespaces))))))
 
 (def comp-analyzer (create-comp :analyzer render))

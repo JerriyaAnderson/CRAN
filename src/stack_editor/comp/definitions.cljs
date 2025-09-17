@@ -17,24 +17,15 @@
 (defn on-edit-definition [definition-path]
   (fn [e dispatch!] (dispatch! :collection/edit [:definitions definition-path]) (focus!)))
 
-(defn on-proc [ns-name]
-  (fn [e dispatch!] (dispatch! :collection/edit [:procedures ns-name])))
-
 (defn by-ns-part [entry]
   (let [path (first entry), ns-name (first (string/split path (re-pattern "/")))] ns-name))
 
-(def style-proc
-  {:line-height "24px",
-   :min-width 48,
-   :margin-top 8,
-   :width 48,
-   :cursor "pointer",
-   :height "24px"})
+(def style-list {:max-height 240, :overflow "auto"})
 
 (defn by-var-part [code-entry]
   (let [path (first code-entry)] (last (string/split path "/"))))
 
-(def style-file {:vertical-align :top, :margin-top 16, :width 320, :display :inline-block})
+(def style-file {:vertical-align :top, :margin-top 16, :width 240, :display :inline-block})
 
 (defn render [definitions ns-names]
   (fn [state mutate!]
@@ -57,7 +48,7 @@
                     {:style style-file}
                     (comp-define ns-name)
                     (div
-                     {}
+                     {:style style-list}
                      (->> def-codes
                           (sort-by by-var-part)
                           (map
@@ -68,10 +59,6 @@
                                 (div
                                  {:style widget/var-entry,
                                   :event {:click (on-edit-definition path)},
-                                  :attrs {:inner-text var-part}})])))))
-                    (div
-                     {:style (merge widget/button style-proc),
-                      :event {:click (on-proc ns-name)}}
-                     (comp-text "proc" nil)))])))))))))
+                                  :attrs {:inner-text var-part}})]))))))])))))))))
 
 (def comp-definitions (create-comp :definitions render))

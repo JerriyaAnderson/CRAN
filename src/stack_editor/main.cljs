@@ -1,6 +1,8 @@
 
 (ns stack-editor.main
-  (:require [respo.core :refer [render! clear-cache! render-element falsify-stage!]]
+  (:require [respo.core
+             :refer
+             [render! clear-cache! render-element falsify-stage! gc-states!]]
             [stack-editor.schema :as schema]
             [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
@@ -45,6 +47,7 @@
        (render-element (comp-container @store-ref ssr-stages) states-ref)
        dispatch!)))
   (render-app!)
+  (add-watch store-ref :gc (fn [] (gc-states! states-ref)))
   (add-watch store-ref :changes render-app!)
   (add-watch states-ref :changes render-app!)
   (.addEventListener

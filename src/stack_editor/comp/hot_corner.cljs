@@ -21,6 +21,6 @@
               :font-weight "300",
               :cursor "pointer"},
       :event {:click (on-switch router writer)}}
-     (comp-text "Analyzer" {:font-family "Josefin Sans"}))))
+     (comp-text "Stack Editor" {:font-family "Josefin Sans"}))))
 
 (def comp-hot-corner (create-comp :hot-corner render))

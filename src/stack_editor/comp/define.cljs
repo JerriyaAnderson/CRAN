@@ -18,9 +18,15 @@
 (defn on-click [ns-text]
   (fn [e dispatch!] (dispatch! :collection/edit [:namespaces ns-text])))
 
+(defn on-proc [ns-name]
+  (fn [e dispatch!] (dispatch! :collection/edit [:procedures ns-name])))
+
 (def style-ns {:white-space :nowrap, :font-family "Source Code Pro,Menlo,monospace"})
 
 (defn init-state [& args] "")
+
+(def style-proc
+  {:line-height "24px", :min-width 48, :width 48, :cursor "pointer", :height "24px"})
 
 (defn on-keydown [text mutate! ns-name]
   (fn [e dispatch!]
@@ -34,7 +40,10 @@
      (div
       {:style style-namespace, :event {:click (on-click ns-name)}}
       (comp-text ns-name style-ns)
-      (comp-space "8px" nil))
+      (comp-space "8px" nil)
+      (div
+       {:style (merge widget/button style-proc), :event {:click (on-proc ns-name)}}
+       (comp-text "proc" nil)))
      (div
       {}
       (input
