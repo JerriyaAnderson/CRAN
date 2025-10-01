@@ -50,9 +50,11 @@
         focus (:focus writer)
         stack (:stack writer)
         pointer (:pointer writer)
+        pkg (get-in store [:collection :package])
         definitions (get-in store [:collection :definitions])
         namespaces (get-in store [:collection :namespaces])
-        current-def (last (get stack pointer))]
+        current-def (last (get stack pointer))
+        drop-pkg (fn [x] (if (string? x) (string/replace x (str pkg ".") "") x))]
     (println "writer" writer)
     (let [target (get-in store (concat [:collection] (get stack pointer) focus))]
       (if (string? target)
@@ -61,7 +63,7 @@
             (if (string/includes? target "/")
               (let [[ns-part var-part] (string/split target "/")
                     current-ns (first (string/split current-def "/"))
-                    that-ns (locate-ns ns-part current-ns namespaces)]
+                    that-ns (drop-pkg (locate-ns ns-part current-ns namespaces))]
                 (if (contains? namespaces that-ns)
                   (let [new-path (str that-ns "/" var-part)]
                     (if (contains? definitions new-path)
@@ -77,7 +79,7 @@
                        (helper-notify op-id (str "foreign namespace: " that-ns))))))
               (let [current-ns (first (string/split current-def "/"))
                     ns-part (compute-ns stripped-target current-def namespaces definitions)
-                    that-ns (if (some? ns-part) ns-part current-ns)
+                    that-ns (if (some? ns-part) (drop-pkg ns-part) current-ns)
                     new-path (str that-ns "/" stripped-target)]
                 (println "forced piece:" that-ns stripped-target)
                 (if (contains? namespaces that-ns)
@@ -90,13 +92,15 @@
                       (update
                        :notifications
                        (helper-notify op-id (str "foreign namespace: " ns-part)))))))
-            (let [that-ns (compute-ns stripped-target current-def namespaces definitions)
+            (let [that-ns (drop-pkg
+                           (compute-ns stripped-target current-def namespaces definitions))
                   var-part (last (string/split stripped-target "/"))
                   current-ns (first (string/split current-def "/"))
-                  local-def (str current-ns var-part)]
+                  local-def (str current-ns "/" var-part)]
+              (println "look:" that-ns var-part current-ns local-def)
               (if (contains? definitions local-def)
                 (update store :writer (helper-put-path local-def))
-                (if (and (some? that-ns) (contains? namespaces that-ns))
+                (if (and (some? that-ns) (contains? definitions (str that-ns "/" var-part)))
                   (let [path (str that-ns "/" var-part)]
                     (if (= path current-def)
                       store

@@ -51,8 +51,7 @@
 
 (defn render [collection]
   (fn [state mutate!]
-    (let [def-paths (->> (keys (:definitions collection))
-                         (map (fn [path] ["definition" path])))
+    (let [def-paths (->> (keys (:definitions collection)) (map (fn [path] [path])))
           ns-names (->> (keys (:namespaces collection))
                         (map (fn [ns-name] ["namespace" ns-name])))
           procedure-names (->> (keys (:procedures collection))
