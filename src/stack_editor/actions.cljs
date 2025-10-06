@@ -20,6 +20,7 @@
     :handler (fn [response]
       (println "response...")
       (let [sepal-data (read-string response)]
+        (if (not (contains? sepal-data :package)) (js/alert "Cannot find a :package field"))
         (dispatch! :collection/load sepal-data)
         (reset! remote-sepal-ref sepal-data)))}))
 
