@@ -19,9 +19,9 @@
     (case (first command)
       "load" (println "load")
       "save" (dispatch! :effect/submit [false collection])
-      "definition" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
-      "namespace" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
-      "procedure" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))
+      "def" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
+      "ns" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
+      "proc" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))
       nil)))
 
 (def update-state merge)
@@ -51,11 +51,10 @@
 
 (defn render [collection]
   (fn [state mutate!]
-    (let [def-paths (->> (keys (:definitions collection)) (map (fn [path] [path])))
-          ns-names (->> (keys (:namespaces collection))
-                        (map (fn [ns-name] ["namespace" ns-name])))
+    (let [def-paths (->> (keys (:definitions collection)) (map (fn [path] ["def" path])))
+          ns-names (->> (keys (:namespaces collection)) (map (fn [ns-name] ["ns" ns-name])))
           procedure-names (->> (keys (:procedures collection))
-                               (map (fn [procedure-name] ["procedure" procedure-name])))
+                               (map (fn [procedure-name] ["proc" procedure-name])))
           queries (string/split (:text state) " ")
           commands (->> (concat basic-commands def-paths ns-names procedure-names)
                         (filter (fn [command] (fuzzy-search command queries))))]
