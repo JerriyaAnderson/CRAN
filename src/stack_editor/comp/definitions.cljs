@@ -27,14 +27,14 @@
 
 (def style-file {:vertical-align :top, :margin-top 16, :width 240, :display :inline-block})
 
-(defn render [definitions ns-names]
+(defn render [definitions ns-names pkg]
   (fn [state mutate!]
     (let [ns-base (->> ns-names (map (fn [ns-name] [ns-name {}])) (into {}))
           grouped (merge ns-base (->> definitions (group-by by-ns-part)))]
       (div
        {:style (merge ui/flex ui/column ui/card {})}
        (comp-space nil "16px")
-       (comp-ns-creator (keys definitions))
+       (comp-ns-creator pkg)
        (comp-space nil "32px")
        (div
         {:style (merge ui/flex {:overflow "auto", :padding-bottom 200})}

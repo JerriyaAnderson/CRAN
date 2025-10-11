@@ -145,7 +145,8 @@
         (assoc-in [:router :name] :analyzer))))
 
 (defn add-namespace [store op-data]
-  (let [namespace' op-data, basic-code ["ns" namespace']]
+  (let [namespace' op-data
+        basic-code ["ns" (str (get-in store [:collection :package]) "." namespace')]]
     (-> store
         (assoc-in [:collection :namespaces namespace'] basic-code)
         (assoc-in [:collection :procedures namespace'] []))))

@@ -17,6 +17,6 @@
           procedures (:procedures collection)]
       (div
        {:style (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
-       (comp-definitions definitions (keys namespaces))))))
+       (comp-definitions definitions (keys namespaces) (:package collection))))))
 
 (def comp-analyzer (create-comp :analyzer render))

@@ -12,21 +12,18 @@
 (defn update-state [state text] text)
 
 (defn on-click [state mutate!]
-  (fn [e dispatch!]
-    (dispatch! :collection/add-namespace state)
-    (mutate! (first (string/split state ".")))))
+  (fn [e dispatch!] (dispatch! :collection/add-namespace state) (mutate! "")))
 
-(defn init-state [key-names]
-  (if (empty? key-names) "" (first (string/split (first key-names) "."))))
+(defn init-state [pkg] "")
 
-(defn render []
+(defn render [pkg]
   (fn [state mutate!]
     (div
      {}
      (input
       {:style widget/input,
        :event {:input (on-input mutate!)},
-       :attrs {:placeholder "", :value state}})
+       :attrs {:placeholder (str pkg "."), :value state}})
      (comp-space "8px" nil)
      (div
       {:style widget/button, :event {:click (on-click state mutate!)}}
