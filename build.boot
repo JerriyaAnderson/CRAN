@@ -64,7 +64,7 @@
 
 (deftask editor! []
   (comp
-    (repl)
+    (wait)
     (start-stack-editor!)
     (target :dir #{"src/"})))
 

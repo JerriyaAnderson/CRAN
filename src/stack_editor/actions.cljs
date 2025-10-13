@@ -16,9 +16,8 @@
    (str "http://" (get options "host") ":" (get options "port"))
    {:error-handler (fn [error]
       (println error)
-      (dispatch! :notification/add-one "Failed to fetch Sepal collection")),
+      (dispatch! :notification/add-one "Failed to fetch collection")),
     :handler (fn [response]
-      (println "response...")
       (let [sepal-data (read-string response)]
         (if (not (contains? sepal-data :package)) (js/alert "Cannot find a :package field"))
         (dispatch! :collection/load sepal-data)
@@ -30,8 +29,10 @@
    {:format (json-request-format),
     :error-handler (fn [error]
       (println error)
-      (let [response (read-string (:response error))]
-        (dispatch! :notification/add-one (:status response)))),
+      (if (zero? (:status error))
+        (dispatch! :notification/add-one "Connection failed!")
+        (let [response (read-string (:response error))]
+          (dispatch! :notification/add-one (:status response))))),
     :body (pr-str collection),
     :handler (fn [response]
       (println response)
@@ -44,8 +45,10 @@
    {:format (json-request-format),
     :error-handler (fn [error]
       (println error)
-      (let [response (read-string (:response error))]
-        (dispatch! :notification/add-one (:status response)))),
+      (if (zero? (:status error))
+        (dispatch! :notification/add-one "Connection failed!")
+        (let [response (read-string (:response error))]
+          (dispatch! :notification/add-one (:status response))))),
     :body (pr-str (diff @remote-sepal-ref collection)),
     :handler (fn [response]
       (println response)
