@@ -17,8 +17,8 @@
   (let [command (get (into [] commands) cursor)]
     (dispatch! :router/toggle-palette nil)
     (case (first command)
-      "load" (println "load")
-      "save" (dispatch! :effect/submit [false collection])
+      "load" (dispatch! :effect/load nil)
+      "patch" (dispatch! :effect/submit [true collection])
       "def" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
       "ns" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
       "proc" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))

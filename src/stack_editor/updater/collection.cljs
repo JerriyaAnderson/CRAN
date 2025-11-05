@@ -140,9 +140,7 @@
 (defn load-remote [store op-data]
   (let [collection op-data]
     (comment println "loading:" collection)
-    (-> store
-        (update :collection (fn [cursor] (merge cursor collection)))
-        (assoc-in [:router :name] :analyzer))))
+    (-> store (update :collection (fn [cursor] (merge cursor collection))))))
 
 (defn add-namespace [store op-data]
   (let [namespace' op-data

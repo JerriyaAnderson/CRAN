@@ -18,14 +18,14 @@
 
 (defn dispatch! [op op-data]
   (comment println "dispatch!" op op-data)
-  (let [new-store (if (= op :effect/submit)
-                    (let [[shift? collection] op-data]
-                      (if shift?
-                        (submit-collection! collection dispatch!)
-                        (submit-changes! collection dispatch!))
-                      @store-ref)
-                    (updater @store-ref op op-data (now!)))]
-    (reset! store-ref new-store)))
+  (case op
+    :effect/submit
+      (let [[shift? collection] op-data]
+        (if shift?
+          (submit-collection! collection dispatch!)
+          (submit-changes! collection dispatch!)))
+    :effect/load (load-collection! dispatch! false)
+    (let [new-store (updater @store-ref op op-data (now!))] (reset! store-ref new-store))))
 
 (defonce states-ref (atom {}))
 
@@ -73,7 +73,7 @@
                   (dispatch! :router/route {:name :workspace, :data nil})))))
          :else nil))))
   (println "app started!")
-  (load-collection! dispatch!))
+  (load-collection! dispatch! true))
 
 (defn on-jsload! [] (clear-cache!) (render-app!) (println "code updated."))
 
