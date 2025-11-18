@@ -9,6 +9,8 @@
    :display "inline-block",
    :margin-bottom "8px"})
 
+(def clickable-text {:text-decoration :underline})
+
 (def var-entry
   {:line-height "24px",
    :min-width "160px",

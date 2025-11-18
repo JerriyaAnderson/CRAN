@@ -2,11 +2,12 @@
 (ns stack-editor.updater.collection (:require [clojure.string :as string]))
 
 (defn rename [store op-data op-id]
-  (let [[kind old-name new-name] op-data]
-    (update-in
-     store
-     [:collection kind]
-     (fn [dict] (-> dict (dissoc old-name) (assoc new-name (get dict old-name)))))))
+  (let [[kind old-name new-name] op-data, pointer (get-in store [:writer :pointer])]
+    (-> store
+        (update-in
+         [:collection kind]
+         (fn [dict] (-> dict (dissoc old-name) (assoc new-name (get dict old-name)))))
+        (assoc-in [:writer :stack pointer] [kind new-name]))))
 
 (defn set-main [store op-data]
   (let [main-definition op-data]
