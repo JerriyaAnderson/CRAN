@@ -17,8 +17,9 @@
   (let [command (get (into [] commands) cursor)]
     (dispatch! :router/toggle-palette nil)
     (case (first command)
-      "load" (dispatch! :effect/load nil)
-      "patch" (dispatch! :effect/submit [true collection])
+      ":load" (dispatch! :effect/load nil)
+      ":patch" (dispatch! :effect/submit [true collection])
+      ":dehydrate" (dispatch! :effect/dehydrate nil)
       "def" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
       "ns" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
       "proc" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))
@@ -34,7 +35,7 @@
 
 (defn init-state [& args] {:cursor 0, :text ""})
 
-(def basic-commands [["save"] ["load"]])
+(def basic-commands [[":save"] [":load"] [":hydrate"] [":dehydrate"]])
 
 (defn on-keydown [mutate! commands cursor collection]
   (fn [e dispatch!]

@@ -12,7 +12,7 @@
             [stack-editor.util :refer [now!]]
             [stack-editor.actions
              :refer
-             [load-collection! submit-collection! submit-changes!]]))
+             [load-collection! submit-collection! submit-changes! display-code!]]))
 
 (defonce store-ref (atom schema/store))
 
@@ -24,6 +24,7 @@
         (if shift?
           (submit-collection! collection dispatch!)
           (submit-changes! collection dispatch!)))
+    :effect/dehydrate (display-code! @store-ref)
     :effect/load (load-collection! dispatch! false)
     (let [new-store (updater @store-ref op op-data (now!))] (reset! store-ref new-store))))
 

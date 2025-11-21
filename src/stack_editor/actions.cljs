@@ -24,6 +24,14 @@
         (if open-analyzer? (dispatch! :router/route {:name :analyzer, :data nil}))
         (reset! remote-sepal-ref sepal-data)))}))
 
+(defn display-code! [store]
+  (let [writer (:writer store)
+        collection (:collection store)
+        path (concat (get (:stack writer) (:pointer writer)) (:focus writer))
+        tree (get-in collection path)]
+    (if (some? tree)
+      (-> js/window (.open) (.-document) (.write "<pre><code>" (pr-str tree) "</code></pre>")))))
+
 (defn submit-collection! [collection dispatch!]
   (POST
    (str "http://" (get options "host") ":" (get options "port"))
