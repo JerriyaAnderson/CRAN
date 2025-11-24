@@ -22,6 +22,7 @@
                   :collection/load collection/load-remote
                   :collection/remove-this collection/remove-this
                   :collection/rename collection/rename
+                  :collection/hydrate collection/hydrate
                   :notification/add-one notification/add-one
                   :notification/remove-one notification/remove-one
                   :notification/remove-since notification/remove-since

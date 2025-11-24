@@ -20,6 +20,7 @@
       ":load" (dispatch! :effect/load nil)
       ":patch" (dispatch! :effect/submit [true collection])
       ":dehydrate" (dispatch! :effect/dehydrate nil)
+      ":hydrate" (dispatch! :modal/mould {:title :hydrate, :data nil})
       "def" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
       "ns" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
       "proc" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))
@@ -57,7 +58,7 @@
           procedure-names (->> (keys (:procedures collection))
                                (map (fn [procedure-name] ["proc" procedure-name])))
           queries (string/split (:text state) " ")
-          commands (->> (concat basic-commands def-paths ns-names procedure-names)
+          commands (->> (concat def-paths ns-names procedure-names basic-commands)
                         (filter (fn [command] (fuzzy-search command queries))))]
       (div
        {:style (merge ui/fullscreen ui/row style-container)}

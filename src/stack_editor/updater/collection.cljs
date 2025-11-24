@@ -76,6 +76,13 @@
         (assoc-in [:writer :clipboard] clipboard)
         (assoc-in (cons :collection (get stack pointer)) tree))))
 
+(defn hydrate [store op-data op-id]
+  (let [writer (:writer store)
+        collection (:collection store)
+        path (concat [:collection] (get (:stack writer) (:pointer writer)) (:focus writer))]
+    (println path)
+    (assoc-in store path op-data)))
+
 (defn edit [store op-data]
   (let [path op-data]
     (-> store
