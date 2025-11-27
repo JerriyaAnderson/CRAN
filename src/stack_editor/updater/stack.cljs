@@ -33,15 +33,18 @@
 
 (defn helper-create-def [ns-part focus current-def var-part]
   (fn [definitions]
-    (assoc
-     definitions
-     (str ns-part "/" var-part)
-     (if (and (not (empty? focus)) (zero? (last focus)))
-       (let [expression (-> definitions (get current-def) (get-in (butlast focus)))]
-         (if (> (count expression) 1)
-           ["defn" var-part (subvec expression 1)]
-           ["defn" var-part []]))
-       ["defn" var-part []]))))
+    (let [name-path (str ns-part "/" var-part)]
+      (if (contains? definitions name-path)
+        definitions
+        (assoc
+         definitions
+         name-path
+         (if (and (not (empty? focus)) (zero? (last focus)))
+           (let [expression (-> definitions (get current-def) (get-in (butlast focus)))]
+             (if (> (count expression) 1)
+               ["defn" var-part (subvec expression 1)]
+               ["defn" var-part []]))
+           ["defn" var-part []]))))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
