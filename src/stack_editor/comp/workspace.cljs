@@ -10,7 +10,6 @@
             [stack-editor.comp.stack :refer [comp-stack]]
             [cirru-editor.comp.editor :refer [comp-editor]]
             [stack-editor.util.keycode :as keycode]
-            [cirru-editor.util.dom :refer [focus!]]
             [stack-editor.util.dom :as dom]
             [stack-editor.style.widget :as widget]))
 
@@ -24,11 +23,9 @@
           shift? (.-shiftKey event)]
       (cond
         (= code keycode/key-d)
-          (do (.preventDefault event) (dispatch! :stack/goto-definition shift?) (focus!))
-        (= code keycode/key-k)
-          (do (.preventDefault event) (dispatch! :stack/go-back nil) (focus!))
-        (= code keycode/key-j)
-          (do (.preventDefault event) (dispatch! :stack/go-next nil) (focus!))
+          (do (.preventDefault event) (dispatch! :stack/goto-definition shift?))
+        (= code keycode/key-k) (do (.preventDefault event) (dispatch! :stack/go-back nil))
+        (= code keycode/key-j) (do (.preventDefault event) (dispatch! :stack/go-next nil))
         (= code keycode/key-s)
           (do (.preventDefault event) (dispatch! :effect/submit [shift? (:collection store)]))
         (and command? (= code keycode/key-p))
@@ -38,7 +35,7 @@
            (dispatch! :router/toggle-palette nil)
            (dom/focus-palette!))
         (and command? (= code keycode/key-e))
-          (do (.preventDefault event) (dispatch! :collection/edit-ns nil) (focus!))
+          (do (.preventDefault event) (dispatch! :collection/edit-ns nil))
         :else nil))))
 
 (defn on-update [snapshot dispatch!] (dispatch! :collection/write snapshot))

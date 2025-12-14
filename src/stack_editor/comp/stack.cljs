@@ -3,7 +3,6 @@
   (:require [hsl.core :refer [hsl]]
             [clojure.string :as string]
             [respo-ui.style :as ui]
-            [cirru-editor.util.dom :refer [focus!]]
             [respo.alias :refer [create-comp div]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.space :refer [comp-space]]
@@ -17,7 +16,7 @@
       (cond
         command? (dispatch! :stack/collapse pointer)
         shift? (do (.preventDefault event) (dispatch! :stack/shift pointer))
-        :else (do (dispatch! :stack/point-to pointer) (focus!))))))
+        :else (do (dispatch! :stack/point-to pointer))))))
 
 (def style-bright {:color (hsl 0 0 90)})
 
@@ -33,7 +32,8 @@
 (def style-ns
   {:line-height 1.4, :color (hsl 0 0 50), :font-size "11px", :font-family "Hind"})
 
-(def style-container {:overflow "auto", :padding "16px 0 160px 0", :user-select :none})
+(def style-container
+  {:overflow "auto", :padding "16px 0 160px 0", :user-select :nonworkspacee})
 
 (def style-ns-main
   {:line-height "36px",

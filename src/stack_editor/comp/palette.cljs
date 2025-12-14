@@ -21,9 +21,9 @@
       ":patch" (dispatch! :effect/submit [true collection])
       ":dehydrate" (dispatch! :effect/dehydrate nil)
       ":hydrate" (dispatch! :modal/mould {:title :hydrate, :data nil})
-      "def" (do (dispatch! :collection/edit [:definitions (last command)]) (focus!))
-      "ns" (do (dispatch! :collection/edit [:namespaces (last command)]) (focus!))
-      "proc" (do (dispatch! :collection/edit [:procedures (last command)]) (focus!))
+      "def" (do (dispatch! :collection/edit [:definitions (last command)]))
+      "ns" (do (dispatch! :collection/edit [:namespaces (last command)]))
+      "proc" (do (dispatch! :collection/edit [:procedures (last command)]))
       nil)))
 
 (def update-state merge)

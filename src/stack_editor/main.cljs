@@ -12,7 +12,10 @@
             [stack-editor.util :refer [now!]]
             [stack-editor.actions
              :refer
-             [load-collection! submit-collection! submit-changes! display-code!]]))
+             [load-collection! submit-collection! submit-changes! display-code!]]
+            [cirru-editor.util.dom :refer [focus!]]))
+
+(def focus-moved?-ref (atom false))
 
 (defonce store-ref (atom schema/store))
 
@@ -26,13 +29,20 @@
           (submit-changes! collection dispatch!)))
     :effect/dehydrate (display-code! @store-ref)
     :effect/load (load-collection! dispatch! false)
-    (let [new-store (updater @store-ref op op-data (now!))] (reset! store-ref new-store))))
+    (let [new-store (updater @store-ref op op-data (now!))]
+      (reset!
+       focus-moved?-ref
+       (not
+        (and (identical? (:collection @store-ref) (:collection new-store))
+             (identical? (:writer @store-ref) (:writer new-store)))))
+      (reset! store-ref new-store))))
 
 (defonce states-ref (atom {}))
 
 (defn render-app! []
   (let [target (.querySelector js/document "#app")]
-    (render! (comp-container @store-ref #{:dynamic :shell}) target dispatch! states-ref)))
+    (render! (comp-container @store-ref #{:dynamic :shell}) target dispatch! states-ref)
+    (if @focus-moved?-ref (do (reset! focus-moved?-ref false) (focus!)))))
 
 (def ssr-stages
   (let [ssr-element (.querySelector js/document "#ssr-stages")

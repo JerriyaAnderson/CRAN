@@ -7,9 +7,9 @@
                  [cirru/boot-stack-server   "0.1.24"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.32"]
+                 [respo                     "0.3.33"]
                  [respo/ui                  "0.1.6"]
-                 [cirru/editor              "0.1.17"]
+                 [cirru/editor              "0.1.18"]
                  [respo/border              "0.1.0"]
                  [cumulo/shallow-diff       "0.1.1"]
                  [cljs-ajax                 "0.5.8"]])
