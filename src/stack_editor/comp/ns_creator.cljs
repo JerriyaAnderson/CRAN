@@ -12,9 +12,16 @@
 (defn update-state [state text] text)
 
 (defn on-click [state mutate!]
-  (fn [e dispatch!] (dispatch! :collection/add-namespace state) (mutate! "")))
+  (fn [e dispatch!]
+    (if (not (string/blank? state))
+      (do (dispatch! :collection/add-namespace state) (mutate! "")))))
 
 (defn init-state [pkg] "")
+
+(defn on-keydown [state mutate!]
+  (fn [e dispatch!]
+    (if (and (= 13 (:key-code e)) (not (string/blank? state)))
+      (do (dispatch! :collection/add-namespace state) (mutate! "")))))
 
 (defn render [pkg]
   (fn [state mutate!]
@@ -22,7 +29,7 @@
      {}
      (input
       {:style widget/input,
-       :event {:input (on-input mutate!)},
+       :event {:keydown (on-keydown state mutate!), :input (on-input mutate!)},
        :attrs {:placeholder (str pkg "."), :value state}})
      (comp-space "8px" nil)
      (div
