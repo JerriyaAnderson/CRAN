@@ -32,19 +32,18 @@
        :scm         {:url "https://github.com/Cirru/stack-editor"}
        :license     {"MIT" "http://opensource.org/licenses/mit-license.php"}})
 
-(defn use-text [x] {:attrs {:innerHTML x}})
 (defn html-dsl [data fileset]
   (make-html
     (html {}
       (head {}
-        (title (use-text "Stack Editor"))
+        (title {:attrs {:innerHTML "Stack Editor"}})
         (link {:attrs {:rel "icon" :type "image/png" :href "http://logo.cirru.org/cirru-400x400.png"}})
         (link {:attrs {:rel "stylesheet" :href "style.css"}})
-        (meta'{:attrs {:charset "utf-8"}})
+        (meta '{:attrs {:charset "utf-8"}})
         (meta' {:attrs {:name "viewport" :content "width=device-width, initial-scale=1"}})
         (meta' {:attrs {:id "ssr-stages" :content "#{}"}})
-        (style (use-text "body {margin: 0;}"))
-        (style (use-text "body * {box-sizing: border-box;}"))
+        (style {:attrs {:innerHTML "body {margin: 0;}"}})
+        (style {:attrs {:innerHTML "body * {box-sizing: border-box;}"}})
         (script {:attrs {:id "config" :type "text/edn" :innerHTML (pr-str data)}}))
       (body {}
         (div {:attrs {:id "app"}})

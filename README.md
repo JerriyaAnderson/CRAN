@@ -74,7 +74,8 @@ Build steps:
 ```bash
 boot build-advanced
 export boot_deps=`boot show -c`
-planck -c $boot_deps:src/ -i render.cljs
+rm .lumo_cache/stack_editor_SLASH_*
+lumo -Kc $boot_deps:src/ -i render.cljs
 webpack
 # boot rsync
 ```
