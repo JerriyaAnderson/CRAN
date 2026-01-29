@@ -25,37 +25,19 @@ https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts
 Stack Editor is built on top of [Boot](http://boot-clj.com).
 You can find more about the task at: https://github.com/Cirru/boot-stack-server
 
-### Steps to use it
+### Run the demo
 
-If you choose to setup by yourself, here's a short guide:
+This demo itself is a based on Stack Editor, so you can clone this repo and try.
 
-**Step 1:**
-
-Create a file `stack-sepal.ir` with content `{}` in project root directory.
-
-**Step 2:**
-
-Add a task in `build.boot`:
-
-```clojure
-; from package [cirru/boot-stack-server "0.1.22" :scope "test"]
-(require '[stack-server.core  :refer [start-stack-editor! transform-stack]])
-
-(deftask editor! []
-  (comp
-    (start-stack-editor!)
-    (target :dir #{"src/"})
-    (repl)))
+```bash
+git clone git@github.com:Cirru/stack-editor.git
+cd stack-editor
+source tasks/class-path.cljs # prepare classpath for Lump
+env=dev lumo -Kc $boot_deps:src/ -i tasks/render.cljs # render dev.html
+lumo -Kc $boot_deps:src/ -i tasks/server.cljs # run server at localhost:7010
 ```
 
-Run `boot editor!` to listen on http://localhost:7010 .
-
-**Step 3:**
-
-Open editor at http://repo.cirru.org/stack-editor/
-
-Probably there will be bugs, refer to my demo for details:
-https://github.com/mvc-works/stack-workflow
+Open `target/dev.html` with an HTTP server, then you will see the editor.
 
 ### Options
 
@@ -73,11 +55,11 @@ Build steps:
 
 ```bash
 boot build-advanced
-export boot_deps=`boot show -c`
+source tasks/class-path.sh
 rm .lumo_cache/stack_editor_SLASH_*
-lumo -Kc $boot_deps:src/ -i render.cljs
+lumo -Kc $boot_deps:src/ -i tasks/render.cljs
 webpack
-# boot rsync
+bash tasks/rsync.sh
 ```
 
 ### License
