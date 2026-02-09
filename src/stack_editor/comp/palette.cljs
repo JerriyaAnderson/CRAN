@@ -11,7 +11,7 @@
             [stack-editor.style.widget :as widget]
             [stack-editor.util.detect :refer [fuzzy-search]]))
 
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! {:cursor 0, :text (:value e)})))
+(defn on-input [mutate!] (fn [e dispatch!] (mutate! {:text (:value e), :cursor 0})))
 
 (defn handle-command [cursor commands collection dispatch!]
   (let [command (get (into [] commands) cursor)]
@@ -29,12 +29,12 @@
 (def update-state merge)
 
 (def style-container
-  {:background-color (hsl 200 40 10 0.8), :justify-content "center", :position "fixed"})
+  {:position "fixed", :background-color (hsl 200 40 10 0.8), :justify-content "center"})
 
 (defn on-select [cursor commands collection]
   (fn [dispatch!] (handle-command cursor commands collection dispatch!)))
 
-(defn init-state [& args] {:cursor 0, :text ""})
+(defn init-state [& args] {:text "", :cursor 0})
 
 (def basic-commands [[":save"] [":load"] [":hydrate"] [":dehydrate"]])
 
@@ -65,12 +65,12 @@
        (div
         {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
         (input
-         {:style (merge widget/input {:line-height "40px", :width "100%"}),
-          :event {:keydown (on-keydown mutate! commands (:cursor state) collection),
-                  :input (on-input mutate!)},
+         {:style (merge widget/input {:width "100%", :line-height "40px"}),
           :attrs {:placeholder "write command...",
-                  :value (:text state),
-                  :id "command-palette"}})
+                  :id "command-palette",
+                  :value (:text state)},
+          :event {:input (on-input mutate!),
+                  :keydown (on-keydown mutate! commands (:cursor state) collection)}})
         (div
          {:style (merge ui/flex {:overflow "auto"})}
          (->> commands

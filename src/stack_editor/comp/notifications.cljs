@@ -8,18 +8,18 @@
 (defn on-click [idx] (fn [e dispatch!] (dispatch! :notification/remove-since idx)))
 
 (def style-notification
-  {:line-height "32px",
-   :min-width "160px",
-   :color (hsl 0 0 100),
-   :white-space "nowrap",
-   :transition "320ms",
+  {:position "fixed",
    :top "8px",
-   :background-color (hsl 300 30 70 0.3),
-   :cursor "pointer",
-   :z-index 999,
-   :padding "0 16px",
    :right "8px",
-   :position "fixed",
+   :transition "320ms",
+   :line-height "32px",
+   :white-space "nowrap",
+   :color (hsl 0 0 100),
+   :background-color (hsl 300 30 70 0.3),
+   :z-index 999,
+   :min-width "160px",
+   :padding "0 16px",
+   :cursor "pointer",
    :border-radius "2px"})
 
 (defn render [notifications]

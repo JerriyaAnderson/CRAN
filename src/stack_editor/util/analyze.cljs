@@ -1,6 +1,26 @@
 
 (ns stack-editor.util.analyze (:require [clojure.string :as string]))
 
+(defn locate-ns [short-form this-namespace namespaces]
+  (if (nil? this-namespace)
+    nil
+    (if (contains? namespaces this-namespace)
+      (let [namespace-data (get namespaces this-namespace)]
+        (if (or (nil? namespace-data) (<= (count namespace-data) 2))
+          nil
+          (let [required (get namespace-data 2)
+                rules (subvec required 1)
+                matched-rule (->> rules
+                                  (filter
+                                   (fn [rule]
+                                     (println "rule" rule short-form)
+                                     (and (= ":as" (get rule 2))
+                                          (= short-form (get rule 3)))))
+                                  (first))]
+            (println "matched-rule" matched-rule)
+            (if (some? matched-rule) (get matched-rule 1) nil))))
+      nil)))
+
 (defn locate-ns-by-var [short-form this-namespace namespaces]
   (println "searching" short-form this-namespace namespaces)
   (if (nil? this-namespace)
@@ -29,26 +49,6 @@
               (println "rules" matched-rule)
               (if (some? matched-rule) (get matched-rule 1) nil))
             nil)))
-      nil)))
-
-(defn locate-ns [short-form this-namespace namespaces]
-  (if (nil? this-namespace)
-    nil
-    (if (contains? namespaces this-namespace)
-      (let [namespace-data (get namespaces this-namespace)]
-        (if (or (nil? namespace-data) (<= (count namespace-data) 2))
-          nil
-          (let [required (get namespace-data 2)
-                rules (subvec required 1)
-                matched-rule (->> rules
-                                  (filter
-                                   (fn [rule]
-                                     (println "rule" rule short-form)
-                                     (and (= ":as" (get rule 2))
-                                          (= short-form (get rule 3)))))
-                                  (first))]
-            (println "matched-rule" matched-rule)
-            (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
 
 (defn compute-ns [piece current-def namespaces definitions]

@@ -16,9 +16,9 @@
 (defn render [router writer]
   (fn [state mutate!]
     (div
-     {:style {:text-align "center",
-              :font-size "24px",
+     {:style {:font-size "24px",
               :font-weight "300",
+              :text-align "center",
               :cursor "pointer"},
       :event {:click (on-switch router writer)}}
      (comp-text "Stack Editor" {:font-family "Josefin Sans"}))))

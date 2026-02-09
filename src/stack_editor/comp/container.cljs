@@ -21,9 +21,9 @@
   (fn [state mutate!]
     (let [router (:router store)]
       (div
-       {:style (merge ui/global {:color (hsl 0 0 70), :background-color (hsl 0 0 0)}),
-        :event {:keydown on-keydown},
-        :attrs {:tab-index 0}}
+       {:style (merge ui/global {:background-color (hsl 0 0 0), :color (hsl 0 0 70)}),
+        :attrs {:tab-index 0},
+        :event {:keydown on-keydown}}
        (case (:name router)
          :loading (comp-loading)
          :analyzer (comp-analyzer store)

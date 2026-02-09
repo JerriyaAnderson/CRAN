@@ -13,13 +13,13 @@
 (defn update-state [state text] text)
 
 (def style-textarea
-  {:line-height "24px",
-   :color :white,
-   :background-color (hsl 0 0 100 0.2),
-   :width 640,
-   :resize :none,
+  {:background-color (hsl 0 0 100 0.2),
    :font-family "Source Code Pro, Menlo",
-   :height 200})
+   :color :white,
+   :resize :none,
+   :width 640,
+   :height 200,
+   :line-height "24px"})
 
 (def style-hint {:font-family "Hind"})
 
@@ -45,8 +45,8 @@
       {}
       (textarea
        {:style (merge ui/textarea style-textarea),
-        :event {:input (on-change mutate!)},
-        :attrs {:value state}}))
+        :attrs {:value state},
+        :event {:input (on-change mutate!)}}))
      (comp-space nil 8)
      (div
       {:style (merge ui/row style-toolbar)}

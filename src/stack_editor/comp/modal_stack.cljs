@@ -9,6 +9,21 @@
             [stack-editor.comp.rename-path :refer [comp-rename-path]]
             [stack-editor.comp.hydrate :refer [comp-hydrate]]))
 
+(defn on-tip [e dispatch!] )
+
+(def style-modal
+  (merge
+   ui/center
+   {:background-color (hsl 0 0 0 0.6),
+    :z-index 900,
+    :position :fixed,
+    :top 0,
+    :right 0,
+    :width "100%",
+    :height "100%"}))
+
+(defn on-recycle [e dispatch!] (dispatch! :modal/recycle nil))
+
 (defn renderer [kind title data]
   (div
    {}
@@ -16,21 +31,6 @@
      :rename-path (comp-rename-path data)
      :hydrate (comp-hydrate)
      (comp-text title nil))))
-
-(defn on-tip [e dispatch!] )
-
-(defn on-recycle [e dispatch!] (dispatch! :modal/recycle nil))
-
-(def style-modal
-  (merge
-   ui/center
-   {:top 0,
-    :background-color (hsl 0 0 0 0.6),
-    :width "100%",
-    :z-index 900,
-    :right 0,
-    :position :fixed,
-    :height "100%"}))
 
 (defn render [modal-stack]
   (fn [state mutate!]

@@ -1,38 +1,38 @@
 
 (ns stack-editor.style.widget (:require [hsl.core :refer [hsl]] [respo-ui.style :as ui]))
 
-(def entry
-  {:color (hsl 0 0 100),
-   :background-color (hsl 200 10 40 0),
-   :cursor "pointer",
-   :padding "0 8px",
-   :display "inline-block",
-   :margin-bottom "8px"})
-
-(def clickable-text {:text-decoration :underline})
-
 (def var-entry
-  {:line-height "24px",
-   :min-width "160px",
-   :color (hsl 0 0 80),
-   :font-size "14px",
+  {:color (hsl 0 0 80),
    :cursor "pointer",
-   :font-family "Source Code Pro,Menlo,monospace"})
+   :font-family "Source Code Pro,Menlo,monospace",
+   :font-size "14px",
+   :line-height "24px",
+   :min-width "160px"})
 
 (def entry-line (merge var-entry {:display "block"}))
+
+(def clickable-text {:text-decoration :underline})
 
 (def input
   (merge
    ui/input
-   {:color (hsl 0 0 100),
-    :background-color (hsl 0 0 100 0.14),
-    :width "320px",
-    :font-family "Source Code Pro,Menlo,monospace"}))
+   {:background-color (hsl 0 0 100 0.14),
+    :color (hsl 0 0 100),
+    :font-family "Source Code Pro,Menlo,monospace",
+    :width "320px"}))
+
+(def entry
+  {:display "inline-block",
+   :background-color (hsl 200 10 40 0),
+   :color (hsl 0 0 100),
+   :padding "0 8px",
+   :cursor "pointer",
+   :margin-bottom "8px"})
 
 (def button
   (merge
    ui/button
-   {:line-height "28px",
+   {:background-color (hsl 0 0 100 0.2),
     :color (hsl 0 0 100 0.6),
-    :background-color (hsl 0 0 100 0.2),
-    :height 28}))
+    :height 28,
+    :line-height "28px"}))

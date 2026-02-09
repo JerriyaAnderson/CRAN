@@ -15,9 +15,9 @@
              [load-collection! submit-collection! submit-changes! display-code!]]
             [cirru-editor.util.dom :refer [focus!]]))
 
-(def focus-moved?-ref (atom false))
-
 (defonce store-ref (atom schema/store))
+
+(def focus-moved?-ref (atom false))
 
 (defn dispatch! [op op-data]
   (comment println "dispatch!" op op-data)
@@ -41,7 +41,7 @@
 
 (defn render-app! []
   (let [target (.querySelector js/document "#app")]
-    (render! (comp-container @store-ref #{:dynamic :shell}) target dispatch! states-ref)
+    (render! (comp-container @store-ref #{:shell :dynamic}) target dispatch! states-ref)
     (if @focus-moved?-ref (do (reset! focus-moved?-ref false) (focus!)))))
 
 (def ssr-stages

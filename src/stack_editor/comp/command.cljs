@@ -5,14 +5,14 @@
             [respo.alias :refer [create-comp div]]
             [respo.comp.text :refer [comp-text]]))
 
-(defn on-click [on-select] (fn [e dispatch!] (on-select dispatch!)))
-
 (def style-command
-  {:line-height 2.4,
-   :cursor "pointer",
-   :backgroud-color (hsl 0 0 0),
+  {:backgroud-color (hsl 0 0 0),
    :padding "0 8px",
-   :font-family "Source Code Pro, Menlo,monospace"})
+   :line-height 2.4,
+   :font-family "Source Code Pro, Menlo,monospace",
+   :cursor "pointer"})
+
+(defn on-click [on-select] (fn [e dispatch!] (on-select dispatch!)))
 
 (defn render [command selected? on-select]
   (fn [state mutate!]

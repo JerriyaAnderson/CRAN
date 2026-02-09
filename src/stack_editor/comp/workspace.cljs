@@ -50,14 +50,14 @@
 (defn on-remove [e dispatch!] (dispatch! :collection/remove-this nil))
 
 (def style-removed
-  {:color (hsl 0 80 100),
+  {:margin "32px 16px",
    :font-size "14px",
    :font-weight "lighter",
+   :color (hsl 0 80 100),
    :background-color (hsl 0 80 40),
-   :max-width "400px",
    :padding "0 16px",
    :display "inline-block",
-   :margin "32px 16px"})
+   :max-width "400px"})
 
 (defn render [store]
   (fn [state mutate!]
@@ -72,15 +72,15 @@
        (div
         {:style (merge
                  ui/column
-                 {:color (hsl 0 0 80), :background-color (hsl 0 0 0), :width "180px"})}
+                 {:width "180px", :background-color (hsl 0 0 0), :color (hsl 0 0 80)})}
         (comp-hot-corner router (:writer store))
         (comp-stack stack pointer))
-       (comment comp-debug writer {:background-color (hsl 0 0 0), :z-index 999, :opacity 1})
+       (comment comp-debug writer {:z-index 999, :background-color (hsl 0 0 0), :opacity 1})
        (if (some? tree)
          (div
           {:style (merge ui/column ui/flex)}
           (comp-editor
-           {:tree tree, :clipboard (:clipboard writer), :focus (:focus writer)}
+           {:tree tree, :focus (:focus writer), :clipboard (:clipboard writer)}
            on-update
            (on-command store))
           (div

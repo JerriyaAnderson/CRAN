@@ -13,7 +13,7 @@
 
 (defn update-state [state text] text)
 
-(def style-namespace {:cursor "pointer", :display "inline-block"})
+(def style-namespace {:display "inline-block", :cursor "pointer"})
 
 (defn on-click [ns-text]
   (fn [e dispatch!] (dispatch! :collection/edit [:namespaces ns-text])))
@@ -21,18 +21,18 @@
 (defn on-proc [ns-name]
   (fn [e dispatch!] (dispatch! :collection/edit [:procedures ns-name])))
 
-(def style-ns {:white-space :nowrap, :font-family "Source Code Pro,Menlo,monospace"})
+(def style-ns {:font-family "Source Code Pro,Menlo,monospace", :white-space :nowrap})
 
 (defn init-state [& args] "")
 
 (def style-proc
-  {:line-height "24px",
+  {:width 48,
    :min-width 48,
-   :width 48,
+   :height 24,
+   :line-height "24px",
    :cursor :pointer,
-   :text-decoration :underline,
    :display :inline-block,
-   :height 24})
+   :text-decoration :underline})
 
 (defn on-keydown [text mutate! ns-name]
   (fn [e dispatch!]
@@ -54,7 +54,7 @@
       {}
       (input
        {:style (merge (merge widget/input {:width "200px", :height "24px"})),
-        :event {:keydown (on-keydown state mutate! ns-name), :input (on-input mutate!)},
-        :attrs {:placeholder "", :value state}})))))
+        :attrs {:value state, :placeholder ""},
+        :event {:input (on-input mutate!), :keydown (on-keydown state mutate! ns-name)}})))))
 
 (def comp-define (create-comp :define init-state update-state render))

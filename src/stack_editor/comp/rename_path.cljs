@@ -6,11 +6,11 @@
             [respo-ui.style :as ui]
             [stack-editor.style.widget :as widget]))
 
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
+(defn init-state [code-path] (last code-path))
 
 (defn update-state [state new-text] new-text)
 
-(defn init-state [code-path] (last code-path))
+(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
 
 (defn on-rename [code-path text]
   (fn [e dispatch!]
@@ -27,12 +27,12 @@
       {}
       (input
        {:style (merge ui/input {:width 400}),
-        :event {:input (on-input mutate!)},
-        :attrs {:value state}})
+        :attrs {:value state},
+        :event {:input (on-input mutate!)}})
       (comp-space 16 nil)
       (div
        {:style widget/button,
-        :event {:click (on-rename code-path state)},
-        :attrs {:inner-text "Rename"}})))))
+        :attrs {:inner-text "Rename"},
+        :event {:click (on-rename code-path state)}})))))
 
 (def comp-rename-path (create-comp :rename-path init-state update-state render))

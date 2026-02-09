@@ -8,6 +8,20 @@
             [respo.comp.space :refer [comp-space]]
             [respo.comp.debug :refer [comp-debug]]))
 
+(def style-ns
+  {:font-size "11px", :line-height 1.4, :color (hsl 0 0 50), :font-family "Hind"})
+
+(def style-bright {:color (hsl 0 0 90)})
+
+(def style-ns-main
+  {:padding "0 8px",
+   :line-height "36px",
+   :cursor "pointer",
+   :color (hsl 0 0 60),
+   :font-family "Hind",
+   :font-size "13px",
+   :white-space "nowrap"})
+
 (defn on-click [pointer]
   (fn [e dispatch!]
     (let [event (:original-event e)
@@ -18,31 +32,17 @@
         shift? (do (.preventDefault event) (dispatch! :stack/shift pointer))
         :else (do (dispatch! :stack/point-to pointer))))))
 
-(def style-bright {:color (hsl 0 0 90)})
-
-(def style-bar
-  {:line-height 1.4,
-   :color (hsl 0 0 60),
-   :white-space "nowrap",
-   :font-size 13,
-   :cursor "pointer",
-   :padding "4px 8px",
-   :font-family "Source Code Pro,Menlo,monospace"})
-
-(def style-ns
-  {:line-height 1.4, :color (hsl 0 0 50), :font-size "11px", :font-family "Hind"})
-
 (def style-container
   {:overflow "auto", :padding "16px 0 160px 0", :user-select :nonworkspacee})
 
-(def style-ns-main
-  {:line-height "36px",
-   :color (hsl 0 0 60),
-   :white-space "nowrap",
-   :font-size "13px",
+(def style-bar
+  {:padding "4px 8px",
    :cursor "pointer",
-   :padding "0 8px",
-   :font-family "Hind"})
+   :color (hsl 0 0 60),
+   :font-family "Source Code Pro,Menlo,monospace",
+   :font-size 13,
+   :line-height 1.4,
+   :white-space "nowrap"})
 
 (defn render [stack pointer]
   (fn [state mutate!]

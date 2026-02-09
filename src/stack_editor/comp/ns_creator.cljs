@@ -7,16 +7,12 @@
             [respo.comp.space :refer [comp-space]]
             [stack-editor.style.widget :as widget]))
 
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
-
-(defn update-state [state text] text)
-
 (defn on-click [state mutate!]
   (fn [e dispatch!]
     (if (not (string/blank? state))
       (do (dispatch! :collection/add-namespace state) (mutate! "")))))
 
-(defn init-state [pkg] "")
+(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
 
 (defn on-keydown [state mutate!]
   (fn [e dispatch!]
@@ -29,11 +25,15 @@
      {}
      (input
       {:style widget/input,
-       :event {:keydown (on-keydown state mutate!), :input (on-input mutate!)},
-       :attrs {:placeholder (str pkg "."), :value state}})
+       :event {:input (on-input mutate!), :keydown (on-keydown state mutate!)},
+       :attrs {:value state, :placeholder (str pkg ".")}})
      (comp-space "8px" nil)
      (div
       {:style widget/button, :event {:click (on-click state mutate!)}}
       (comp-text "add" nil)))))
+
+(defn update-state [state text] text)
+
+(defn init-state [pkg] "")
 
 (def comp-ns-creator (create-comp :ns-creator init-state update-state render))

@@ -14,18 +14,18 @@
             [stack-editor.comp.define :refer [comp-define]]
             [stack-editor.comp.ns-creator :refer [comp-ns-creator]]))
 
-(defn on-edit-definition [definition-path]
-  (fn [e dispatch!] (dispatch! :collection/edit [:definitions definition-path]) (focus!)))
+(def style-list {:max-height 240, :overflow "auto"})
 
 (defn by-ns-part [entry]
   (let [path (first entry), ns-name (first (string/split path (re-pattern "/")))] ns-name))
 
-(def style-list {:max-height 240, :overflow "auto"})
+(defn on-edit-definition [definition-path]
+  (fn [e dispatch!] (dispatch! :collection/edit [:definitions definition-path]) (focus!)))
+
+(def style-file {:display :inline-block, :vertical-align :top, :width 240, :margin-top 16})
 
 (defn by-var-part [code-entry]
   (let [path (first code-entry)] (last (string/split path "/"))))
-
-(def style-file {:vertical-align :top, :margin-top 16, :width 240, :display :inline-block})
 
 (defn render [definitions ns-names pkg]
   (fn [state mutate!]
