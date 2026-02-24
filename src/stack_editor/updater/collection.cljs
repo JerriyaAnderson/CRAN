@@ -34,40 +34,20 @@
         stack (:stack writer)
         pointer (:pointer writer)
         path (get stack pointer)
-        path-name (last path)]
+        [ns-part kind extra-name] path]
     (-> store
-        (update
-         :collection
-         (fn [collection]
-           (case (first path)
-             :definitions
-               (update
-                collection
-                :definitions
-                (fn [definitions] (dissoc definitions path-name)))
-             :procedures
-               (update
-                collection
-                :procedures
-                (fn [procedures]
-                  (if (contains? (:namespaces collection) path-name)
-                    (assoc procedures path-name [])
-                    (dissoc procedures path-name))))
-             :namespaces
-               (-> collection
-                   (update
-                    :definitions
-                    (fn [definitions]
-                      (->> definitions
-                           (filter
-                            (fn [entry]
-                              (not (string/starts-with? (first entry) (str path-name "/")))))
-                           (into {}))))
-                   (update :namespaces (fn [namespaces] (dissoc namespaces path-name)))
-                   (update
-                    :procudures
-                    (fn [procedures] (println procedures) (dissoc procedures path-name))))
-             collection)))
+        (update-in
+         [:collection :files]
+         (fn [files]
+           (case kind
+             :defs
+               (update-in
+                files
+                [ns-part :defs extra-name]
+                (fn [defs] (dissoc defs extra-name)))
+             :procs (assoc-in files [ns-part :procs] [])
+             :ns (dissoc files ns-part)
+             files)))
         (update-in
          [:writer :stack]
          (fn [stack]
@@ -90,7 +70,7 @@
     (-> store
         (assoc-in [:writer :focus] focus)
         (assoc-in [:writer :clipboard] clipboard)
-        (assoc-in (cons :collection (get stack pointer)) tree))))
+        (assoc-in (cons :collection (cons :files (get stack pointer))) tree))))
 
 (defn hydrate [store op-data op-id]
   (let [writer (:writer store)
@@ -170,8 +150,7 @@
   (let [namespace' op-data
         basic-code ["ns" (str (get-in store [:collection :package]) "." namespace')]]
     (-> store
-        (assoc-in [:collection :namespaces namespace'] basic-code)
-        (assoc-in [:collection :procedures namespace'] []))))
+        (assoc-in [:collection :files namespace'] {:ns basic-code, :defs {}, :procs []}))))
 
 (defn add-procedure [store op-data]
   (let [procedure op-data] (assoc-in store [:collection :procedures procedure] [])))

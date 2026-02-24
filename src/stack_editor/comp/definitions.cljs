@@ -19,30 +19,29 @@
 (defn by-ns-part [entry]
   (let [path (first entry), ns-name (first (string/split path (re-pattern "/")))] ns-name))
 
-(defn on-edit-definition [definition-path]
-  (fn [e dispatch!] (dispatch! :collection/edit [:definitions definition-path]) (focus!)))
+(defn on-edit-definition [ns-name definition-path]
+  (fn [e dispatch!] (dispatch! :collection/edit [ns-name :defs definition-path]) (focus!)))
 
 (def style-file {:display :inline-block, :vertical-align :top, :width 240, :margin-top 16})
 
 (defn by-var-part [code-entry]
   (let [path (first code-entry)] (last (string/split path "/"))))
 
-(defn render [definitions ns-names pkg]
+(defn render [sepal-data]
   (fn [state mutate!]
-    (let [ns-base (->> ns-names (map (fn [ns-name] [ns-name {}])) (into {}))
-          grouped (merge ns-base (->> definitions (group-by by-ns-part)))]
+    (let [files (:files sepal-data)]
       (div
-       {:style (merge ui/flex ui/column ui/card {})}
+       {:style (merge ui/fullscreen ui/column ui/card {:background-color :black})}
        (comp-space nil "16px")
-       (comp-ns-creator pkg)
+       (comp-ns-creator (:package sepal-data))
        (comp-space nil "32px")
        (div
         {:style (merge ui/flex {:overflow "auto", :padding-bottom 200})}
-        (->> grouped
+        (->> files
              (sort-by first)
              (map
               (fn [entry]
-                (let [ns-name (first entry), def-codes (val entry)]
+                (let [ns-name (first entry), def-codes (:defs (val entry))]
                   [ns-name
                    (div
                     {:style style-file}
@@ -58,7 +57,7 @@
                                [var-part
                                 (div
                                  {:style widget/var-entry,
-                                  :event {:click (on-edit-definition path)},
+                                  :event {:click (on-edit-definition ns-name path)},
                                   :attrs {:inner-text var-part}})]))))))])))))))))
 
 (def comp-definitions (create-comp :definitions render))

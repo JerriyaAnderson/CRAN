@@ -33,6 +33,7 @@ This demo itself is a based on Stack Editor, so you can clone this repo and try.
 git clone git@github.com:Cirru/stack-editor.git
 cd stack-editor
 source tasks/class-path.cljs # prepare classpath for Lump
+op=compile lumo -Kc $boot_deps:src/ -i tasks/server.cljs # just compile code
 env=dev lumo -Kc $boot_deps:src/ -i tasks/render.cljs # render dev.html
 lumo -Kc $boot_deps:src/ -i tasks/server.cljs # run server at localhost:7010
 ```

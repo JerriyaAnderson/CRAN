@@ -3,7 +3,8 @@
   (:require        [cljs.reader :refer [read-string]]
                    [cljs.core.async :refer [<! >! timeout chan]]
                    [shallow-diff.patch :refer [patch]]
-                   [stack-server.analyze :refer [collect-files]])
+                   [stack-server.analyze :refer [generate-file ns->path]]
+                   [fipp.edn :refer [pprint]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (def fs (js/require "fs"))
@@ -25,17 +26,30 @@
     body-chan))
 
 (defn rewrite-file! [content]
-  (fs.writeFileSync ir-path content))
+  (fs.writeFileSync ir-path (with-out-str (pprint content {:width 120}))))
 
-(defn write-source! [sepal-data]
-  (let [file-dict (collect-files sepal-data)]
-    (doseq [entry file-dict]
-      (let [[file-name content] entry]
-        (println "File compiled:" file-name)
-        (fs.writeFileSync (path.join out-folder (str file-name extname)) content)))))
+(defn write-by-file [pkg ns-part file-info]
+  (let [file-name (str (ns->path pkg ns-part) extname)
+        content (generate-file ns-part file-info)]
+    (println "File compiled:" file-name)
+    (fs.writeFileSync (path.join out-folder file-name) content)))
+
+(defn compare-write-source! [sepal-data]
+  (doseq [entry (:files sepal-data)]
+    (let [[ns-part file-info] entry
+          changed? (or (not (identical? file-info (get @sepal-ref ns-part)))
+                       (not (= file-info (get @sepal-ref ns-part))))]
+      (if changed?
+        (write-by-file (:package sepal-data) ns-part file-info)))))
+
+(defn compile-source! [sepal-data]
+  (doseq [entry (:files sepal-data)]
+    (let [[ns-part file-info] entry]
+      (write-by-file (:package sepal-data) ns-part file-info))))
 
 (defn req-handler [req res]
-  (.setHeader res "Access-Control-Allow-Origin" req.headers.origin)
+  (if (some? req.headers.origin)
+    (.setHeader res "Access-Control-Allow-Origin" req.headers.origin))
   (.setHeader res "Content-Type" "text/edn; charset=UTF-8")
   (.setHeader res "Access-Control-Allow-Methods" "GET, POST, PATCH, OPTIONS")
   (case req.method
@@ -43,17 +57,17 @@
     "POST"
       (go (let [content (<! (read-body req))
                 new-data (read-string content)]
-            (reset! sepal-ref new-data)
-            (write-source! new-data)
+            (compare-write-source! new-data)
             (.end res (pr-str {:status "ok"}))
-            (rewrite-file! content)))
+            (rewrite-file! new-data)
+            (reset! sepal-ref new-data)))
     "PATCH"
       (go (let [changes-content (<! (read-body req))
                 new-data (patch @sepal-ref (read-string changes-content))]
-            (reset! sepal-ref new-data)
-            (write-source! new-data)
+            (compare-write-source! new-data)
             (.end res (pr-str {:status "ok"}))
-            (rewrite-file! (pr-str new-data))))
+            (rewrite-file! new-data)
+            (reset! sepal-ref new-data)))
     (.end res (str "Unknown:" req.method))))
 
 (defn create-app! []
@@ -61,5 +75,6 @@
     (.listen app 7010)
     (println "App listening on 7010.")))
 
-(create-app!)
-(write-source! @sepal-ref)
+(if (= js/process.env.op "compile")
+  (compile-source! @sepal-ref)
+  (create-app!))

@@ -86,6 +86,6 @@
   (println "app started!")
   (load-collection! dispatch! true))
 
-(defn on-jsload! [] (clear-cache!) (render-app!) (println "code updated."))
+(defn on-jsload! [] (clear-cache!) (render-app!) (println "Code updated."))
 
 (set! js/window.onload -main!)

@@ -52,15 +52,17 @@
           (map-indexed
            (fn [idx item]
              [idx
-              (if (string/includes? (last item) "/")
-                (let [[ns-part var-part] (string/split (last item) "/")]
+              (let [[ns-part kind extra-name] item]
+                (if (= kind :defs)
                   (div
                    {:style style-bar, :event {:click (on-click idx)}}
-                   (div {:style (if (= idx pointer) style-bright)} (comp-text var-part nil))
-                   (div {:style style-ns} (comp-text ns-part nil))))
-                (div
-                 {:style (merge style-ns-main (if (= idx pointer) style-bright)),
-                  :event {:click (on-click idx)}}
-                 (comp-text (last item) nil)))]))))))
+                   (div
+                    {:style (if (= idx pointer) style-bright)}
+                    (comp-text extra-name nil))
+                   (div {:style style-ns} (comp-text ns-part nil)))
+                  (div
+                   {:style (merge style-ns-main (if (= idx pointer) style-bright)),
+                    :event {:click (on-click idx)}}
+                   (comp-text ns-part nil))))]))))))
 
 (def comp-stack (create-comp :stack render))

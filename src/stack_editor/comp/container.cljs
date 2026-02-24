@@ -6,7 +6,7 @@
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
             [stack-editor.comp.loading :refer [comp-loading]]
-            [stack-editor.comp.analyzer :refer [comp-analyzer]]
+            [stack-editor.comp.definitions :refer [comp-definitions]]
             [stack-editor.comp.workspace :refer [comp-workspace]]
             [stack-editor.comp.notifications :refer [comp-notifications]]
             [stack-editor.comp.palette :refer [comp-palette]]
@@ -26,7 +26,7 @@
         :event {:keydown on-keydown}}
        (case (:name router)
          :loading (comp-loading)
-         :analyzer (comp-analyzer store)
+         :analyzer (comp-definitions (:collection store))
          :workspace (comp-workspace store)
          (comp-debug router nil))
        (comp-notifications (:notifications store))

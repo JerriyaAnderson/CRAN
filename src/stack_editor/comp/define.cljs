@@ -15,8 +15,7 @@
 
 (def style-namespace {:display "inline-block", :cursor "pointer"})
 
-(defn on-click [ns-text]
-  (fn [e dispatch!] (dispatch! :collection/edit [:namespaces ns-text])))
+(defn on-click [ns-text] (fn [e dispatch!] (dispatch! :collection/edit [ns-text :ns])))
 
 (defn on-proc [ns-name]
   (fn [e dispatch!] (dispatch! :collection/edit [:procedures ns-name])))
