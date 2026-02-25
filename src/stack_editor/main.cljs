@@ -23,10 +23,10 @@
   (comment println "dispatch!" op op-data)
   (case op
     :effect/submit
-      (let [[shift? collection] op-data]
+      (let [shift? op-data, sepal-data (:collection @store-ref)]
         (if shift?
-          (submit-collection! collection dispatch!)
-          (submit-changes! collection dispatch!)))
+          (submit-collection! sepal-data dispatch!)
+          (submit-changes! sepal-data dispatch!)))
     :effect/dehydrate (display-code! @store-ref)
     :effect/load (load-collection! dispatch! false)
     (let [new-store (updater @store-ref op op-data (now!))]

@@ -13,9 +13,7 @@
                   :router/route router/route
                   :router/toggle-palette router/toggle-palette
                   :collection/add-definition collection/add-definition
-                  :collection/add-procedure collection/add-procedure
                   :collection/add-namespace collection/add-namespace
-                  :collection/set-main collection/set-main
                   :collection/edit collection/edit
                   :collection/edit-ns collection/edit-ns
                   :collection/write collection/write-code

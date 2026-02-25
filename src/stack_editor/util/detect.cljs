@@ -8,4 +8,6 @@
   (-> token (string/replace (re-pattern "^@") "") (string/replace (re-pattern "/@") "/")))
 
 (defn fuzzy-search [pieces queries]
-  (every? (fn [query] (some (fn [piece] (string/includes? piece query)) pieces)) queries))
+  (every?
+   (fn [query] (some (fn [piece] (string/includes? (str piece) query)) pieces))
+   queries))

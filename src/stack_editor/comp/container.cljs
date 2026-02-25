@@ -31,7 +31,7 @@
          (comp-debug router nil))
        (comp-notifications (:notifications store))
        (comment comp-debug router nil)
-       (if (:show-palette? router) (comp-palette (:collection store)))
+       (if (:show-palette? router) (comp-palette (:files (:collection store))))
        (comp-modal-stack (:modal-stack store))))))
 
 (def comp-container (create-comp :container render))

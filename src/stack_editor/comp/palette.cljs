@@ -13,17 +13,18 @@
 
 (defn on-input [mutate!] (fn [e dispatch!] (mutate! {:text (:value e), :cursor 0})))
 
-(defn handle-command [cursor commands collection dispatch!]
+(defn handle-command [cursor commands files dispatch!]
   (let [command (get (into [] commands) cursor)]
+    (println "Command" (pr-str command))
     (dispatch! :router/toggle-palette nil)
     (case (first command)
-      ":load" (dispatch! :effect/load nil)
-      ":patch" (dispatch! :effect/submit [true collection])
-      ":dehydrate" (dispatch! :effect/dehydrate nil)
-      ":hydrate" (dispatch! :modal/mould {:title :hydrate, :data nil})
-      "def" (do (dispatch! :collection/edit [:definitions (last command)]))
-      "ns" (do (dispatch! :collection/edit [:namespaces (last command)]))
-      "proc" (do (dispatch! :collection/edit [:procedures (last command)]))
+      :load (dispatch! :effect/load nil)
+      :patch (dispatch! :effect/submit true)
+      :dehydrate (dispatch! :effect/dehydrate nil)
+      :hydrate (dispatch! :modal/mould {:title :hydrate, :data nil})
+      :defs (do (dispatch! :collection/edit [(get command 1) :defs (last command)]))
+      :ns (do (dispatch! :collection/edit [(last command) :ns]))
+      :procs (do (dispatch! :collection/edit [(last command) :procs]))
       nil)))
 
 (def update-state merge)
@@ -31,12 +32,12 @@
 (def style-container
   {:position "fixed", :background-color (hsl 200 40 10 0.8), :justify-content "center"})
 
-(defn on-select [cursor commands collection]
-  (fn [dispatch!] (handle-command cursor commands collection dispatch!)))
+(defn on-select [cursor commands files]
+  (fn [dispatch!] (handle-command cursor commands files dispatch!)))
 
 (defn init-state [& args] {:text "", :cursor 0})
 
-(def basic-commands [[":save"] [":load"] [":hydrate"] [":dehydrate"]])
+(def basic-commands [[:save] [:load] [:hydrate] [:dehydrate]])
 
 (defn on-keydown [mutate! commands cursor collection]
   (fn [e dispatch!]
@@ -51,12 +52,18 @@
           (do (mutate! {:text ""}) (handle-command cursor commands collection dispatch!))
         :else nil))))
 
-(defn render [collection]
+(defn render [files]
   (fn [state mutate!]
-    (let [def-paths (->> (keys (:definitions collection)) (map (fn [path] ["def" path])))
-          ns-names (->> (keys (:namespaces collection)) (map (fn [ns-name] ["ns" ns-name])))
-          procedure-names (->> (keys (:procedures collection))
-                               (map (fn [procedure-name] ["proc" procedure-name])))
+    (let [ns-names (->> (keys files) (map (fn [path] [:ns path])))
+          def-paths (->> files
+                         (map
+                          (fn [entry]
+                            (let [[ns-part tree] entry]
+                              (->> (:defs tree)
+                                   (keys)
+                                   (map (fn [def-name] [:defs ns-part def-name]))))))
+                         (apply concat))
+          procedure-names (->> (keys files) (map (fn [proc-name] [:procs proc-name])))
           queries (string/split (:text state) " ")
           commands (->> (concat def-paths ns-names procedure-names basic-commands)
                         (filter (fn [command] (fuzzy-search command queries))))]
@@ -70,7 +77,7 @@
                   :id "command-palette",
                   :value (:text state)},
           :event {:input (on-input mutate!),
-                  :keydown (on-keydown mutate! commands (:cursor state) collection)}})
+                  :keydown (on-keydown mutate! commands (:cursor state) files)}})
         (div
          {:style (merge ui/flex {:overflow "auto"})}
          (->> commands
@@ -80,6 +87,6 @@
                   (comp-command
                    command
                    (= idx (:cursor state))
-                   (on-select idx commands collection))])))))))))
+                   (on-select idx commands files))])))))))))
 
 (def comp-palette (create-comp :palette init-state update-state render))

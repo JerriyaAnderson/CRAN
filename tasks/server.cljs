@@ -37,8 +37,7 @@
 (defn compare-write-source! [sepal-data]
   (doseq [entry (:files sepal-data)]
     (let [[ns-part file-info] entry
-          changed? (or (not (identical? file-info (get @sepal-ref ns-part)))
-                       (not (= file-info (get @sepal-ref ns-part))))]
+          changed? (not (identical? file-info (get-in @sepal-ref [:files ns-part])))]
       (if changed?
         (write-by-file (:package sepal-data) ns-part file-info)))))
 

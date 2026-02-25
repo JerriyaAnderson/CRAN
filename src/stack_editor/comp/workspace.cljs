@@ -27,7 +27,7 @@
         (= code keycode/key-k) (do (.preventDefault event) (dispatch! :stack/go-back nil))
         (= code keycode/key-j) (do (.preventDefault event) (dispatch! :stack/go-next nil))
         (= code keycode/key-s)
-          (do (.preventDefault event) (dispatch! :effect/submit [shift? (:collection store)]))
+          (do (.preventDefault event) (dispatch! :effect/submit shift?))
         (and command? (= code keycode/key-p))
           (do
            (.preventDefault event)

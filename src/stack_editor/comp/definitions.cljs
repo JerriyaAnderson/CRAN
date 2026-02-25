@@ -7,7 +7,6 @@
             [respo.comp.text :refer [comp-text]]
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
-            [stack-editor.comp.main-def :refer [comp-main-def]]
             [respo-border.transform.space :refer [interpose-spaces]]
             [stack-editor.style.widget :as widget]
             [cirru-editor.util.dom :refer [focus!]]

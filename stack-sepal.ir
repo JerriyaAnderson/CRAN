@@ -518,9 +518,7 @@
                                                    [["=" "code" "keycode/key-s"]
                                                     ["do"
                                                      [".preventDefault" "event"]
-                                                     ["dispatch!"
-                                                      ":effect/submit"
-                                                      ["[]" "shift?" [":collection" "store"]]]]]
+                                                     ["dispatch!" ":effect/submit" "shift?"]]]
                                                    [["and" "command?" ["=" "code" "keycode/key-p"]]
                                                     ["do"
                                                      [".preventDefault" "event"]
@@ -661,61 +659,6 @@
                                     [":notifications" ["[]"]]
                                     [":modal-stack" ["[]"]]]]},
                    :procs []},
-         "comp.main-def" {:ns ["ns"
-                               "stack-editor.comp.main-def"
-                               [":require"
-                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
-                                ["[]" "respo-ui.style" ":as" "ui"]
-                                ["[]" "respo.alias" ":refer" ["[]" "create-comp" "div" "input"]]
-                                ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
-                                ["[]" "respo.comp.space" ":refer" ["[]" "comp-space"]]
-                                ["[]" "stack-editor.style.widget" ":as" "widget"]]],
-                          :defs {"render" ["defn"
-                                           "render"
-                                           ["main-definition"]
-                                           ["fn"
-                                            ["state" "mutate!"]
-                                            ["div"
-                                             ["{}" [":style" ["{}" [":display" "|inline-block"]]]]
-                                             ["input"
-                                              ["{}"
-                                               [":style" "widget/input"]
-                                               [":attrs" ["{}" [":value" "state"] [":placeholder" "|main/definition"]]]
-                                               [":event" ["{}" [":input" ["on-input" "mutate!"]]]]]]
-                                             ["comp-space" "|8px" "nil"]
-                                             ["div"
-                                              ["{}"
-                                               [":style"
-                                                ["merge"
-                                                 "widget/button"
-                                                 ["if"
-                                                  ["=" "main-definition" "state"]
-                                                  ["{}" [":background-color" ["hsl" "200" "30" "30"]]]]]]
-                                               [":event" ["{}" [":click" ["on-set-main" "state"]]]]]
-                                              ["comp-text" "|update -main" "nil"]]]]],
-                                 "update-state" ["defn" "update-state" ["state" "new-text"] "new-text"],
-                                 "comp-main-def" ["def"
-                                                  "comp-main-def"
-                                                  ["create-comp" ":main-def" "init-state" "update-state" "render"]],
-                                 "on-set-main" ["defn"
-                                                "on-set-main"
-                                                ["state"]
-                                                ["fn"
-                                                 ["e" "dispatch!"]
-                                                 ["let"
-                                                  [["content" "state"]]
-                                                  ["if"
-                                                   ["re-find" ["re-pattern" "|^.+/.+$"] "content"]
-                                                   ["dispatch!" ":collection/set-main" "content"]
-                                                   ["dispatch!"
-                                                    ":notification/add-one"
-                                                    ["str" "|\"" "content" "|\" is invalid"]]]]]],
-                                 "init-state" ["defn" "init-state" ["&" "args"] "|"],
-                                 "on-input" ["defn"
-                                             "on-input"
-                                             ["mutate!"]
-                                             ["fn" ["e" "dispatch!"] ["mutate!" [":value" "e"]]]]},
-                          :procs []},
          "comp.container" {:ns ["ns"
                                 "stack-editor.comp.container"
                                 [":require"
@@ -760,7 +703,7 @@
                                                ["--" "comp-debug" "router" "nil"]
                                                ["if"
                                                 [":show-palette?" "router"]
-                                                ["comp-palette" [":collection" "store"]]]
+                                                ["comp-palette" [":files" [":collection" "store"]]]]
                                                ["comp-modal-stack" [":modal-stack" "store"]]]]]],
                                   "comp-container" ["def" "comp-container" ["create-comp" ":container" "render"]],
                                   "on-keydown" ["defn" "on-keydown" ["e" "dispatch!"]]},
@@ -897,7 +840,6 @@
                                    ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
                                    ["[]" "respo.comp.debug" ":refer" ["[]" "comp-debug"]]
                                    ["[]" "respo-ui.style" ":as" "ui"]
-                                   ["[]" "stack-editor.comp.main-def" ":refer" ["[]" "comp-main-def"]]
                                    ["[]" "respo-border.transform.space" ":refer" ["[]" "interpose-spaces"]]
                                    ["[]" "stack-editor.style.widget" ":as" "widget"]
                                    ["[]" "cirru-editor.util.dom" ":refer" ["[]" "focus!"]]
@@ -1034,11 +976,11 @@
                                       "op"
                                       [":effect/submit"
                                        ["let"
-                                        [[["[]" "shift?" "collection"] "op-data"]]
+                                        [["shift?" "op-data"] ["sepal-data" [":collection" "@store-ref"]]]
                                         ["if"
                                          "shift?"
-                                         ["submit-collection!" "collection" "dispatch!"]
-                                         ["submit-changes!" "collection" "dispatch!"]]]]
+                                         ["submit-collection!" "sepal-data" "dispatch!"]
+                                         ["submit-changes!" "sepal-data" "dispatch!"]]]]
                                       [":effect/dehydrate" ["display-code!" "@store-ref"]]
                                       [":effect/load" ["load-collection!" "dispatch!" "false"]]
                                       ["let"
@@ -1284,35 +1226,33 @@
                                              ["mutate!" ["{}" [":text" [":value" "e"]] [":cursor" "0"]]]]],
                                 "handle-command" ["defn"
                                                   "handle-command"
-                                                  ["cursor" "commands" "collection" "dispatch!"]
+                                                  ["cursor" "commands" "files" "dispatch!"]
                                                   ["let"
                                                    [["command" ["get" ["into" ["[]"] "commands"] "cursor"]]]
+                                                   ["println" "|Command" ["pr-str" "command"]]
                                                    ["dispatch!" ":router/toggle-palette" "nil"]
                                                    ["case"
                                                     ["first" "command"]
-                                                    ["|:load" ["dispatch!" ":effect/load" "nil"]]
-                                                    ["|:patch"
-                                                     ["dispatch!" ":effect/submit" ["[]" "true" "collection"]]]
-                                                    ["|:dehydrate" ["dispatch!" ":effect/dehydrate" "nil"]]
-                                                    ["|:hydrate"
+                                                    [":load" ["dispatch!" ":effect/load" "nil"]]
+                                                    [":patch" ["dispatch!" ":effect/submit" "true"]]
+                                                    [":dehydrate" ["dispatch!" ":effect/dehydrate" "nil"]]
+                                                    [":hydrate"
                                                      ["dispatch!"
                                                       ":modal/mould"
                                                       ["{}" [":title" ":hydrate"] [":data" "nil"]]]]
-                                                    ["|def"
+                                                    [":defs"
                                                      ["do"
                                                       ["dispatch!"
                                                        ":collection/edit"
-                                                       ["[]" ":definitions" ["last" "command"]]]]]
-                                                    ["|ns"
+                                                       ["[]" ["get" "command" "1"] ":defs" ["last" "command"]]]]]
+                                                    [":ns"
+                                                     ["do"
+                                                      ["dispatch!" ":collection/edit" ["[]" ["last" "command"] ":ns"]]]]
+                                                    [":procs"
                                                      ["do"
                                                       ["dispatch!"
                                                        ":collection/edit"
-                                                       ["[]" ":namespaces" ["last" "command"]]]]]
-                                                    ["|proc"
-                                                     ["do"
-                                                      ["dispatch!"
-                                                       ":collection/edit"
-                                                       ["[]" ":procedures" ["last" "command"]]]]]
+                                                       ["[]" ["last" "command"] ":procs"]]]]
                                                     "nil"]]],
                                 "update-state" ["def" "update-state" "merge"],
                                 "comp-palette" ["def"
@@ -1326,29 +1266,36 @@
                                                     [":justify-content" "|center"]]],
                                 "on-select" ["defn"
                                              "on-select"
-                                             ["cursor" "commands" "collection"]
+                                             ["cursor" "commands" "files"]
                                              ["fn"
                                               ["dispatch!"]
-                                              ["handle-command" "cursor" "commands" "collection" "dispatch!"]]],
+                                              ["handle-command" "cursor" "commands" "files" "dispatch!"]]],
                                 "init-state" ["defn" "init-state" ["&" "args"] ["{}" [":text" "|"] [":cursor" "0"]]],
                                 "render" ["defn"
                                           "render"
-                                          ["collection"]
+                                          ["files"]
                                           ["fn"
                                            ["state" "mutate!"]
                                            ["let"
-                                            [["def-paths"
+                                            [["ns-names"
+                                              ["->>" ["keys" "files"] ["map" ["fn" ["path"] ["[]" ":ns" "path"]]]]]
+                                             ["def-paths"
                                               ["->>"
-                                               ["keys" [":definitions" "collection"]]
-                                               ["map" ["fn" ["path"] ["[]" "|def" "path"]]]]]
-                                             ["ns-names"
-                                              ["->>"
-                                               ["keys" [":namespaces" "collection"]]
-                                               ["map" ["fn" ["ns-name"] ["[]" "|ns" "ns-name"]]]]]
+                                               "files"
+                                               ["map"
+                                                ["fn"
+                                                 ["entry"]
+                                                 ["let"
+                                                  [[["[]" "ns-part" "tree"] "entry"]]
+                                                  ["->>"
+                                                   [":defs" "tree"]
+                                                   ["keys"]
+                                                   ["map" ["fn" ["def-name"] ["[]" ":defs" "ns-part" "def-name"]]]]]]]
+                                               ["apply" "concat"]]]
                                              ["procedure-names"
                                               ["->>"
-                                               ["keys" [":procedures" "collection"]]
-                                               ["map" ["fn" ["procedure-name"] ["[]" "|proc" "procedure-name"]]]]]
+                                               ["keys" "files"]
+                                               ["map" ["fn" ["proc-name"] ["[]" ":procs" "proc-name"]]]]]
                                              ["queries" ["string/split" [":text" "state"] "| "]]
                                              ["commands"
                                               ["->>"
@@ -1379,7 +1326,7 @@
                                                  ["{}"
                                                   [":input" ["on-input" "mutate!"]]
                                                   [":keydown"
-                                                   ["on-keydown" "mutate!" "commands" [":cursor" "state"] "collection"]]]]]]
+                                                   ["on-keydown" "mutate!" "commands" [":cursor" "state"] "files"]]]]]]
                                               ["div"
                                                ["{}" [":style" ["merge" "ui/flex" ["{}" [":overflow" "|auto"]]]]]
                                                ["->>"
@@ -1392,14 +1339,14 @@
                                                    ["comp-command"
                                                     "command"
                                                     ["=" "idx" [":cursor" "state"]]
-                                                    ["on-select" "idx" "commands" "collection"]]]]]]]]]]]],
+                                                    ["on-select" "idx" "commands" "files"]]]]]]]]]]]],
                                 "basic-commands" ["def"
                                                   "basic-commands"
                                                   ["[]"
-                                                   ["[]" "|:save"]
-                                                   ["[]" "|:load"]
-                                                   ["[]" "|:hydrate"]
-                                                   ["[]" "|:dehydrate"]]],
+                                                   ["[]" ":save"]
+                                                   ["[]" ":load"]
+                                                   ["[]" ":hydrate"]
+                                                   ["[]" ":dehydrate"]]],
                                 "on-keydown" ["defn"
                                               "on-keydown"
                                               ["mutate!" "commands" "cursor" "collection"]
@@ -1508,9 +1455,7 @@
                                                [":router/route" "router/route"]
                                                [":router/toggle-palette" "router/toggle-palette"]
                                                [":collection/add-definition" "collection/add-definition"]
-                                               [":collection/add-procedure" "collection/add-procedure"]
                                                [":collection/add-namespace" "collection/add-namespace"]
-                                               [":collection/set-main" "collection/set-main"]
                                                [":collection/edit" "collection/edit"]
                                                [":collection/edit-ns" "collection/edit-ns"]
                                                [":collection/write" "collection/write-code"]
@@ -1718,7 +1663,9 @@
                                                ["every?"
                                                 ["fn"
                                                  ["query"]
-                                                 ["some" ["fn" ["piece"] ["string/includes?" "piece" "query"]] "pieces"]]
+                                                 ["some"
+                                                  ["fn" ["piece"] ["string/includes?" ["str" "piece"] "query"]]
+                                                  "pieces"]]
                                                 "queries"]]},
                         :procs []},
          "updater.modal" {:ns ["ns" "stack-editor.updater.modal"],
@@ -1859,15 +1806,6 @@
                                                    ["assoc-in"
                                                     ["[]" ":writer" ":stack" "pointer"]
                                                     ["[]" "kind" "new-name"]]]]]],
-                                      "set-main" ["defn"
-                                                  "set-main"
-                                                  ["store" "op-data"]
-                                                  ["let"
-                                                   [["main-definition" "op-data"]]
-                                                   ["assoc-in"
-                                                    "store"
-                                                    ["[]" ":collection" ":main-definition"]
-                                                    "main-definition"]]],
                                       "remove-this" ["defn"
                                                      "remove-this"
                                                      ["store" "op-data" "op-id"]
@@ -1888,7 +1826,7 @@
                                                           [":defs"
                                                            ["update-in"
                                                             "files"
-                                                            ["[]" "ns-part" ":defs" "extra-name"]
+                                                            ["[]" "ns-part" ":defs"]
                                                             ["fn" ["defs"] ["dissoc" "defs" "extra-name"]]]]
                                                           [":procs"
                                                            ["assoc-in" "files" ["[]" "ns-part" ":procs"] ["[]"]]]
@@ -2080,16 +2018,7 @@
                                                          "store"
                                                          ["assoc-in"
                                                           ["[]" ":collection" ":files" "namespace'"]
-                                                          ["{}" [":ns" "basic-code"] [":defs" ["{}"]] [":procs" ["[]"]]]]]]],
-                                      "add-procedure" ["defn"
-                                                       "add-procedure"
-                                                       ["store" "op-data"]
-                                                       ["let"
-                                                        [["procedure" "op-data"]]
-                                                        ["assoc-in"
-                                                         "store"
-                                                         ["[]" ":collection" ":procedures" "procedure"]
-                                                         ["[]"]]]]},
+                                                          ["{}" [":ns" "basic-code"] [":defs" ["{}"]] [":procs" ["[]"]]]]]]]},
                                :procs []},
          "comp.hot-corner" {:ns ["ns"
                                  "stack-editor.comp.hot-corner"

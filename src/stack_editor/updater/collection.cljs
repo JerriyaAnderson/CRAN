@@ -25,10 +25,6 @@
           (update-in [:collection kind] swap-name)
           (assoc-in [:writer :stack pointer] [kind new-name])))))
 
-(defn set-main [store op-data]
-  (let [main-definition op-data]
-    (assoc-in store [:collection :main-definition] main-definition)))
-
 (defn remove-this [store op-data op-id]
   (let [writer (:writer store)
         stack (:stack writer)
@@ -40,11 +36,7 @@
          [:collection :files]
          (fn [files]
            (case kind
-             :defs
-               (update-in
-                files
-                [ns-part :defs extra-name]
-                (fn [defs] (dissoc defs extra-name)))
+             :defs (update-in files [ns-part :defs] (fn [defs] (dissoc defs extra-name)))
              :procs (assoc-in files [ns-part :procs] [])
              :ns (dissoc files ns-part)
              files)))
@@ -151,6 +143,3 @@
         basic-code ["ns" (str (get-in store [:collection :package]) "." namespace')]]
     (-> store
         (assoc-in [:collection :files namespace'] {:ns basic-code, :defs {}, :procs []}))))
-
-(defn add-procedure [store op-data]
-  (let [procedure op-data] (assoc-in store [:collection :procedures procedure] [])))
