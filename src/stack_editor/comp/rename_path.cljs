@@ -6,7 +6,9 @@
             [respo-ui.style :as ui]
             [stack-editor.style.widget :as widget]))
 
-(defn init-state [code-path] (last code-path))
+(defn init-state [code-path]
+  (let [[ns-part kind extra-name] code-path]
+    (if (= kind :defs) (str ns-part "/" extra-name) ns-part)))
 
 (defn update-state [state new-text] new-text)
 
@@ -14,7 +16,8 @@
 
 (defn on-rename [code-path text]
   (fn [e dispatch!]
-    (dispatch! :collection/rename [(first code-path) (last code-path) text])
+    (println "on-rename" code-path text)
+    (dispatch! :collection/rename [code-path text])
     (dispatch! :modal/recycle nil)))
 
 (defn render [code-path]

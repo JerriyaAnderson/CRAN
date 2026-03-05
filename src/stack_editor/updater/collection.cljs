@@ -2,28 +2,33 @@
 (ns stack-editor.updater.collection (:require [clojure.string :as string]))
 
 (defn rename [store op-data op-id]
-  (let [[kind old-name new-name] op-data
-        pointer (get-in store [:writer :pointer])
-        swap-name (fn [dict]
-                    (-> dict (dissoc old-name) (assoc new-name (get dict old-name))))]
-    (if (= kind :namespaces)
-      (-> store
-          (update-in [:collection kind] swap-name)
-          (update-in [:procedures kind] swap-name)
-          (update-in
-           [:collection :definitions]
-           (fn [dict]
-             (->> dict
-                  (map
-                   (fn [pair]
-                     (let [[path value] pair]
-                       [(string/replace-first path (str old-name "/") (str new-name "/"))
-                        value])))
-                  (into {}))))
-          (assoc-in [:writer :stack pointer] [kind new-name]))
-      (-> store
-          (update-in [:collection kind] swap-name)
-          (assoc-in [:writer :stack pointer] [kind new-name])))))
+  (let [[code-path new-form] op-data
+        [ns-part kind extra-name] code-path
+        pointer (get-in store [:writer :pointer])]
+    (case kind
+      :ns
+        (-> store
+            (update-in
+             [:collection :files]
+             (fn [files] (-> files (dissoc ns-part) (assoc new-form (get files ns-part)))))
+            (assoc-in [:writer :stack pointer] [new-form kind]))
+      :defs
+        (let [[new-ns new-name] (string/split new-form "/"), new-path [new-ns :defs new-name]]
+          (-> store
+              (update-in
+               [:collection :files]
+               (fn [files]
+                 (if (= new-ns ns-part)
+                   (update-in
+                    files
+                    [ns-part :defs]
+                    (fn [dict]
+                      (-> dict (dissoc extra-name) (assoc new-name (get dict extra-name)))))
+                   (-> files
+                       (update-in [ns-part :defs] (fn [dict] (dissoc dict extra-name)))
+                       (assoc-in [new-ns :defs new-name] (get-in files code-path))))))
+              (assoc-in [:writer :stack pointer] new-path)))
+      (do (println "Cannot rename:" code-path new-form) store))))
 
 (defn remove-this [store op-data op-id]
   (let [writer (:writer store)
