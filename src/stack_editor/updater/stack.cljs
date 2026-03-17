@@ -2,7 +2,7 @@
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
             [stack-editor.util.analyze :refer [locate-ns compute-ns]]
-            [stack-editor.util.detect :refer [strip-atom]]
+            [stack-editor.util.detect :refer [strip-atom contains-def?]]
             [stack-editor.util :refer [remove-idx]]))
 
 (defn collapse [store op-data op-id]
@@ -13,38 +13,38 @@
      (fn [writer]
        (-> writer (assoc :pointer 0) (update :stack (fn [stack] (subvec stack cursor))))))))
 
-(defn helper-put-path [path]
+(defn helper-put-path [ns-part name-part]
   (fn [writer]
     (-> writer
         (update
          :stack
          (fn [stack]
-           (let [next-pointer (inc (:pointer writer))]
+           (let [next-pointer (inc (:pointer writer)), code-path [ns-part :defs name-part]]
              (if (< (dec (count stack)) next-pointer)
-               (conj stack [:definitions path])
-               (if (= path (last (get stack next-pointer)))
+               (conj stack code-path)
+               (if (= code-path (get stack next-pointer))
                  stack
-                 (conj (into [] (subvec stack 0 next-pointer)) [:definitions path]))))))
+                 (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
         (update :pointer inc)
         (assoc :focus []))))
 
 (defn helper-notify [op-id data]
   (fn [notifications] (into [] (cons [op-id data] notifications))))
 
-(defn helper-create-def [ns-part focus current-def var-part]
-  (fn [definitions]
-    (let [name-path (str ns-part "/" var-part)]
-      (if (contains? definitions name-path)
-        definitions
-        (assoc
-         definitions
-         name-path
-         (if (and (not (empty? focus)) (zero? (last focus)))
-           (let [expression (-> definitions (get current-def) (get-in (butlast focus)))]
+(defn helper-create-def [ns-part name-part code-path focus]
+  (fn [files]
+    (if (contains-def? files ns-part name-part)
+      files
+      (assoc-in
+       files
+       [name-part :defs name-part]
+       (let [as-fn? (and (not (empty? focus)) (zero? (last focus)))]
+         (if as-fn?
+           (let [expression (get-in files (concat [ns-part :defs name-part] (butlast focus)))]
              (if (> (count expression) 1)
-               ["defn" var-part (subvec expression 1)]
-               ["defn" var-part []]))
-           ["defn" var-part []]))))))
+               ["defn" name-part (subvec expression 1)]
+               ["defn" name-part []]))
+           ["defn" name-part []]))))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
@@ -54,60 +54,51 @@
         stack (:stack writer)
         pointer (:pointer writer)
         pkg (get-in store [:collection :package])
-        definitions (get-in store [:collection :definitions])
-        namespaces (get-in store [:collection :namespaces])
-        current-def (last (get stack pointer))
+        files (get-in store [:collection :files])
+        code-path (get stack pointer)
+        [current-ns kind extra-name] code-path
         drop-pkg (fn [x] (if (string? x) (string/replace x (str pkg ".") "") x))]
-    (println "writer" writer)
-    (let [target (get-in store (concat [:collection] (get stack pointer) focus))]
+    (let [target (get-in store (concat [:collection :files] code-path focus))]
       (if (string? target)
         (let [stripped-target (strip-atom target)]
           (if forced?
-            (if (string/includes? target "/")
-              (let [[ns-part var-part] (string/split target "/")
-                    current-ns (first (string/split current-def "/"))
-                    that-ns (drop-pkg (locate-ns ns-part current-ns namespaces))]
-                (if (contains? namespaces that-ns)
-                  (let [new-path (str that-ns "/" var-part)]
-                    (if (contains? definitions new-path)
-                      (update store :writer (helper-put-path new-path))
-                      (-> store
-                          (update-in
-                           [:collection :definitions]
-                           (helper-create-def that-ns focus current-def var-part))
-                          (update :writer (helper-put-path new-path)))))
+            (if (string/includes? stripped-target "/")
+              (let [[ns-part var-part] (string/split stripped-target "/")
+                    that-ns (drop-pkg (locate-ns ns-part current-ns files))]
+                (if (contains? files that-ns)
+                  (if (contains-def? files that-ns var-part)
+                    (update store :writer (helper-put-path that-ns var-part))
+                    (-> store
+                        (update-in
+                         [:collection :files]
+                         (helper-create-def that-ns var-part code-path focus))
+                        (update :writer (helper-put-path that-ns var-part))))
                   (-> store
                       (update
                        :notifications
                        (helper-notify op-id (str "foreign namespace: " that-ns))))))
-              (let [current-ns (first (string/split current-def "/"))
-                    ns-part (compute-ns stripped-target current-def namespaces definitions)
-                    that-ns (if (some? ns-part) (drop-pkg ns-part) current-ns)
-                    new-path (str that-ns "/" stripped-target)]
+              (let [ns-part (compute-ns stripped-target current-ns files)
+                    that-ns (if (some? ns-part) (drop-pkg ns-part) current-ns)]
                 (println "forced piece:" that-ns stripped-target)
-                (if (contains? namespaces that-ns)
+                (if (contains? files that-ns)
                   (-> store
                       (update-in
                        [:collection :definitions]
-                       (helper-create-def that-ns focus current-def stripped-target))
-                      (update :writer (helper-put-path new-path)))
+                       (helper-create-def that-ns stripped-target code-path focus))
+                      (update :writer (helper-put-path that-ns stripped-target)))
                   (-> store
                       (update
                        :notifications
                        (helper-notify op-id (str "foreign namespace: " ns-part)))))))
-            (let [that-ns (drop-pkg
-                           (compute-ns stripped-target current-def namespaces definitions))
-                  var-part (last (string/split stripped-target "/"))
-                  current-ns (first (string/split current-def "/"))
-                  local-def (str current-ns "/" var-part)]
-              (println "look:" that-ns var-part current-ns local-def)
-              (if (contains? definitions local-def)
-                (update store :writer (helper-put-path local-def))
-                (if (and (some? that-ns) (contains? definitions (str that-ns "/" var-part)))
-                  (let [path (str that-ns "/" var-part)]
-                    (if (= path current-def)
-                      store
-                      (update store :writer (helper-put-path path))))
+            (let [that-ns (compute-ns stripped-target current-ns files)
+                  var-part (last (string/split stripped-target "/"))]
+              (println "Look:" that-ns var-part current-ns var-part)
+              (if (contains-def? files current-ns var-part)
+                (update store :writer (helper-put-path current-ns var-part))
+                (if (contains-def? files that-ns var-part)
+                  (if (= [that-ns :defs var-part] code-path)
+                    store
+                    (update store :writer (helper-put-path that-ns var-part)))
                   (-> store
                       (update
                        :notifications

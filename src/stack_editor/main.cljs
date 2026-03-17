@@ -20,7 +20,7 @@
 (def focus-moved?-ref (atom false))
 
 (defn dispatch! [op op-data]
-  (comment println "dispatch!" op op-data)
+  (println "dispatch!" op op-data)
   (case op
     :effect/submit
       (let [shift? op-data, sepal-data (:collection @store-ref)]

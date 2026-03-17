@@ -5,9 +5,17 @@
   (if (vector? x) (every? (fn [y] (or (string? y) (cirru-vec? y))) x) false))
 
 (defn strip-atom [token]
-  (-> token (string/replace (re-pattern "^@") "") (string/replace (re-pattern "/@") "/")))
+  (-> token
+      (string/replace (re-pattern "^@") "")
+      (string/replace (re-pattern "\\.$") "")
+      (string/replace (re-pattern "/@") "/")))
 
 (defn fuzzy-search [pieces queries]
   (every?
    (fn [query] (some (fn [piece] (string/includes? (str piece) query)) pieces))
    queries))
+
+(defn contains-def? [files ns-path name-part]
+  (if (contains? files ns-path)
+    (let [dict (get-in files [ns-part :defs])] (contains? dict name-part))
+    false))

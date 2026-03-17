@@ -36,7 +36,7 @@
 (defn on-keydown [text mutate! ns-name]
   (fn [e dispatch!]
     (if (and (= keycode/key-enter (:key-code e)) (pos? (count text)))
-      (do (mutate! "") (dispatch! :collection/add-definition (str ns-name "/" text))))))
+      (do (mutate! "") (dispatch! :collection/add-definition [ns-name text])))))
 
 (defn render [ns-name]
   (fn [state mutate!]

@@ -97,11 +97,10 @@
         (assoc :router {:name :workspace, :data nil}))))
 
 (defn add-definition [store op-data]
-  (let [definition-path op-data
-        path [:collection :definitions definition-path]
-        maybe-definition (get-in store path)
-        var-name (last (string/split definition-path "/"))]
-    (if (some? maybe-definition) store (assoc-in store path ["defn" var-name []]))))
+  (let [[that-ns that-name] op-data
+        path [:collection :files that-ns :defs that-name]
+        maybe-definition (get-in store path)]
+    (if (some? maybe-definition) store (assoc-in store path ["defn" that-name []]))))
 
 (defn edit-ns [store op-data op-id]
   (let [writer (:writer store)

@@ -1,14 +1,15 @@
 
-(ns stack-editor.util.analyze (:require [clojure.string :as string]))
+(ns stack-editor.util.analyze
+  (:require [clojure.string :as string] [stack-editor.util.detect :refer [contains-def?]]))
 
-(defn locate-ns [short-form this-namespace namespaces]
-  (if (nil? this-namespace)
+(defn locate-ns [short-form current-ns files]
+  (if (nil? current-ns)
     nil
-    (if (contains? namespaces this-namespace)
-      (let [namespace-data (get namespaces this-namespace)]
-        (if (or (nil? namespace-data) (<= (count namespace-data) 2))
+    (if (contains? files current-ns)
+      (let [ns-data (get-in files [current-ns :ns])]
+        (if (or (nil? ns-data) (<= (count ns-data) 2))
           nil
-          (let [required (get namespace-data 2)
+          (let [required (get ns-data 2)
                 rules (subvec required 1)
                 matched-rule (->> rules
                                   (filter
@@ -21,17 +22,17 @@
             (if (some? matched-rule) (get matched-rule 1) nil))))
       nil)))
 
-(defn locate-ns-by-var [short-form this-namespace namespaces]
-  (println "searching" short-form this-namespace namespaces)
-  (if (nil? this-namespace)
+(defn locate-ns-by-var [short-form current-ns files]
+  (println "Searching:" short-form current-ns files)
+  (if (nil? current-ns)
     nil
-    (if (contains? namespaces this-namespace)
-      (let [namespace-data (get namespaces this-namespace)]
-        (println "namespace-data" namespace-data)
-        (if (and (nil? namespace-data) (<= (count namespace-data) 2))
+    (if (contains? files current-ns)
+      (let [ns-data (get-in files [:current-ns :ns])]
+        (println "ns-data:" ns-data)
+        (if (and (nil? ns-data) (<= (count ns-data) 2))
           nil
-          (if (>= (count namespace-data) 3)
-            (let [required (get namespace-data 2)
+          (if (>= (count ns-data) 3)
+            (let [required (get ns-data 2)
                   rules (subvec required 1)
                   matched-rule (->> rules
                                     (filter
@@ -51,13 +52,9 @@
             nil)))
       nil)))
 
-(defn compute-ns [piece current-def namespaces definitions]
-  (let [current-ns (first (string/split current-def "/"))
-        this-namespace (get namespaces current-ns)]
-    (if (string/includes? piece "/")
-      (let [[that-ns that-value] (string/split piece "/")]
-        (locate-ns that-ns current-ns namespaces))
-      (let [maybe-this-def (str current-ns "/" piece)]
-        (if (contains? definitions maybe-this-def)
-          current-ns
-          (locate-ns-by-var piece current-ns namespaces))))))
+(defn compute-ns [piece current-ns files]
+  (if (string/includes? piece "/")
+    (let [[that-ns that-value] (string/split piece "/")] (locate-ns that-ns current-ns files))
+    (if (contains-def? files current-ns piece)
+      current-ns
+      (locate-ns-by-var piece current-ns files))))
