@@ -37,7 +37,7 @@
       files
       (assoc-in
        files
-       [name-part :defs name-part]
+       [ns-part :defs name-part]
        (let [as-fn? (and (not (empty? focus)) (zero? (last focus)))]
          (if as-fn?
            (let [expression (get-in files (concat [ns-part :defs name-part] (butlast focus)))]
@@ -83,26 +83,24 @@
                 (if (contains? files that-ns)
                   (-> store
                       (update-in
-                       [:collection :definitions]
+                       [:collection :files]
                        (helper-create-def that-ns stripped-target code-path focus))
                       (update :writer (helper-put-path that-ns stripped-target)))
                   (-> store
                       (update
                        :notifications
-                       (helper-notify op-id (str "foreign namespace: " ns-part)))))))
-            (let [that-ns (compute-ns stripped-target current-ns files)
+                       (helper-notify op-id (str "foreign namespace: " that-ns)))))))
+            (let [that-ns (drop-pkg (compute-ns stripped-target current-ns files))
                   var-part (last (string/split stripped-target "/"))]
-              (println "Look:" that-ns var-part current-ns var-part)
-              (if (contains-def? files current-ns var-part)
-                (update store :writer (helper-put-path current-ns var-part))
-                (if (contains-def? files that-ns var-part)
-                  (if (= [that-ns :defs var-part] code-path)
-                    store
-                    (update store :writer (helper-put-path that-ns var-part)))
-                  (-> store
-                      (update
-                       :notifications
-                       (helper-notify op-id (str "no namespace for: " stripped-target)))))))))
+              (println "Search result:" that-ns var-part current-ns)
+              (if (contains-def? files that-ns var-part)
+                (if (= [that-ns :defs var-part] code-path)
+                  store
+                  (update store :writer (helper-put-path that-ns var-part)))
+                (-> store
+                    (update
+                     :notifications
+                     (helper-notify op-id (str "no namespace for: " stripped-target))))))))
         store))))
 
 (defn go-next [store op-data]

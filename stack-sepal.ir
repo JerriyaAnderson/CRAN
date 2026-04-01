@@ -184,7 +184,7 @@
                                                             ["->"
                                                              "store"
                                                              ["update-in"
-                                                              ["[]" ":collection" ":definitions"]
+                                                              ["[]" ":collection" ":files"]
                                                               ["helper-create-def"
                                                                "that-ns"
                                                                "stripped-target"
@@ -199,39 +199,33 @@
                                                               ":notifications"
                                                               ["helper-notify"
                                                                "op-id"
-                                                               ["str" "|foreign namespace: " "ns-part"]]]]]]]
+                                                               ["str" "|foreign namespace: " "that-ns"]]]]]]]
                                                          ["let"
                                                           [["that-ns"
-                                                            ["compute-ns" "stripped-target" "current-ns" "files"]]
+                                                            ["drop-pkg"
+                                                             ["compute-ns" "stripped-target" "current-ns" "files"]]]
                                                            ["var-part" ["last" ["string/split" "stripped-target" "|/"]]]]
                                                           ["println"
-                                                           "|Look:"
+                                                           "|Search result:"
                                                            "that-ns"
                                                            "var-part"
-                                                           "current-ns"
-                                                           "var-part"]
+                                                           "current-ns"]
                                                           ["if"
-                                                           ["contains-def?" "files" "current-ns" "var-part"]
-                                                           ["update"
-                                                            "store"
-                                                            ":writer"
-                                                            ["helper-put-path" "current-ns" "var-part"]]
+                                                           ["contains-def?" "files" "that-ns" "var-part"]
                                                            ["if"
-                                                            ["contains-def?" "files" "that-ns" "var-part"]
-                                                            ["if"
-                                                             ["=" ["[]" "that-ns" ":defs" "var-part"] "code-path"]
+                                                            ["=" ["[]" "that-ns" ":defs" "var-part"] "code-path"]
+                                                            "store"
+                                                            ["update"
                                                              "store"
-                                                             ["update"
-                                                              "store"
-                                                              ":writer"
-                                                              ["helper-put-path" "that-ns" "var-part"]]]
-                                                            ["->"
-                                                             "store"
-                                                             ["update"
-                                                              ":notifications"
-                                                              ["helper-notify"
-                                                               "op-id"
-                                                               ["str" "|no namespace for: " "stripped-target"]]]]]]]]]
+                                                             ":writer"
+                                                             ["helper-put-path" "that-ns" "var-part"]]]
+                                                           ["->"
+                                                            "store"
+                                                            ["update"
+                                                             ":notifications"
+                                                             ["helper-notify"
+                                                              "op-id"
+                                                              ["str" "|no namespace for: " "stripped-target"]]]]]]]]
                                                        "store"]]]],
                                  "helper-put-path" ["defn"
                                                     "helper-put-path"
@@ -287,7 +281,7 @@
                                                         "files"
                                                         ["assoc-in"
                                                          "files"
-                                                         ["[]" "name-part" ":defs" "name-part"]
+                                                         ["[]" "ns-part" ":defs" "name-part"]
                                                          ["let"
                                                           [["as-fn?"
                                                             ["and"
@@ -356,6 +350,7 @@
                          :defs {"compute-ns" ["defn"
                                               "compute-ns"
                                               ["piece" "current-ns" "files"]
+                                              ["println" "|compute-ns" "piece" "current-ns"]
                                               ["if"
                                                ["string/includes?" "piece" "|/"]
                                                ["let"
@@ -398,14 +393,14 @@
                                 "locate-ns-by-var" ["defn"
                                                     "locate-ns-by-var"
                                                     ["short-form" "current-ns" "files"]
-                                                    ["println" "|Searching:" "short-form" "current-ns" "files"]
+                                                    ["println" "|ns by var:" "short-form" "current-ns"]
                                                     ["if"
                                                      ["nil?" "current-ns"]
                                                      "nil"
                                                      ["if"
                                                       ["contains?" "files" "current-ns"]
                                                       ["let"
-                                                       [["ns-data" ["get-in" "files" ["[]" ":current-ns" ":ns"]]]]
+                                                       [["ns-data" ["get-in" "files" ["[]" "current-ns" ":ns"]]]]
                                                        ["println" "|ns-data:" "ns-data"]
                                                        ["if"
                                                         ["and" ["nil?" "ns-data"] ["<=" ["count" "ns-data"] "2"]]
@@ -422,7 +417,7 @@
                                                               ["fn"
                                                                ["rule"]
                                                                ["println"
-                                                                "|search rrule:"
+                                                                "|Search rule:"
                                                                 "rule"
                                                                 "short-form"
                                                                 ["=" "|:refer" ["get" "rule" "1"]]]
@@ -682,9 +677,9 @@
                                                 [":loading" ["comp-loading"]]
                                                 [":analyzer" ["comp-definitions" [":collection" "store"]]]
                                                 [":workspace" ["comp-workspace" "store"]]
-                                                ["comp-debug" "router" "nil"]]
+                                                ["comp-text" "router" "nil"]]
                                                ["comp-notifications" [":notifications" "store"]]
-                                               ["--" "comp-debug" "router" "nil"]
+                                               ["comp-debug" [":stack" [":writer" "store"]] ["{}" [":bottom" "0"]]]
                                                ["if"
                                                 [":show-palette?" "router"]
                                                 ["comp-palette" [":files" [":collection" "store"]]]]
@@ -1661,9 +1656,10 @@
                                                 "queries"]],
                                "contains-def?" ["defn"
                                                 "contains-def?"
-                                                ["files" "ns-path" "name-part"]
+                                                ["files" "ns-part" "name-part"]
+                                                ["println" "|Contains def:" "ns-part" "name-part"]
                                                 ["if"
-                                                 ["contains?" "files" "ns-path"]
+                                                 ["contains?" "files" "ns-part"]
                                                  ["let"
                                                   [["dict" ["get-in" "files" ["[]" "ns-part" ":defs"]]]]
                                                   ["contains?" "dict" "name-part"]]
@@ -1945,17 +1941,29 @@
                                                   [["writer" [":writer" "store"]]
                                                    ["stack" [":stack" "writer"]]
                                                    ["pointer" [":pointer" "writer"]]
-                                                   ["path" ["get" "stack" "pointer"]]]
+                                                   ["code-path" ["get" "stack" "pointer"]]
+                                                   ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]]
+                                                  ["println" "|Edit ns:" "code-path"]
                                                   ["if"
-                                                   ["=" ["first" "path"] ":namespaces"]
+                                                   ["=" ["last" "code-path"] ":ns"]
                                                    ["let"
-                                                    [["ns-name"
+                                                    [["guess-ns"
                                                       ["get-in"
                                                        "store"
-                                                       ["concat" ["[]" ":collection"] "path" [":focus" "writer"]]]]]
+                                                       ["concat"
+                                                        ["[]" ":collection" ":files"]
+                                                        "code-path"
+                                                        [":focus" "writer"]]]]
+                                                     ["ns-name"
+                                                      ["if"
+                                                       ["some?" "guess-ns"]
+                                                       ["string/replace" "guess-ns" ["str" "pkg" "|."] "|"]
+                                                       "nil"]]]
                                                     ["if"
-                                                     ["some?"
-                                                      ["get-in" "store" ["[]" ":collection" ":namespaces" "ns-name"]]]
+                                                     ["and"
+                                                      ["some?" "ns-name"]
+                                                      ["some?"
+                                                       ["get-in" "store" ["[]" ":collection" ":files" "ns-name"]]]]
                                                      ["update"
                                                       "store"
                                                       ":writer"
@@ -1971,7 +1979,7 @@
                                                           ["stack"]
                                                           ["conj"
                                                            ["subvec" "stack" "0" ["inc" "pointer"]]
-                                                           ["[]" ":namespaces" "ns-name"]]]]]]]
+                                                           ["[]" "ns-name" ":ns"]]]]]]]
                                                      ["update"
                                                       "store"
                                                       ":notifications"
@@ -1983,7 +1991,7 @@
                                                          ["[]" "op-id" ["str" "|\"" "ns-name" "|\" not found"]]
                                                          "notifications"]]]]]]
                                                    ["let"
-                                                    [["ns-part" ["first" ["string/split" ["last" "path"] "|/"]]]]
+                                                    [["ns-part" ["first" "code-path"]]]
                                                     ["update"
                                                      "store"
                                                      ":writer"
@@ -1999,7 +2007,7 @@
                                                          ["stack"]
                                                          ["conj"
                                                           ["subvec" "stack" "0" ["inc" "pointer"]]
-                                                          ["[]" ":namespaces" "ns-part"]]]]]]]]]]],
+                                                          ["[]" "ns-part" ":ns"]]]]]]]]]]],
                                       "load-remote" ["defn"
                                                      "load-remote"
                                                      ["store" "op-data"]
@@ -2229,6 +2237,4 @@
                                             [":color" ["hsl" "0" "0" "100" "0.6"]]
                                             [":height" "28"]
                                             [":line-height" "|28px"]]]]},
-                         :procs []}},
- "comp.rename-path" {"render2" nil},
- :definitions {"util.detect/contains-def?" ["defn" "contains-def?" []]}}
+                         :procs []}}}

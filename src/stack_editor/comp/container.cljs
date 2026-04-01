@@ -28,9 +28,9 @@
          :loading (comp-loading)
          :analyzer (comp-definitions (:collection store))
          :workspace (comp-workspace store)
-         (comp-debug router nil))
+         (comp-text router nil))
        (comp-notifications (:notifications store))
-       (comment comp-debug router nil)
+       (comp-debug (:stack (:writer store)) {:bottom 0})
        (if (:show-palette? router) (comp-palette (:files (:collection store))))
        (comp-modal-stack (:modal-stack store))))))
 

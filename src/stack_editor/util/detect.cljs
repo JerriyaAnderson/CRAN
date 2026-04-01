@@ -15,7 +15,8 @@
    (fn [query] (some (fn [piece] (string/includes? (str piece) query)) pieces))
    queries))
 
-(defn contains-def? [files ns-path name-part]
-  (if (contains? files ns-path)
+(defn contains-def? [files ns-part name-part]
+  (println "Contains def:" ns-part name-part)
+  (if (contains? files ns-part)
     (let [dict (get-in files [ns-part :defs])] (contains? dict name-part))
     false))

@@ -23,11 +23,11 @@
       nil)))
 
 (defn locate-ns-by-var [short-form current-ns files]
-  (println "Searching:" short-form current-ns files)
+  (println "ns by var:" short-form current-ns)
   (if (nil? current-ns)
     nil
     (if (contains? files current-ns)
-      (let [ns-data (get-in files [:current-ns :ns])]
+      (let [ns-data (get-in files [current-ns :ns])]
         (println "ns-data:" ns-data)
         (if (and (nil? ns-data) (<= (count ns-data) 2))
           nil
@@ -38,7 +38,7 @@
                                     (filter
                                      (fn [rule]
                                        (println
-                                        "search rrule:"
+                                        "Search rule:"
                                         rule
                                         short-form
                                         (= ":refer" (get rule 1)))
@@ -53,6 +53,7 @@
       nil)))
 
 (defn compute-ns [piece current-ns files]
+  (println "compute-ns" piece current-ns)
   (if (string/includes? piece "/")
     (let [[that-ns that-value] (string/split piece "/")] (locate-ns that-ns current-ns files))
     (if (contains-def? files current-ns piece)
