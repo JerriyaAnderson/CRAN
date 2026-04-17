@@ -14,6 +14,7 @@
 (def ir-path "stack-sepal.ir")
 (def out-folder "src/")
 (def extname ".cljs")
+(def port 7010)
 
 (def sepal-ref
   (atom (read-string (fs.readFileSync ir-path "utf8"))))
@@ -71,8 +72,8 @@
 
 (defn create-app! []
   (let [app (http.createServer req-handler)]
-    (.listen app 7010)
-    (println "App listening on 7010.")))
+    (.listen app port)
+    (println (str "App listening on " port "."))))
 
 (if (= js/process.env.op "compile")
   (compile-source! @sepal-ref)

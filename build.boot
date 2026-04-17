@@ -1,5 +1,6 @@
 
 (set-env!
+  :asset-paths #{"assets/"}
  :resource-paths #{"src"}
  :dependencies '[[org.clojure/clojure       "1.8.0"       :scope "test"]
                  [org.clojure/clojurescript "1.9.293"     :scope "test"]
@@ -13,12 +14,10 @@
                  [cirru/editor              "0.1.18"]
                  [respo/border              "0.1.0"]
                  [cumulo/shallow-diff       "0.1.1"]
-                 [fipp                      "0.6.9"]
                  [cljs-ajax                 "0.5.8"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
-         '[adzerk.boot-reload :refer [reload]]
-         '[adzerk.boot-test   :refer :all])
+         '[adzerk.boot-reload :refer [reload]])
 
 (def +version+ "0.1.0")
 
@@ -51,7 +50,7 @@
                              :parallel-build true
                              :optimize-constants true
                              :source-map true})
-    (target)))
+    (target :no-clean true)))
 
 (deftask build []
   (comp
@@ -66,10 +65,3 @@
   (comp
     (build)
     (push :repo "clojars" :gpg-sign (not (.endsWith +version+ "-SNAPSHOT")))))
-
-(deftask watch-test []
-  (set-env!
-    :source-paths #{"cirru/src" "cirru/test"})
-  (comp
-    (watch)
-    (test :namespaces '#{stack-editor.test})))

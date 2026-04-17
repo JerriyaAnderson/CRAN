@@ -6,3 +6,4 @@
 /src/.*
 /node_modules
 /.lumo_cache
+tasks/class-path.sh

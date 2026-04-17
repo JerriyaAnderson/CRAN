@@ -30,7 +30,7 @@
          :workspace (comp-workspace store)
          (comp-text router nil))
        (comp-notifications (:notifications store))
-       (comp-debug (:stack (:writer store)) {:bottom 0})
+       (comment comp-debug (:stack (:writer store)) {:bottom 0})
        (if (:show-palette? router) (comp-palette (:files (:collection store))))
        (comp-modal-stack (:modal-stack store))))))
 

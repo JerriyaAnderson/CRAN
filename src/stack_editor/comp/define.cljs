@@ -18,7 +18,7 @@
 (defn on-click [ns-text] (fn [e dispatch!] (dispatch! :collection/edit [ns-text :ns])))
 
 (defn on-proc [ns-name]
-  (fn [e dispatch!] (dispatch! :collection/edit [:procedures ns-name])))
+  (fn [e dispatch!] (dispatch! :collection/edit [ns-name :procs])))
 
 (def style-ns {:font-family "Source Code Pro,Menlo,monospace", :white-space :nowrap})
 

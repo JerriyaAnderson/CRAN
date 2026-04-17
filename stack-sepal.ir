@@ -679,7 +679,7 @@
                                                 [":workspace" ["comp-workspace" "store"]]
                                                 ["comp-text" "router" "nil"]]
                                                ["comp-notifications" [":notifications" "store"]]
-                                               ["comp-debug" [":stack" [":writer" "store"]] ["{}" [":bottom" "0"]]]
+                                               ["--" "comp-debug" [":stack" [":writer" "store"]] ["{}" [":bottom" "0"]]]
                                                ["if"
                                                 [":show-palette?" "router"]
                                                 ["comp-palette" [":files" [":collection" "store"]]]]
@@ -1128,7 +1128,7 @@
                                           ["ns-name"]
                                           ["fn"
                                            ["e" "dispatch!"]
-                                           ["dispatch!" ":collection/edit" ["[]" ":procedures" "ns-name"]]]],
+                                           ["dispatch!" ":collection/edit" ["[]" "ns-name" ":procs"]]]],
                                "style-ns" ["def"
                                            "style-ns"
                                            ["{}"
