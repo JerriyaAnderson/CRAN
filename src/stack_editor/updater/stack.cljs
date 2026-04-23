@@ -40,11 +40,11 @@
        [ns-part :defs name-part]
        (let [as-fn? (and (not (empty? focus)) (zero? (last focus)))]
          (if as-fn?
-           (let [expression (get-in files (concat [ns-part :defs name-part] (butlast focus)))]
+           (let [expression (get-in files (concat code-path (butlast focus)))]
              (if (> (count expression) 1)
                ["defn" name-part (subvec expression 1)]
                ["defn" name-part []]))
-           ["defn" name-part []]))))))
+           ["def" name-part]))))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data

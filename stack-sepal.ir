@@ -293,14 +293,12 @@
                                                             [["expression"
                                                               ["get-in"
                                                                "files"
-                                                               ["concat"
-                                                                ["[]" "ns-part" ":defs" "name-part"]
-                                                                ["butlast" "focus"]]]]]
+                                                               ["concat" "code-path" ["butlast" "focus"]]]]]
                                                             ["if"
                                                              [">" ["count" "expression"] "1"]
                                                              ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
                                                              ["[]" "|defn" "name-part" ["[]"]]]]
-                                                           ["[]" "|defn" "name-part" ["[]"]]]]]]]],
+                                                           ["[]" "|def" "name-part"]]]]]]],
                                  "point-to" ["defn"
                                              "point-to"
                                              ["store" "op-data" "op-id"]
