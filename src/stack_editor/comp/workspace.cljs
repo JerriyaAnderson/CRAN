@@ -24,6 +24,8 @@
       (cond
         (= code keycode/key-d)
           (do (.preventDefault event) (dispatch! :stack/goto-definition shift?))
+        (= code keycode/key-u)
+          (do (.preventDefault event) (dispatch! :stack/dependents nil))
         (= code keycode/key-k) (do (.preventDefault event) (dispatch! :stack/go-back nil))
         (= code keycode/key-j) (do (.preventDefault event) (dispatch! :stack/go-next nil))
         (= code keycode/key-s)
@@ -40,7 +42,15 @@
 
 (defn on-update [snapshot dispatch!] (dispatch! :collection/write snapshot))
 
+(def style-toolbar {:background-color (hsl 0 0 0), :justify-content "flex-end"})
+
+(def style-container {:background-color (hsl 0 0 0)})
+
+(def style-debugger {:z-index 999, :background-color (hsl 0 0 0), :opacity 1})
+
 (defn init-state [& args] {:scaled? false})
+
+(def style-sidebar {:width "180px", :background-color (hsl 0 0 0), :color (hsl 0 0 80)})
 
 (defn on-rename [code-path]
   (fn [e dispatch!]
@@ -70,14 +80,12 @@
                  (get-in store (cons :collection (cons :files code-path)))
                  nil)]
       (div
-       {:style (merge ui/fullscreen ui/row {:background-color (hsl 0 0 0)})}
+       {:style (merge ui/fullscreen ui/row style-container)}
        (div
-        {:style (merge
-                 ui/column
-                 {:width "180px", :background-color (hsl 0 0 0), :color (hsl 0 0 80)})}
+        {:style (merge ui/column style-sidebar)}
         (comp-hot-corner router (:writer store))
         (comp-stack stack pointer))
-       (comment comp-debug writer {:z-index 999, :background-color (hsl 0 0 0), :opacity 1})
+       (comment comp-debug writer style-debugger)
        (if (some? tree)
          (div
           {:style (merge ui/column ui/flex)}
@@ -86,9 +94,7 @@
            on-update
            (on-command store))
           (div
-           {:style (merge
-                    ui/row
-                    {:background-color (hsl 0 0 0), :justify-content "flex-end"})}
+           {:style (merge ui/row style-toolbar)}
            (div
             {:style widget/button,
              :event {:click (on-rename code-path)},

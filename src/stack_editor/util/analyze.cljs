@@ -59,3 +59,17 @@
     (if (contains-def? files current-ns piece)
       current-ns
       (locate-ns-by-var piece current-ns files))))
+
+(defn list-dependent-ns [ns-name files pkg]
+  (let [full-ns (str pkg "." ns-name)]
+    (->> files
+         (filter
+          (fn [entry]
+            (let [[ns-part file] entry
+                  ns-rules (->> (get-in file [:ns 2])
+                                rest
+                                (map (fn [xs] (get xs 1)))
+                                (into #{}))]
+              (comment println "Search:" ns-name ns-rules)
+              (contains? ns-rules full-ns))))
+         (map first))))

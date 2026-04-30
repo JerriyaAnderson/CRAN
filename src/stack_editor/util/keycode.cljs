@@ -3,6 +3,8 @@
 
 (def key-esc 27)
 
+(def key-u 85)
+
 (def key-down 40)
 
 (def key-s 83)

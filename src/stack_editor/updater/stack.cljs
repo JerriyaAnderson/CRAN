@@ -1,7 +1,7 @@
 
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
-            [stack-editor.util.analyze :refer [locate-ns compute-ns]]
+            [stack-editor.util.analyze :refer [locate-ns compute-ns list-dependent-ns]]
             [stack-editor.util.detect :refer [strip-atom contains-def?]]
             [stack-editor.util :refer [remove-idx]]))
 
@@ -44,7 +44,7 @@
              (if (> (count expression) 1)
                ["defn" name-part (subvec expression 1)]
                ["defn" name-part []]))
-           ["def" name-part]))))))
+           ["def" name-part []]))))))
 
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
@@ -111,6 +111,31 @@
          (if (< (:pointer writer) (dec (count (:stack writer))))
            (-> writer (update :pointer inc) (assoc :focus []))
            writer)))))
+
+(defn dependents [store op-data op-id]
+  (println "Dependents:" op-data)
+  (let [writer (:writer store)
+        stack (:stack writer)
+        pointer (:pointer writer)
+        code-path (get stack pointer)
+        [ns-part kind extra-name] code-path
+        sepal-ir (:collection store)
+        former-stack (subvec stack 0 (inc pointer))]
+    (case kind
+      :defs store
+      :ns
+        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) (:package sepal-ir))
+              new-paths (map (fn [x] [x :ns]) ns-list)]
+          (comment println former-stack new-paths pointer)
+          (update
+           store
+           :writer
+           (fn [writer]
+             (-> writer
+                 (assoc :stack (into [] (concat former-stack new-paths)))
+                 (assoc :pointer (if (empty? ns-list) pointer (inc pointer)))
+                 (assoc :focus [])))))
+      store)))
 
 (defn point-to [store op-data op-id]
   (let [pointer op-data] (assoc-in store [:writer :pointer] pointer)))

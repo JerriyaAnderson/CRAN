@@ -71,6 +71,7 @@
                          :procs []},
          "util.keycode" {:ns ["ns" "stack-editor.util.keycode"],
                          :defs {"key-esc" ["def" "key-esc" "27"],
+                                "key-u" ["def" "key-u" "85"],
                                 "key-down" ["def" "key-down" "40"],
                                 "key-s" ["def" "key-s" "83"],
                                 "key-d" ["def" "key-d" "68"],
@@ -87,7 +88,10 @@
                                "stack-editor.updater.stack"
                                [":require"
                                 ["[]" "clojure.string" ":as" "string"]
-                                ["[]" "stack-editor.util.analyze" ":refer" ["[]" "locate-ns" "compute-ns"]]
+                                ["[]"
+                                 "stack-editor.util.analyze"
+                                 ":refer"
+                                 ["[]" "locate-ns" "compute-ns" "list-dependent-ns"]]
                                 ["[]" "stack-editor.util.detect" ":refer" ["[]" "strip-atom" "contains-def?"]]
                                 ["[]" "stack-editor.util" ":refer" ["[]" "remove-idx"]]]],
                           :defs {"collapse" ["defn"
@@ -265,6 +269,45 @@
                                                 ["<" [":pointer" "writer"] ["dec" ["count" [":stack" "writer"]]]]
                                                 ["->" "writer" ["update" ":pointer" "inc"] ["assoc" ":focus" ["[]"]]]
                                                 "writer"]]]]],
+                                 "dependents" ["defn"
+                                               "dependents"
+                                               ["store" "op-data" "op-id"]
+                                               ["println" "|Dependents:" "op-data"]
+                                               ["let"
+                                                [["writer" [":writer" "store"]]
+                                                 ["stack" [":stack" "writer"]]
+                                                 ["pointer" [":pointer" "writer"]]
+                                                 ["code-path" ["get" "stack" "pointer"]]
+                                                 [["[]" "ns-part" "kind" "extra-name"] "code-path"]
+                                                 ["sepal-ir" [":collection" "store"]]
+                                                 ["former-stack" ["subvec" "stack" "0" ["inc" "pointer"]]]]
+                                                ["case"
+                                                 "kind"
+                                                 [":defs" "store"]
+                                                 [":ns"
+                                                  ["let"
+                                                   [["ns-list"
+                                                     ["list-dependent-ns"
+                                                      "ns-part"
+                                                      [":files" "sepal-ir"]
+                                                      [":package" "sepal-ir"]]]
+                                                    ["new-paths" ["map" ["fn" ["x"] ["[]" "x" ":ns"]] "ns-list"]]]
+                                                   ["--" "println" "former-stack" "new-paths" "pointer"]
+                                                   ["update"
+                                                    "store"
+                                                    ":writer"
+                                                    ["fn"
+                                                     ["writer"]
+                                                     ["->"
+                                                      "writer"
+                                                      ["assoc"
+                                                       ":stack"
+                                                       ["into" ["[]"] ["concat" "former-stack" "new-paths"]]]
+                                                      ["assoc"
+                                                       ":pointer"
+                                                       ["if" ["empty?" "ns-list"] "pointer" ["inc" "pointer"]]]
+                                                      ["assoc" ":focus" ["[]"]]]]]]]
+                                                 "store"]]],
                                  "helper-notify" ["defn"
                                                   "helper-notify"
                                                   ["op-id" "data"]
@@ -298,7 +341,7 @@
                                                              [">" ["count" "expression"] "1"]
                                                              ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
                                                              ["[]" "|defn" "name-part" ["[]"]]]]
-                                                           ["[]" "|def" "name-part"]]]]]]],
+                                                           ["[]" "|def" "name-part" ["[]"]]]]]]]],
                                  "point-to" ["defn"
                                              "point-to"
                                              ["store" "op-data" "op-id"]
@@ -431,7 +474,28 @@
                                                            ["get" "matched-rule" "1"]
                                                            "nil"]]
                                                          "nil"]]]
-                                                      "nil"]]]},
+                                                      "nil"]]],
+                                "list-dependent-ns" ["defn"
+                                                     "list-dependent-ns"
+                                                     ["ns-name" "files" "pkg"]
+                                                     ["let"
+                                                      [["full-ns" ["str" "pkg" "|." "ns-name"]]]
+                                                      ["->>"
+                                                       "files"
+                                                       ["filter"
+                                                        ["fn"
+                                                         ["entry"]
+                                                         ["let"
+                                                          [[["[]" "ns-part" "file"] "entry"]
+                                                           ["ns-rules"
+                                                            ["->>"
+                                                             ["get-in" "file" ["[]" ":ns" "2"]]
+                                                             "rest"
+                                                             ["map" ["fn" ["xs"] ["get" "xs" "1"]]]
+                                                             ["into" ["#{}"]]]]]
+                                                          ["--" "println" "|Search:" "ns-name" "ns-rules"]
+                                                          ["contains?" "ns-rules" "full-ns"]]]]
+                                                       ["map" "first"]]]]},
                          :procs []},
          "util" {:ns ["ns" "stack-editor.util"],
                  :defs {"remove-idx" ["defn"
@@ -484,6 +548,10 @@
                                                     ["do"
                                                      [".preventDefault" "event"]
                                                      ["dispatch!" ":stack/goto-definition" "shift?"]]]
+                                                   [["=" "code" "keycode/key-u"]
+                                                    ["do"
+                                                     [".preventDefault" "event"]
+                                                     ["dispatch!" ":stack/dependents" "nil"]]]
                                                    [["=" "code" "keycode/key-k"]
                                                     ["do"
                                                      [".preventDefault" "event"]
@@ -514,6 +582,20 @@
                                                "on-update"
                                                ["snapshot" "dispatch!"]
                                                ["dispatch!" ":collection/write" "snapshot"]],
+                                  "style-toolbar" ["def"
+                                                   "style-toolbar"
+                                                   ["{}"
+                                                    [":background-color" ["hsl" "0" "0" "0"]]
+                                                    [":justify-content" "|flex-end"]]],
+                                  "style-container" ["def"
+                                                     "style-container"
+                                                     ["{}" [":background-color" ["hsl" "0" "0" "0"]]]],
+                                  "style-debugger" ["def"
+                                                    "style-debugger"
+                                                    ["{}"
+                                                     [":z-index" "999"]
+                                                     [":background-color" ["hsl" "0" "0" "0"]]
+                                                     [":opacity" "1"]]],
                                   "init-state" ["defn" "init-state" ["&" "args"] ["{}" [":scaled?" "false"]]],
                                   "render" ["defn"
                                             "render"
@@ -532,30 +614,12 @@
                                                  ["get-in" "store" ["cons" ":collection" ["cons" ":files" "code-path"]]]
                                                  "nil"]]]
                                               ["div"
-                                               ["{}"
-                                                [":style"
-                                                 ["merge"
-                                                  "ui/fullscreen"
-                                                  "ui/row"
-                                                  ["{}" [":background-color" ["hsl" "0" "0" "0"]]]]]]
+                                               ["{}" [":style" ["merge" "ui/fullscreen" "ui/row" "style-container"]]]
                                                ["div"
-                                                ["{}"
-                                                 [":style"
-                                                  ["merge"
-                                                   "ui/column"
-                                                   ["{}"
-                                                    [":width" "|180px"]
-                                                    [":background-color" ["hsl" "0" "0" "0"]]
-                                                    [":color" ["hsl" "0" "0" "80"]]]]]]
+                                                ["{}" [":style" ["merge" "ui/column" "style-sidebar"]]]
                                                 ["comp-hot-corner" "router" [":writer" "store"]]
                                                 ["comp-stack" "stack" "pointer"]]
-                                               ["--"
-                                                "comp-debug"
-                                                "writer"
-                                                ["{}"
-                                                 [":z-index" "999"]
-                                                 [":background-color" ["hsl" "0" "0" "0"]]
-                                                 [":opacity" "1"]]]
+                                               ["--" "comp-debug" "writer" "style-debugger"]
                                                ["if"
                                                 ["some?" "tree"]
                                                 ["div"
@@ -568,13 +632,7 @@
                                                   "on-update"
                                                   ["on-command" "store"]]
                                                  ["div"
-                                                  ["{}"
-                                                   [":style"
-                                                    ["merge"
-                                                     "ui/row"
-                                                     ["{}"
-                                                      [":background-color" ["hsl" "0" "0" "0"]]
-                                                      [":justify-content" "|flex-end"]]]]]
+                                                  ["{}" [":style" ["merge" "ui/row" "style-toolbar"]]]
                                                   ["div"
                                                    ["{}"
                                                     [":style" "widget/button"]
@@ -591,6 +649,12 @@
                                                  ["div"
                                                   ["{}" [":style" "style-removed"]]
                                                   ["comp-text" "|Tree is be removed." "nil"]]]]]]]],
+                                  "style-sidebar" ["def"
+                                                   "style-sidebar"
+                                                   ["{}"
+                                                    [":width" "|180px"]
+                                                    [":background-color" ["hsl" "0" "0" "0"]]
+                                                    [":color" ["hsl" "0" "0" "80"]]]],
                                   "on-rename" ["defn"
                                                "on-rename"
                                                ["code-path"]
@@ -955,7 +1019,7 @@
                  :defs {"dispatch!" ["defn"
                                      "dispatch!"
                                      ["op" "op-data"]
-                                     ["println" "|dispatch!" "op" "op-data"]
+                                     ["--" "println" "|dispatch!" "op" "op-data"]
                                      ["case"
                                       "op"
                                       [":effect/submit"
@@ -1451,6 +1515,7 @@
                                                [":notification/remove-one" "notification/remove-one"]
                                                [":notification/remove-since" "notification/remove-since"]
                                                [":stack/goto-definition" "stack/goto-definition"]
+                                               [":stack/dependents" "stack/dependents"]
                                                [":stack/go-back" "stack/go-back"]
                                                [":stack/go-next" "stack/go-next"]
                                                [":stack/point-to" "stack/point-to"]

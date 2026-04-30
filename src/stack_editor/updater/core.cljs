@@ -25,6 +25,7 @@
                   :notification/remove-one notification/remove-one
                   :notification/remove-since notification/remove-since
                   :stack/goto-definition stack/goto-definition
+                  :stack/dependents stack/dependents
                   :stack/go-back stack/go-back
                   :stack/go-next stack/go-next
                   :stack/point-to stack/point-to
