@@ -2,7 +2,7 @@
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
             [stack-editor.util.analyze :refer [locate-ns compute-ns list-dependent-ns]]
-            [stack-editor.util.detect :refer [strip-atom contains-def?]]
+            [stack-editor.util.detect :refer [strip-atom contains-def? tree-contains?]]
             [stack-editor.util :refer [remove-idx]]))
 
 (defn collapse [store op-data op-id]
@@ -122,7 +122,36 @@
         sepal-ir (:collection store)
         former-stack (subvec stack 0 (inc pointer))]
     (case kind
-      :defs store
+      :defs
+        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) (:package sepal-ir))
+              ns-list-more (cons ns-part ns-list)
+              new-paths (->> ns-list-more
+                             (map
+                              (fn [ns-name]
+                                (let [some-defs (get-in (:files sepal-ir) [ns-name :defs])]
+                                  (comment println "Trying ns:" ns-name)
+                                  (->> some-defs
+                                       (filter
+                                        (fn [entry]
+                                          (let [[name-part tree] entry]
+                                            (comment
+                                             println
+                                             "Detecting def:"
+                                             ns-name
+                                             name-part)
+                                            (tree-contains? (subvec tree 2) extra-name))))
+                                       (map (fn [entry] [ns-name :defs (first entry)]))))))
+                             (filter (fn [xs] (not (empty? xs))))
+                             (apply concat))]
+          (println "Got new paths:" new-paths)
+          (update
+           store
+           :writer
+           (fn [writer]
+             (-> writer
+                 (assoc :stack (into [] (concat former-stack new-paths)))
+                 (assoc :pointer (if (empty? new-paths) pointer (inc pointer)))
+                 (assoc :focus [])))))
       :ns
         (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) (:package sepal-ir))
               new-paths (map (fn [x] [x :ns]) ns-list)]

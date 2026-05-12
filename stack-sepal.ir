@@ -92,7 +92,10 @@
                                  "stack-editor.util.analyze"
                                  ":refer"
                                  ["[]" "locate-ns" "compute-ns" "list-dependent-ns"]]
-                                ["[]" "stack-editor.util.detect" ":refer" ["[]" "strip-atom" "contains-def?"]]
+                                ["[]"
+                                 "stack-editor.util.detect"
+                                 ":refer"
+                                 ["[]" "strip-atom" "contains-def?" "tree-contains?"]]
                                 ["[]" "stack-editor.util" ":refer" ["[]" "remove-idx"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
@@ -283,7 +286,52 @@
                                                  ["former-stack" ["subvec" "stack" "0" ["inc" "pointer"]]]]
                                                 ["case"
                                                  "kind"
-                                                 [":defs" "store"]
+                                                 [":defs"
+                                                  ["let"
+                                                   [["ns-list"
+                                                     ["list-dependent-ns"
+                                                      "ns-part"
+                                                      [":files" "sepal-ir"]
+                                                      [":package" "sepal-ir"]]]
+                                                    ["ns-list-more" ["cons" "ns-part" "ns-list"]]
+                                                    ["new-paths"
+                                                     ["->>"
+                                                      "ns-list-more"
+                                                      ["map"
+                                                       ["fn"
+                                                        ["ns-name"]
+                                                        ["let"
+                                                         [["some-defs"
+                                                           ["get-in" [":files" "sepal-ir"] ["[]" "ns-name" ":defs"]]]]
+                                                         ["--" "println" "|Trying ns:" "ns-name"]
+                                                         ["->>"
+                                                          "some-defs"
+                                                          ["filter"
+                                                           ["fn"
+                                                            ["entry"]
+                                                            ["let"
+                                                             [[["[]" "name-part" "tree"] "entry"]]
+                                                             ["--" "println" "|Detecting def:" "ns-name" "name-part"]
+                                                             ["tree-contains?" ["subvec" "tree" "2"] "extra-name"]]]]
+                                                          ["map"
+                                                           ["fn" ["entry"] ["[]" "ns-name" ":defs" ["first" "entry"]]]]]]]]
+                                                      ["filter" ["fn" ["xs"] ["not" ["empty?" "xs"]]]]
+                                                      ["apply" "concat"]]]]
+                                                   ["println" "|Got new paths:" "new-paths"]
+                                                   ["update"
+                                                    "store"
+                                                    ":writer"
+                                                    ["fn"
+                                                     ["writer"]
+                                                     ["->"
+                                                      "writer"
+                                                      ["assoc"
+                                                       ":stack"
+                                                       ["into" ["[]"] ["concat" "former-stack" "new-paths"]]]
+                                                      ["assoc"
+                                                       ":pointer"
+                                                       ["if" ["empty?" "new-paths"] "pointer" ["inc" "pointer"]]]
+                                                      ["assoc" ":focus" ["[]"]]]]]]]
                                                  [":ns"
                                                   ["let"
                                                    [["ns-list"
@@ -1726,7 +1774,20 @@
                                                  ["let"
                                                   [["dict" ["get-in" "files" ["[]" "ns-part" ":defs"]]]]
                                                   ["contains?" "dict" "name-part"]]
-                                                 "false"]]},
+                                                 "false"]],
+                               "tree-contains?" ["defn"
+                                                 "tree-contains?"
+                                                 ["tree" "x"]
+                                                 ["if"
+                                                  ["string?" "tree"]
+                                                  ["=" "tree" "x"]
+                                                  ["if"
+                                                   ["empty?" "tree"]
+                                                   "false"
+                                                   ["let"
+                                                    [["cursor" ["first" "tree"]]
+                                                     ["at-head?" ["tree-contains?" "cursor" "x"]]]
+                                                    ["if" "at-head?" "true" ["recur" ["rest" "tree"] "x"]]]]]]},
                         :procs []},
          "updater.modal" {:ns ["ns" "stack-editor.updater.modal"],
                           :defs {"mould" ["defn"

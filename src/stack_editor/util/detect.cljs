@@ -20,3 +20,11 @@
   (if (contains? files ns-part)
     (let [dict (get-in files [ns-part :defs])] (contains? dict name-part))
     false))
+
+(defn tree-contains? [tree x]
+  (if (string? tree)
+    (= tree x)
+    (if (empty? tree)
+      false
+      (let [cursor (first tree), at-head? (tree-contains? cursor x)]
+        (if at-head? true (recur (rest tree) x))))))
