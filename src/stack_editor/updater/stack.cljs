@@ -128,19 +128,30 @@
               new-paths (->> ns-list-more
                              (map
                               (fn [ns-name]
-                                (let [some-defs (get-in (:files sepal-ir) [ns-name :defs])]
+                                (let [file (get-in sepal-ir [:files ns-name])
+                                      some-defs (:defs file)
+                                      matched-defs (->> some-defs
+                                                        (filter
+                                                         (fn [entry]
+                                                           (let [[name-part tree] entry]
+                                                             (comment
+                                                              println
+                                                              "Detecting def:"
+                                                              ns-name
+                                                              name-part)
+                                                             (tree-contains?
+                                                              (subvec tree 2)
+                                                              extra-name))))
+                                                        (map
+                                                         (fn [entry]
+                                                           [ns-name :defs (first entry)])))
+                                      proc-matching? (tree-contains?
+                                                      (:procs file)
+                                                      extra-name)]
                                   (comment println "Trying ns:" ns-name)
-                                  (->> some-defs
-                                       (filter
-                                        (fn [entry]
-                                          (let [[name-part tree] entry]
-                                            (comment
-                                             println
-                                             "Detecting def:"
-                                             ns-name
-                                             name-part)
-                                            (tree-contains? (subvec tree 2) extra-name))))
-                                       (map (fn [entry] [ns-name :defs (first entry)]))))))
+                                  (if proc-matching?
+                                    (cons [ns-name :procs] matched-defs)
+                                    matched-defs))))
                              (filter (fn [xs] (not (empty? xs))))
                              (apply concat))]
           (println "Got new paths:" new-paths)
