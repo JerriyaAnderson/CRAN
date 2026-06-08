@@ -73,3 +73,12 @@
               (comment println "Search:" ns-name ns-rules)
               (contains? ns-rules full-ns))))
          (map first))))
+
+(defn pick-rule [ns-block ns-name pkg]
+  (let [full-ns (str pkg "." ns-name), rules (subvec (get ns-block 2) 1)]
+    (loop [left-rules rules]
+      (if (empty? left-rules)
+        nil
+        (let [cursor (first left-rules)]
+          (comment println "Picking" cursor full-ns)
+          (if (= full-ns (get cursor 1)) cursor (recur (rest left-rules))))))))

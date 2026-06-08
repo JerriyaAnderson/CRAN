@@ -1,7 +1,9 @@
 
 (ns stack-editor.updater.stack
   (:require [clojure.string :as string]
-            [stack-editor.util.analyze :refer [locate-ns compute-ns list-dependent-ns]]
+            [stack-editor.util.analyze
+             :refer
+             [locate-ns compute-ns list-dependent-ns pick-rule]]
             [stack-editor.util.detect :refer [strip-atom contains-def? tree-contains?]]
             [stack-editor.util :refer [remove-idx]]))
 
@@ -120,38 +122,56 @@
         code-path (get stack pointer)
         [ns-part kind extra-name] code-path
         sepal-ir (:collection store)
-        former-stack (subvec stack 0 (inc pointer))]
+        former-stack (subvec stack 0 (inc pointer))
+        pkg (:package sepal-ir)]
     (case kind
       :defs
-        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) (:package sepal-ir))
+        (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) pkg)
               ns-list-more (cons ns-part ns-list)
               new-paths (->> ns-list-more
                              (map
                               (fn [ns-name]
                                 (let [file (get-in sepal-ir [:files ns-name])
-                                      some-defs (:defs file)
-                                      matched-defs (->> some-defs
-                                                        (filter
-                                                         (fn [entry]
-                                                           (let [[name-part tree] entry]
-                                                             (comment
-                                                              println
-                                                              "Detecting def:"
-                                                              ns-name
-                                                              name-part)
-                                                             (tree-contains?
-                                                              (subvec tree 2)
-                                                              extra-name))))
-                                                        (map
-                                                         (fn [entry]
-                                                           [ns-name :defs (first entry)])))
-                                      proc-matching? (tree-contains?
-                                                      (:procs file)
-                                                      extra-name)]
-                                  (comment println "Trying ns:" ns-name)
-                                  (if proc-matching?
-                                    (cons [ns-name :procs] matched-defs)
-                                    matched-defs))))
+                                      the-ns-rule (pick-rule (:ns file) ns-part pkg)
+                                      method (get the-ns-rule 2)
+                                      some-defs (:defs file)]
+                                  (comment println "Trying ns:" ns-name method the-ns-rule)
+                                  (if (and (= method ":refer")
+                                           (let [referred-defs (into
+                                                                #{}
+                                                                (subvec
+                                                                 (get the-ns-rule 3)
+                                                                 1))]
+                                             (println
+                                              "Trying refer:"
+                                              referred-defs
+                                              extra-name)
+                                             (not (contains? referred-defs extra-name))))
+                                    (list)
+                                    (let [target-name (if (= method ":refer")
+                                                        extra-name
+                                                        (str (get the-ns-rule 3) extra-name))
+                                          matched-defs (->> some-defs
+                                                            (filter
+                                                             (fn [entry]
+                                                               (let [[name-part tree] entry]
+                                                                 (comment
+                                                                  println
+                                                                  "Detecting def:"
+                                                                  ns-name
+                                                                  name-part)
+                                                                 (tree-contains?
+                                                                  (subvec tree 2)
+                                                                  extra-name))))
+                                                            (map
+                                                             (fn [entry]
+                                                               [ns-name :defs (first entry)])))
+                                          proc-matching? (tree-contains?
+                                                          (:procs file)
+                                                          extra-name)]
+                                      (if proc-matching?
+                                        (cons [ns-name :procs] matched-defs)
+                                        matched-defs))))))
                              (filter (fn [xs] (not (empty? xs))))
                              (apply concat))]
           (println "Got new paths:" new-paths)
