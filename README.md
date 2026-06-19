@@ -56,7 +56,7 @@ Build steps:
 
 ```bash
 boot build-advanced
-source tasks/class-path.sh
+export boot_deps=`boot show -c`
 rm .lumo_cache/stack_editor_SLASH_*
 lumo -Kc $boot_deps:src/ -i tasks/render.cljs
 webpack

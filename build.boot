@@ -9,7 +9,7 @@
                  [cirru/boot-stack-server   "0.1.29"      :scope "test"]
                  [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.37"]
+                 [respo                     "0.3.38"]
                  [respo/ui                  "0.1.6"]
                  [cirru/editor              "0.1.18"]
                  [respo/border              "0.1.0"]
