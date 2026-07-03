@@ -56,9 +56,9 @@ Build steps:
 
 ```bash
 boot build-advanced
-export boot_deps=`boot show -c`
+export deps=`boot show -c`
 rm .lumo_cache/stack_editor_SLASH_*
-lumo -Kc $boot_deps:src/ -i tasks/render.cljs
+lumo -Kc $deps:src/ -i tasks/render.cljs
 webpack
 bash tasks/rsync.sh
 ```

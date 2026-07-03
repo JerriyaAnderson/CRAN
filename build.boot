@@ -11,7 +11,7 @@
                  [mvc-works/hsl             "0.1.2"]
                  [respo                     "0.3.38"]
                  [respo/ui                  "0.1.6"]
-                 [cirru/editor              "0.1.18"]
+                 [cirru/editor              "0.1.19"]
                  [respo/border              "0.1.0"]
                  [cumulo/shallow-diff       "0.1.1"]
                  [cljs-ajax                 "0.5.8"]])
