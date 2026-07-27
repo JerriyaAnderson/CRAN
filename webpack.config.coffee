@@ -10,8 +10,7 @@ module.exports =
   module:
     rules: [
       test: /\.css$/, loader: ExtractTextPlugin.extract
-        fallbackLoader: 'style-loader'
-        loader: 'css-loader'
+        fallback: 'style-loader', use: 'css-loader'
     ,
       test: /\.(eot|svg|ttf|woff2?)(\?.+)?$/, loader: 'url-loader'
       query: {limit: 100, name: 'fonts/[name].[ext]'}

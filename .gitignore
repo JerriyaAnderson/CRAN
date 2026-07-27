@@ -1,5 +1,6 @@
 
 /target/
+/server-target
 .nrepl-history
 .nrepl-port
 /src/*.*

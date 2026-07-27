@@ -22,6 +22,8 @@ The template project in the video is: https://github.com/mvc-works/stack-workflo
 I've listed the keyboard shortcuts here, you will need it:
 https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts
 
+Browse `npm-package/` folder for the command-line tool to run the server.
+
 Stack Editor is built on top of [Boot](http://boot-clj.com).
 You can find more about the task at: https://github.com/Cirru/boot-stack-server
 
@@ -32,10 +34,13 @@ This demo itself is a based on Stack Editor, so you can clone this repo and try.
 ```bash
 git clone git@github.com:Cirru/stack-editor.git
 cd stack-editor
-source tasks/class-path.cljs # prepare classpath for Lump
-op=compile lumo -Kc $boot_deps:src/ -i tasks/server.cljs # just compile code
-env=dev lumo -Kc $boot_deps:src/ -i tasks/render.cljs # render dev.html
-lumo -Kc $boot_deps:src/ -i tasks/server.cljs # run server at localhost:7010
+export deps=`boot show -c` # prepare classpath for Lump
+env=dev lumo -Kc $deps:src/ -i tasks/render.cljs # render dev.html
+
+npm i -g stack-editor
+op=compile stack-editor # option, for compiling code only
+stack-editor # starting file server to edit
+boot dev
 ```
 
 Open `target/dev.html` with an HTTP server, then you will see the editor.
@@ -57,7 +62,7 @@ Build steps:
 ```bash
 boot build-advanced
 export deps=`boot show -c`
-rm .lumo_cache/stack_editor_SLASH_*
+rm .lumo_cache/stack_editor_SLASH_* # optional, remove Lumo caches
 lumo -Kc $deps:src/ -i tasks/render.cljs
 webpack
 bash tasks/rsync.sh
