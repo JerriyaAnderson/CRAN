@@ -10,6 +10,7 @@
 (def fs (js/require "fs"))
 (def http (js/require "http"))
 (def path (js/require "path"))
+(def mkdirp (js/require "mkdirp"))
 
 (def ir-path (or (get (js->clj js/process.argv) 2) "stack-sepal.ir"))
 (def out-folder (or js/process.env.out "src/"))
@@ -17,7 +18,11 @@
 (def port (js/parseInt (or js/process.env.port "7010")))
 
 (def ref-sepal
-  (atom (read-string (fs.readFileSync ir-path "utf8"))))
+  (atom
+    (if (fs.existsSync ir-path)
+        (read-string (fs.readFileSync ir-path "utf8"))
+        (do (.log js/console (str "Error: " ir-path " does not exist!"))
+            (.exit js/process 1)))))
 
 (defn read-body [req]
   (let [body-ref (atom "")
@@ -31,9 +36,15 @@
 
 (defn write-by-file [pkg ns-part file-info]
   (let [file-name (str (ns->path pkg ns-part) extension)
-        content (generate-file ns-part file-info)]
+        content (generate-file ns-part file-info)
+        file-target (path.join out-folder file-name)
+        container (path.dirname file-target)]
     (println "File compiled:" file-name)
-    (fs.writeFileSync (path.join out-folder file-name) content)))
+    (if (not (fs.existsSync container))
+        (do
+          (println "Creating folder:" container)
+          (mkdirp.sync container)))
+    (fs.writeFileSync file-target content)))
 
 (defn compare-write-source! [sepal-data]
   (doseq [entry (:files sepal-data)]
@@ -73,11 +84,12 @@
 (defn create-app! []
   (let [app (http.createServer req-handler)]
     (.listen app port)
-    (println (str "File: " ir-path))
-    (println (str "Port: " port))
-    (println (str "Output: " out-folder))
-    (println (str "Extension: " extension))
-    (println "Edit with http://repo.cirru.org/stack-editor/?port=7010")))
+    (println "File: " ir-path)
+    (println "Port: " port)
+    (println "Output: " out-folder)
+    (println "Extension: " extension)
+    (println "Version: 0.1.1")
+    (println (str "Edit with http://repo.cirru.org/stack-editor/?port=" port))))
 
 (defn -main []
   (if (= js/process.env.op "compile")

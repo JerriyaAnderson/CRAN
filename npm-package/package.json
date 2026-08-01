@@ -1,6 +1,6 @@
 {
   "name": "stack-editor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Server command-line for Stack Editor",
   "bin": {
     "se": "main.js",
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/Cirru/stack-editor/issues"
   },
-  "homepage": "https://github.com/Cirru/stack-editor#readme"
+  "homepage": "https://github.com/Cirru/stack-editor#readme",
+  "dependencies": {
+    "mkdirp": "^0.5.1"
+  }
 }
