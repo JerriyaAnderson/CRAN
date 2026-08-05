@@ -84,11 +84,11 @@
 (defn create-app! []
   (let [app (http.createServer req-handler)]
     (.listen app port)
-    (println "File: " ir-path)
-    (println "Port: " port)
-    (println "Output: " out-folder)
-    (println "Extension: " extension)
-    (println "Version: 0.1.1")
+    (println "File:" ir-path)
+    (println "Port:" port)
+    (println "Output:" out-folder)
+    (println "Extension:" extension)
+    (println "Version: 0.1.2")
     (println (str "Edit with http://repo.cirru.org/stack-editor/?port=" port))))
 
 (defn -main []
