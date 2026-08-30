@@ -2,7 +2,7 @@
 Stack Editor
 ----
 
-> A ClojureScript implementation of [Clouditor](https://github.com/Cirru/clouditor/), which is a structured app editor beyond the concepts of files and syntax.
+> A ClojureScript implementation of [Clouditor](https://github.com/Cirru/clouditor/), which is a structured editor beyond the concepts of files and syntax.
 
 * [Client App](http://repo.cirru.org/stack-editor/)
 * [Editor Shortcuts](https://github.com/Cirru/stack-editor/wiki/Keyboard-Shortcuts)
@@ -31,7 +31,7 @@ Demo of `stack-sepal.ir`
 
 For the UI part of the editor, it's based on the address:
 
-<http://repo.cirru.org/stack-editor/?host=tiye.me&port=7011>
+<http://repo.cirru.org/stack-editor/?host=localhost&port=7010>
 
 * `port`, defaults to `7010`, server port
 * `host`, defaults to `"localhost"`, server domain
