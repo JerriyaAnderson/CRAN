@@ -7,7 +7,7 @@ Stack Editor
 * [Client App](http://repo.cirru.org/stack-editor/)
 * [Editor Shortcuts](https://github.com/Cirru/stack-editor/wiki/Keyboard-Shortcuts)
 * [Code Shortcuts](https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts)
-* [Video Introduction(Old)](https://www.youtube.com/watch?v=zsiYPppEDp0)
+* [Video Introduction](https://youtu.be/PdP7DHlQBoQ)
 
 Server part:
 
