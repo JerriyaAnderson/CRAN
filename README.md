@@ -9,7 +9,7 @@ Stack Editor
 * [Code Shortcuts](https://github.com/Cirru/respo-cirru-editor/wiki/Keyboard-Shortcuts)
 * [Video Introduction](https://youtu.be/PdP7DHlQBoQ)
 
-Server part:
+[Server part](https://github.com/Cirru/stack-server):
 
 ```bash
 npm install -g stack-editor
@@ -36,7 +36,7 @@ For the UI part of the editor, it's based on the address:
 * `port`, defaults to `7010`, server port
 * `host`, defaults to `"localhost"`, server domain
 
-For the server part, is an npm command line:
+For the [server part](https://github.com/Cirru/stack-server), is an npm command line:
 
 ```bash
 op=watch port=7010 extension=.cljs out=src/ stack-editor stack-sepal.ir

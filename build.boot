@@ -1,13 +1,11 @@
 
 (set-env!
-  :asset-paths #{"assets/"}
+ :asset-paths #{"assets/"}
  :resource-paths #{"src"}
  :dependencies '[[org.clojure/clojure       "1.8.0"       :scope "test"]
                  [org.clojure/clojurescript "1.9.521"     :scope "test"]
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.13"      :scope "test"]
-                 [cirru/boot-stack-server   "0.1.29"      :scope "test"]
-                 [adzerk/boot-test          "1.1.2"       :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
                  [respo                     "0.3.38"]
                  [respo/ui                  "0.1.6"]
@@ -41,17 +39,6 @@
                              :optimize-constants true
                              :source-map true})
     (target :no-clean true)))
-
-(deftask build-server []
-  (set-env!
-    :resource-paths #{"server-src/"})
-  (comp
-    ; (watch)
-    (cljs :optimizations :simple
-          :compiler-options {:language-in :ecmascript5
-                             :target :nodejs
-                             :parallel-build true})
-    (target :no-clean true :dir #{"server-target"})))
 
 (def +version+ "0.1.0")
 
