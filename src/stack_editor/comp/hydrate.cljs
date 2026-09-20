@@ -10,8 +10,6 @@
             [cljs.reader :refer [read-string]]
             [stack-editor.util.detect :refer [cirru-vec?]]))
 
-(defn update-state [state text] text)
-
 (def style-textarea
   {:background-color (hsl 0 0 100 0.2),
    :font-family "Source Code Pro, Menlo",
@@ -25,9 +23,7 @@
 
 (def style-toolbar {:justify-content :flex-end})
 
-(defn on-change [mutate!] (fn [e dispatch!] (mutate! (:value e))))
-
-(defn init-state [& args] "")
+(defn on-change [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
 
 (defn on-hydrate [text]
   (fn [e dispatch!]
@@ -36,22 +32,24 @@
         (do (dispatch! :collection/hydrate piece) (dispatch! :modal/recycle nil))
         (dispatch! :notification/add-one (str "Checking failed: " (pr-str text)))))))
 
-(defn render []
-  (fn [state mutate!]
-    (div
-     {}
-     (div {:style style-hint} (comp-text "EDN Cirru code to hydrate:" nil))
-     (div
-      {}
-      (textarea
-       {:style (merge ui/textarea style-textarea),
-        :attrs {:value state},
-        :event {:input (on-change mutate!)}}))
-     (comp-space nil 8)
-     (div
-      {:style (merge ui/row style-toolbar)}
-      (button
-       {:style widget/button, :event {:click (on-hydrate state)}}
-       (comp-text "Hydrate" nil))))))
-
-(def comp-hydrate (create-comp :hydrate init-state update-state render))
+(def comp-hydrate
+  (create-comp
+   :hydrate
+   (fn [states]
+     (fn [cursor]
+       (let [state (:data states)]
+         (div
+          {}
+          (div {:style style-hint} (comp-text "EDN Cirru code to hydrate:" nil))
+          (div
+           {}
+           (textarea
+            {:style (merge ui/textarea style-textarea),
+             :attrs {:value state},
+             :event {:input (on-change cursor)}}))
+          (comp-space nil 8)
+          (div
+           {:style (merge ui/row style-toolbar)}
+           (button
+            {:style widget/button, :event {:click (on-hydrate state)}}
+            (comp-text "Hydrate" nil)))))))))

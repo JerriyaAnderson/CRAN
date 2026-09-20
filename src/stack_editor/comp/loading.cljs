@@ -14,7 +14,7 @@
    :font-family "Josefin Sans"})
 
 (defn render [store]
-  (fn [state mutate!]
+  (fn [cursor]
     (div
      {:style (merge ui/fullscreen ui/row-center style-loading)}
      (comp-text "Loading..." nil))))

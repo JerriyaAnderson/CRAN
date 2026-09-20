@@ -9,7 +9,7 @@
             [stack-editor.style.widget :as widget]
             [stack-editor.util.keycode :as keycode]))
 
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
+(defn on-input [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
 
 (defn update-state [state text] text)
 
@@ -21,8 +21,6 @@
 
 (def style-ns {:font-family "Source Code Pro,Menlo,monospace", :white-space :nowrap})
 
-(defn init-state [& args] "")
-
 (def style-proc
   {:width 48,
    :min-width 48,
@@ -32,27 +30,33 @@
    :display :inline-block,
    :text-decoration :underline})
 
-(defn on-keydown [text mutate! ns-name]
+(defn on-keydown [cursor text ns-name]
   (fn [e dispatch!]
     (if (and (= keycode/key-enter (:key-code e)) (pos? (count text)))
-      (do (mutate! "") (dispatch! :collection/add-definition [ns-name text])))))
+      (do
+       (dispatch! :states [cursor ""])
+       (dispatch! :collection/add-definition [ns-name text])))))
 
-(defn render [ns-name]
-  (fn [state mutate!]
-    (div
-     {}
-     (div
-      {:style style-namespace, :event {:click (on-click ns-name)}}
-      (comp-text ns-name style-ns)
-      (comp-space 16 nil)
-      (div
-       {:style (merge style-proc), :event {:click (on-proc ns-name)}}
-       (comp-text "proc" nil)))
-     (div
-      {}
-      (input
-       {:style (merge (merge widget/input {:width "200px", :height "24px"})),
-        :attrs {:value state, :placeholder ""},
-        :event {:input (on-input mutate!), :keydown (on-keydown state mutate! ns-name)}})))))
+(def comp-define
+  (create-comp
+   :define
+   (fn [states ns-name]
+     (fn [cursor]
+       (let [state (or (:data states) "")]
+         (div
+          {}
+          (div
+           {:style style-namespace, :event {:click (on-click ns-name)}}
+           (comp-text ns-name style-ns)
+           (comp-space 16 nil)
+           (div
+            {:style (merge style-proc), :event {:click (on-proc ns-name)}}
+            (comp-text "proc" nil)))
+          (div
+           {}
+           (input
+            {:style (merge (merge widget/input {:width "200px", :height "24px"})),
+             :attrs {:value state, :placeholder ""},
+             :event {:input (on-input cursor), :keydown (on-keydown cursor state ns-name)}}))))))))
 
-(def comp-define (create-comp :define init-state update-state render))
+(defn init-state [& args] "")

@@ -45,7 +45,7 @@
    :white-space "nowrap"})
 
 (defn render [stack pointer]
-  (fn [state mutate!]
+  (fn [cursor]
     (div
      {:style (merge ui/flex style-container)}
      (->> stack

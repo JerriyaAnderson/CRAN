@@ -11,7 +11,8 @@
             [stack-editor.style.widget :as widget]
             [stack-editor.util.detect :refer [fuzzy-search]]))
 
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! {:text (:value e), :cursor 0})))
+(defn on-input [cursor state]
+  (fn [e dispatch!] (dispatch! :states [cursor (merge state {:text (:value e), :cursor 0})])))
 
 (defn handle-command [cursor commands files dispatch!]
   (let [command (get (into [] commands) cursor)]
@@ -27,66 +28,74 @@
       :procs (do (dispatch! :collection/edit [(last command) :procs]))
       nil)))
 
-(def update-state merge)
-
 (def style-container
   {:position "fixed", :background-color (hsl 200 40 10 0.8), :justify-content "center"})
 
 (defn on-select [cursor commands files]
   (fn [dispatch!] (handle-command cursor commands files dispatch!)))
 
-(defn init-state [& args] {:text "", :cursor 0})
+(def initial-state {:text "", :cursor 0})
 
 (def basic-commands [[:save] [:load] [:hydrate] [:dehydrate]])
 
-(defn on-keydown [mutate! commands cursor collection]
+(defn on-keydown [respo-cursor state commands cursor collection]
   (fn [e dispatch!]
     (let [code (:key-code e), total (count commands)]
       (cond
         (= code keycode/key-esc)
-          (do (mutate! {:text ""}) (dispatch! :router/toggle-palette nil) (focus!))
+          (do
+           (dispatch! :states [respo-cursor (merge state {:text ""})])
+           (dispatch! :router/toggle-palette nil)
+           (focus!))
         (= code keycode/key-down)
-          (if (< cursor (dec total)) (mutate! {:cursor (inc cursor)}))
-        (= code keycode/key-up) (if (> cursor 0) (mutate! {:cursor (dec cursor)}))
+          (if (< cursor (dec total))
+            (dispatch! :states [respo-cursor {:cursor (inc cursor)}]))
+        (= code keycode/key-up)
+          (if (> cursor 0)
+            (dispatch! :states [respo-cursor (merge state {:cursor (dec cursor)})]))
         (= code keycode/key-enter)
-          (do (mutate! {:text ""}) (handle-command cursor commands collection dispatch!))
+          (do
+           (dispatch! :states [respo-cursor (merge state {:text ""})])
+           (handle-command cursor commands collection dispatch!))
         :else nil))))
 
-(defn render [files]
-  (fn [state mutate!]
-    (let [ns-names (->> (keys files) (map (fn [path] [:ns path])))
-          def-paths (->> files
-                         (map
-                          (fn [entry]
-                            (let [[ns-part tree] entry]
-                              (->> (:defs tree)
-                                   (keys)
-                                   (map (fn [def-name] [:defs ns-part def-name]))))))
-                         (apply concat))
-          procedure-names (->> (keys files) (map (fn [proc-name] [:procs proc-name])))
-          queries (string/split (:text state) " ")
-          commands (->> (concat def-paths ns-names procedure-names basic-commands)
-                        (filter (fn [command] (fuzzy-search command queries))))]
-      (div
-       {:style (merge ui/fullscreen ui/row style-container)}
-       (div
-        {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
-        (input
-         {:style (merge widget/input {:width "100%", :line-height "40px"}),
-          :attrs {:placeholder "write command...",
-                  :id "command-palette",
-                  :value (:text state)},
-          :event {:input (on-input mutate!),
-                  :keydown (on-keydown mutate! commands (:cursor state) files)}})
-        (div
-         {:style (merge ui/flex {:overflow "auto"})}
-         (->> commands
-              (map-indexed
-               (fn [idx command]
-                 [idx
-                  (comp-command
-                   command
-                   (= idx (:cursor state))
-                   (on-select idx commands files))])))))))))
-
-(def comp-palette (create-comp :palette init-state update-state render))
+(def comp-palette
+  (create-comp
+   :palette
+   (fn [states files]
+     (fn [cursor]
+       (let [ns-names (->> (keys files) (map (fn [path] [:ns path])))
+             state (or (:data states) initial-state)
+             def-paths (->> files
+                            (map
+                             (fn [entry]
+                               (let [[ns-part tree] entry]
+                                 (->> (:defs tree)
+                                      (keys)
+                                      (map (fn [def-name] [:defs ns-part def-name]))))))
+                            (apply concat))
+             procedure-names (->> (keys files) (map (fn [proc-name] [:procs proc-name])))
+             queries (string/split (:text state) " ")
+             commands (->> (concat def-paths ns-names procedure-names basic-commands)
+                           (filter (fn [command] (fuzzy-search command queries))))]
+         (div
+          {:style (merge ui/fullscreen ui/row style-container)}
+          (div
+           {:style (merge ui/column {:background-color (hsl 0 0 0 0.8), :width "800px"})}
+           (input
+            {:style (merge widget/input {:width "100%", :line-height "40px"}),
+             :attrs {:placeholder "write command...",
+                     :id "command-palette",
+                     :value (:text state)},
+             :event {:input (on-input cursor state),
+                     :keydown (on-keydown cursor state commands (:cursor state) files)}})
+           (div
+            {:style (merge ui/flex {:overflow "auto"})}
+            (->> commands
+                 (map-indexed
+                  (fn [idx command]
+                    [idx
+                     (comp-command
+                      command
+                      (= idx (:cursor state))
+                      (on-select idx commands files))])))))))))))

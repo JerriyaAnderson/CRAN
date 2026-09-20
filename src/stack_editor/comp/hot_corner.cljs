@@ -14,7 +14,7 @@
         (dispatch! :router/route {:name :workspace, :data nil})))))
 
 (defn render [router writer]
-  (fn [state mutate!]
+  (fn [cursor]
     (div
      {:style {:font-size "24px",
               :font-weight "300",

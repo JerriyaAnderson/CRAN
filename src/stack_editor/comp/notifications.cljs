@@ -23,7 +23,7 @@
    :border-radius "2px"})
 
 (defn render [notifications]
-  (fn [state mutate!]
+  (fn [cursor]
     (div
      {}
      (->> notifications

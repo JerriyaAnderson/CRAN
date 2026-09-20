@@ -2,7 +2,8 @@
 (ns stack-editor.comp.definitions
   (:require [hsl.core :refer [hsl]]
             [clojure.string :as string]
-            [respo.alias :refer (create-comp div input)]
+            [respo.alias :refer [create-comp div input]]
+            [respo.cursor :refer [with-cursor]]
             [respo.comp.space :refer [comp-space]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.debug :refer [comp-debug]]
@@ -26,13 +27,15 @@
 (defn by-var-part [code-entry]
   (let [path (first code-entry)] (last (string/split path "/"))))
 
-(defn render [sepal-data]
-  (fn [state mutate!]
+(defn render [states sepal-data]
+  (fn [cursor]
     (let [files (:files sepal-data)]
       (div
        {:style (merge ui/fullscreen ui/column ui/card {:background-color :black})}
        (comp-space nil "16px")
-       (comp-ns-creator (:package sepal-data))
+       (with-cursor
+        :ns-creator
+        (comp-ns-creator (:ns-creator states) (:package sepal-data)))
        (comp-space nil "32px")
        (div
         {:style (merge ui/flex {:overflow "auto", :padding-bottom 200})}
@@ -44,7 +47,7 @@
                   [ns-name
                    (div
                     {:style style-file}
-                    (comp-define ns-name)
+                    (with-cursor ns-name (comp-define (get states ns-name) ns-name))
                     (div
                      {:style style-list}
                      (->> def-codes

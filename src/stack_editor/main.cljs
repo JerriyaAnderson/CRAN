@@ -1,8 +1,6 @@
 
 (ns stack-editor.main
-  (:require [respo.core
-             :refer
-             [render! clear-cache! render-element falsify-stage! gc-states!]]
+  (:require [respo.core :refer [render! clear-cache! render-element falsify-stage!]]
             [stack-editor.schema :as schema]
             [stack-editor.comp.container :refer [comp-container]]
             [cljs.reader :refer [read-string]]
@@ -20,7 +18,7 @@
 (def focus-moved?-ref (atom false))
 
 (defn dispatch! [op op-data]
-  (comment println "dispatch!" op op-data)
+  (comment println "Dispatch!" op op-data)
   (case op
     :effect/submit
       (let [shift? op-data, sepal-data (:collection @store-ref)]
@@ -37,11 +35,9 @@
              (identical? (:writer @store-ref) (:writer new-store)))))
       (reset! store-ref new-store))))
 
-(defonce states-ref (atom {}))
-
 (defn render-app! []
   (let [target (.querySelector js/document "#app")]
-    (render! (comp-container @store-ref #{:shell :dynamic}) target dispatch! states-ref)
+    (render! (comp-container @store-ref #{:shell :dynamic}) target dispatch!)
     (if @focus-moved?-ref (do (reset! focus-moved?-ref false) (focus!)))))
 
 (def ssr-stages
@@ -55,12 +51,10 @@
     (let [target (.querySelector js/document "#app")]
       (falsify-stage!
        target
-       (render-element (comp-container @store-ref ssr-stages) states-ref)
+       (render-element (comp-container @store-ref ssr-stages))
        dispatch!)))
   (render-app!)
-  (add-watch store-ref :gc (fn [] (gc-states! states-ref)))
   (add-watch store-ref :changes render-app!)
-  (add-watch states-ref :changes render-app!)
   (.addEventListener
    js/window
    "keydown"
@@ -87,5 +81,7 @@
   (load-collection! dispatch! true))
 
 (defn on-jsload! [] (clear-cache!) (render-app!) (println "Code updated."))
+
+(defonce states-ref (atom {}))
 
 (set! js/window.onload -main!)

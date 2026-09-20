@@ -2,6 +2,7 @@
 (ns stack-editor.comp.modal-stack
   (:require [hsl.core :refer [hsl]]
             [respo.alias :refer [create-comp div span]]
+            [respo.cursor :refer [with-cursor]]
             [respo.comp.text :refer [comp-text]]
             [respo.comp.debug :refer [comp-debug]]
             [respo-ui.style :as ui]
@@ -24,16 +25,16 @@
 
 (defn on-recycle [e dispatch!] (dispatch! :modal/recycle nil))
 
-(defn renderer [kind title data]
+(defn renderer [states kind title data]
   (div
    {}
    (case title
-     :rename-path (comp-rename-path data)
-     :hydrate (comp-hydrate)
+     :rename-path (with-cursor :rename-path (comp-rename-path (:rename-path states) data))
+     :hydrate (with-cursor :hydrate (comp-hydrate (:hydrate states)))
      (comp-text title nil))))
 
-(defn render [modal-stack]
-  (fn [state mutate!]
+(defn render [states modal-stack]
+  (fn [cursor]
     (div
      {}
      (->> modal-stack
@@ -43,6 +44,6 @@
                [idx
                 (div
                  {:style style-modal, :event {:click on-recycle}}
-                 (div {:event {:click on-tip}} (renderer kind title data)))])))))))
+                 (div {:event {:click on-tip}} (renderer states kind title data)))])))))))
 
 (def comp-modal-stack (create-comp :modal-stack render))

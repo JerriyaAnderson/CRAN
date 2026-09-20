@@ -7,19 +7,17 @@
                  [adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [adzerk/boot-reload        "0.4.13"      :scope "test"]
                  [mvc-works/hsl             "0.1.2"]
-                 [respo                     "0.3.38"]
-                 [respo/ui                  "0.1.6"]
-                 [cirru/editor              "0.1.20"]
+                 [respo                     "0.4.2"]
+                 [respo/ui                  "0.2.0"]
+                 [cirru/editor              "0.2.0"]
                  [respo/border              "0.1.0"]
-                 [cumulo/shallow-diff       "0.1.1"]
+                 [cumulo/shallow-diff       "0.1.3"]
                  [cljs-ajax                 "0.5.8"]])
 
 (require '[adzerk.boot-cljs   :refer [cljs]]
          '[adzerk.boot-reload :refer [reload]])
 
 (deftask dev []
-  (set-env!
-    :asset-paths #{"assets"})
   (comp
     (watch)
     (reload :on-jsload 'stack-editor.main/on-jsload!
@@ -28,8 +26,6 @@
     (target :no-clean true)))
 
 (deftask build-advanced []
-  (set-env!
-    :asset-paths #{"assets"})
   (comp
     (cljs :optimizations :advanced
           :compiler-options {:language-in :ecmascript5

@@ -10,9 +10,7 @@
   (let [[ns-part kind extra-name] code-path]
     (if (= kind :defs) (str ns-part "/" extra-name) ns-part)))
 
-(defn update-state [state new-text] new-text)
-
-(defn on-input [mutate!] (fn [e dispatch!] (mutate! (:value e))))
+(defn on-input [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
 
 (defn on-rename [code-path text]
   (fn [e dispatch!]
@@ -20,22 +18,24 @@
     (dispatch! :collection/rename [code-path text])
     (dispatch! :modal/recycle nil)))
 
-(defn render [code-path]
-  (fn [state mutate!]
-    (div
-     {}
-     (div {} (comp-text (str "Rename in " (first code-path)) nil))
-     (div {} (comp-text (last code-path) nil))
-     (div
-      {}
-      (input
-       {:style (merge ui/input {:width 400}),
-        :attrs {:value state},
-        :event {:input (on-input mutate!)}})
-      (comp-space 16 nil)
-      (div
-       {:style widget/button,
-        :attrs {:inner-text "Rename"},
-        :event {:click (on-rename code-path state)}})))))
-
-(def comp-rename-path (create-comp :rename-path init-state update-state render))
+(def comp-rename-path
+  (create-comp
+   :rename-path
+   (fn [states code-path]
+     (fn [cursor]
+       (let [state (or (:data states) (init-state code-path))]
+         (div
+          {}
+          (div {} (comp-text (str "Rename in " (first code-path)) nil))
+          (div {} (comp-text (last code-path) nil))
+          (div
+           {}
+           (input
+            {:style (merge ui/input {:width 400}),
+             :attrs {:value state},
+             :event {:input (on-input cursor)}})
+           (comp-space 16 nil)
+           (div
+            {:style widget/button,
+             :attrs {:inner-text "Rename"},
+             :event {:click (on-rename code-path state)}}))))))))

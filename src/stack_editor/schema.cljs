@@ -6,4 +6,5 @@
    :collection {:package nil, :files {}},
    :writer {:stack [], :pointer 0, :focus [], :clipboard []},
    :notifications [],
-   :modal-stack []})
+   :modal-stack [],
+   :states {}})

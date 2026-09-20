@@ -1,6 +1,7 @@
 
 (ns stack-editor.updater.core
-  (:require [stack-editor.updater.router :as router]
+  (:require [respo.cursor :refer [mutate]]
+            [stack-editor.updater.router :as router]
             [stack-editor.updater.collection :as collection]
             [stack-editor.updater.notification :as notification]
             [stack-editor.updater.stack :as stack]
@@ -10,6 +11,7 @@
 
 (defn updater [store op op-data op-id]
   (let [handler (case op
+                  :states (fn [x] (update x :states (mutate op-data)))
                   :router/route router/route
                   :router/toggle-palette router/toggle-palette
                   :collection/add-definition collection/add-definition
