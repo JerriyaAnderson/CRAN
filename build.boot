@@ -29,11 +29,11 @@
   (comp
     (cljs :optimizations :advanced
           :compiler-options {:language-in :ecmascript5
-                             :pseudo-names true
-                             :static-fns true
-                             :parallel-build true
-                             :optimize-constants true
-                             :source-map true})
+                             ; :pseudo-names true
+                             ; :static-fns true
+                             ; :optimize-constants true
+                             ; :source-map true
+                             :parallel-build true})
     (target :no-clean true)))
 
 (def +version+ "0.1.0")
