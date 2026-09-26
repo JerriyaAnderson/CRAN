@@ -9,7 +9,8 @@
             [stack-editor.style.widget :as widget]
             [stack-editor.util.keycode :as keycode]))
 
-(defn on-input [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))
+(defn on-input [parent-cursor]
+  (fn [e dispatch!] (dispatch! :states [parent-cursor (:value e)])))
 
 (defn update-state [state text] text)
 
@@ -30,33 +31,33 @@
    :display :inline-block,
    :text-decoration :underline})
 
-(defn on-keydown [cursor text ns-name]
+(defn on-keydown [parent-cursor text ns-name]
   (fn [e dispatch!]
     (if (and (= keycode/key-enter (:key-code e)) (pos? (count text)))
       (do
-       (dispatch! :states [cursor ""])
+       (dispatch! :states [parent-cursor ""])
        (dispatch! :collection/add-definition [ns-name text])))))
 
 (def comp-define
   (create-comp
    :define
-   (fn [states ns-name]
+   (fn [draft ns-name parent-cursor]
      (fn [cursor]
-       (let [state (or (:data states) "")]
+       (div
+        {}
+        (div
+         {:style style-namespace, :event {:click (on-click ns-name)}}
+         (comp-text ns-name style-ns)
+         (comp-space 16 nil)
          (div
-          {}
-          (div
-           {:style style-namespace, :event {:click (on-click ns-name)}}
-           (comp-text ns-name style-ns)
-           (comp-space 16 nil)
-           (div
-            {:style (merge style-proc), :event {:click (on-proc ns-name)}}
-            (comp-text "proc" nil)))
-          (div
-           {}
-           (input
-            {:style (merge (merge widget/input {:width "200px", :height "24px"})),
-             :attrs {:value state, :placeholder ""},
-             :event {:input (on-input cursor), :keydown (on-keydown cursor state ns-name)}}))))))))
+          {:style (merge style-proc), :event {:click (on-proc ns-name)}}
+          (comp-text "proc" nil)))
+        (div
+         {}
+         (input
+          {:style (merge (merge widget/input {:width "200px", :height "24px"})),
+           :attrs {:value draft, :placeholder ""},
+           :event {:input (on-input parent-cursor),
+                   :keydown (on-keydown parent-cursor draft ns-name)}})))))))
 
 (defn init-state [& args] "")
