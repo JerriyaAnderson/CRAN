@@ -13,17 +13,17 @@ Stack Editor
 
 ```bash
 npm install -g stack-editor
-stack-editor stack-sepal.ir
+stack-editor ir.edn
 ```
 
-Demo of `stack-sepal.ir`
+Demo of `ir.edn`
 
 ```clojure
 {:package "demo"
  :files {}}
 ```
 
-![Command Line](https://pbs.twimg.com/media/C9yqvkoUQAApmpZ.png:large)
+![Command Line](https://pbs.twimg.com/media/C_6W98iUQAQOn7Y.png:large)
 ![Definitions](https://pbs.twimg.com/media/C9yqb_aUAAEVE-N.png:large)
 ![Workspace](https://pbs.twimg.com/media/C9yqd79UAAABjvD.png:large)
 
@@ -39,7 +39,7 @@ For the UI part of the editor, it's based on the address:
 For the [server part](https://github.com/Cirru/stack-server), is an npm command line:
 
 ```bash
-op=watch port=7010 extension=.cljs out=src/ stack-editor stack-sepal.ir
+op=watch port=7010 extension=.cljs out=src/ stack-editor ir.edn
 ```
 
 * `port`, defaults to `7010`, server port corresponding to the UI part
