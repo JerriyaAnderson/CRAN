@@ -49,7 +49,7 @@
            (focus!))
         (= code keycode/key-down)
           (if (< cursor (dec total))
-            (dispatch! :states [respo-cursor {:cursor (inc cursor)}]))
+            (dispatch! :states [respo-cursor (merge state {:cursor (inc cursor)})]))
         (= code keycode/key-up)
           (if (> cursor 0)
             (dispatch! :states [respo-cursor (merge state {:cursor (dec cursor)})]))

@@ -1513,7 +1513,9 @@
                                                    ["<" "cursor" ["dec" "total"]]
                                                    ["dispatch!"
                                                     ":states"
-                                                    ["[]" "respo-cursor" ["{}" [":cursor" ["inc" "cursor"]]]]]]]
+                                                    ["[]"
+                                                     "respo-cursor"
+                                                     ["merge" "state" ["{}" [":cursor" ["inc" "cursor"]]]]]]]]
                                                  [["=" "code" "keycode/key-up"]
                                                   ["if"
                                                    [">" "cursor" "0"]
