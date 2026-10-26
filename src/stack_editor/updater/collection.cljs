@@ -1,5 +1,7 @@
 
-(ns stack-editor.updater.collection (:require [clojure.string :as string]))
+(ns stack-editor.updater.collection
+  (:require [clojure.string :as string]
+            [stack-editor.util :refer [helper-notify helper-put-ns]]))
 
 (defn rename [store op-data op-id]
   (let [[code-path new-form] op-data
@@ -57,6 +59,55 @@
          [:writer :pointer]
          (fn [pointer] (if (pos? pointer) (dec pointer) pointer))))))
 
+(defn expand-ns [store op-data op-id]
+  (let [writer (:writer store)
+        file-path (get (:stack writer) (:pointer writer))
+        base-path [:collection :files]
+        files (get-in store base-path)
+        ns-name (first file-path)
+        focus (:focus writer)
+        buffer (get-in files (concat file-path focus))]
+    (if (and (string? buffer) (string/includes? buffer "/"))
+      (let [[ns-x def-x] (string/split buffer "/")
+            ns-ast (get-in files [ns-name :ns])
+            maybe-rule (first
+                        (filter (fn [rule] (= ns-x (get rule 1))) (rest (get ns-ast 2))))]
+        (cond
+          (nil? maybe-rule)
+            (-> store
+                (assoc-in (concat base-path file-path focus) def-x)
+                (update-in
+                 [:collection :files ns-name :ns 2]
+                 (fn [require-rules]
+                   (conj (into [] require-rules) ["[]" ns-x ":refer" ["[]" def-x]])))
+                (update :writer (helper-put-ns ns-name)))
+          (= ":refer" (get maybe-rule 2))
+            (-> store
+                (assoc-in (concat base-path file-path focus) def-x)
+                (update-in
+                 [:collection :files ns-name :ns 2]
+                 (fn [require-rules]
+                   (->> require-rules
+                        (map
+                         (fn [or-rule]
+                           (if (= or-rule ":require")
+                             ":require"
+                             (if (= ns-x (get or-rule 1))
+                               (update
+                                or-rule
+                                3
+                                (fn [defs]
+                                  (if (contains? (into #{} defs) def-x)
+                                    defs
+                                    (conj defs def-x))))
+                               or-rule)))))))
+                (update :writer (helper-put-ns ns-name)))
+          (= ":as" (get maybe-rule 2))
+            (let [new-ns (last maybe-rule)]
+              (-> store (assoc-in (concat base-path file-path focus) (str new-ns "/" def-x))))
+          :else (println "Unkown rule:" maybe-rule)))
+      (update store :notifications (helper-notify op-id "Not valid ns/def form!")))))
+
 (defn write-code [store op-data]
   (let [tree (:tree op-data)
         focus (:focus op-data)
@@ -113,32 +164,13 @@
       (let [guess-ns (get-in store (concat [:collection :files] code-path (:focus writer)))
             ns-name (if (some? guess-ns) (string/replace guess-ns (str pkg ".") "") nil)]
         (if (and (some? ns-name) (some? (get-in store [:collection :files ns-name])))
-          (update
-           store
-           :writer
-           (fn [writer]
-             (-> writer
-                 (update :pointer inc)
-                 (assoc :focus [])
-                 (update
-                  :stack
-                  (fn [stack] (conj (subvec stack 0 (inc pointer)) [ns-name :ns]))))))
+          (update store :writer (helper-put-ns ns-name))
           (update
            store
            :notifications
            (fn [notifications]
              (into [] (cons [op-id (str "\"" ns-name "\" not found")] notifications))))))
-      (let [ns-part (first code-path)]
-        (update
-         store
-         :writer
-         (fn [writer]
-           (-> writer
-               (update :pointer inc)
-               (assoc :focus [])
-               (update
-                :stack
-                (fn [stack] (conj (subvec stack 0 (inc pointer)) [ns-part :ns]))))))))))
+      (let [ns-part (first code-path)] (update store :writer (helper-put-ns ns-part))))))
 
 (defn load-remote [store op-data]
   (let [collection op-data]

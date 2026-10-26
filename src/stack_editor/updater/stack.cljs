@@ -5,7 +5,7 @@
              :refer
              [locate-ns compute-ns list-dependent-ns pick-rule]]
             [stack-editor.util.detect :refer [strip-atom contains-def? tree-contains?]]
-            [stack-editor.util :refer [remove-idx]]))
+            [stack-editor.util :refer [remove-idx helper-notify]]))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -29,9 +29,6 @@
                  (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
         (update :pointer inc)
         (assoc :focus []))))
-
-(defn helper-notify [op-id data]
-  (fn [notifications] (into [] (cons [op-id data] notifications))))
 
 (defn helper-create-def [ns-part name-part code-path focus]
   (fn [files]

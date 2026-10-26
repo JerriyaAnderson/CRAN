@@ -18,6 +18,7 @@
                   :collection/add-namespace collection/add-namespace
                   :collection/edit collection/edit
                   :collection/edit-ns collection/edit-ns
+                  :collection/expand-ns collection/expand-ns
                   :collection/write collection/write-code
                   :collection/load collection/load-remote
                   :collection/remove-this collection/remove-this

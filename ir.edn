@@ -96,7 +96,7 @@
                                  "stack-editor.util.detect"
                                  ":refer"
                                  ["[]" "strip-atom" "contains-def?" "tree-contains?"]]
-                                ["[]" "stack-editor.util" ":refer" ["[]" "remove-idx"]]]],
+                                ["[]" "stack-editor.util" ":refer" ["[]" "remove-idx" "helper-notify"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
                                              ["store" "op-data" "op-id"]
@@ -384,12 +384,6 @@
                                                        ["if" ["empty?" "ns-list"] "pointer" ["inc" "pointer"]]]
                                                       ["assoc" ":focus" ["[]"]]]]]]]
                                                  "store"]]],
-                                 "helper-notify" ["defn"
-                                                  "helper-notify"
-                                                  ["op-id" "data"]
-                                                  ["fn"
-                                                   ["notifications"]
-                                                   ["into" ["[]"] ["cons" ["[]" "op-id" "data"] "notifications"]]]],
                                  "helper-create-def" ["defn"
                                                       "helper-create-def"
                                                       ["ns-part" "name-part" "code-path" "focus"]
@@ -606,7 +600,29 @@
                                          ["into"
                                           ["[]"]
                                           ["concat" ["subvec" "xs" "0" "idx"] ["subvec" "xs" ["inc" "idx"]]]]]]]],
-                        "now!" ["defn" "now!" [] [".now" "js/performance"]]},
+                        "now!" ["defn" "now!" [] [".now" "js/performance"]],
+                        "helper-notify" ["defn"
+                                         "helper-notify"
+                                         ["op-id" "data"]
+                                         ["fn"
+                                          ["notifications"]
+                                          ["into" ["[]"] ["cons" ["[]" "op-id" "data"] "notifications"]]]],
+                        "helper-put-ns" ["defn"
+                                         "helper-put-ns"
+                                         ["ns-name"]
+                                         ["fn"
+                                          ["writer"]
+                                          ["->"
+                                           "writer"
+                                           ["update" ":pointer" "inc"]
+                                           ["assoc" ":focus" ["[]"]]
+                                           ["update"
+                                            ":stack"
+                                            ["fn"
+                                             ["stack"]
+                                             ["conj"
+                                              ["subvec" "stack" "0" ["inc" [":pointer" "writer"]]]
+                                              ["[]" "ns-name" ":ns"]]]]]]]},
                  :procs []},
          "comp.workspace" {:ns ["ns"
                                 "stack-editor.comp.workspace"
@@ -661,7 +677,11 @@
                                                      [".stopPropagation" "event"]
                                                      ["dispatch!" ":router/toggle-palette" "nil"]
                                                      ["dom/focus-palette!"]]]
-                                                   [["and" "command?" ["=" "code" "keycode/key-e"]]
+                                                   [["and" "command?" "shift?" ["=" "code" "keycode/key-e"]]
+                                                    ["do"
+                                                     [".preventDefault" "event"]
+                                                     ["dispatch!" ":collection/expand-ns" "nil"]]]
+                                                   [["and" "command?" ["not" "shift?"] ["=" "code" "keycode/key-e"]]
                                                     ["do"
                                                      [".preventDefault" "event"]
                                                      ["dispatch!" ":collection/edit-ns" "nil"]]]
@@ -1622,6 +1642,7 @@
                                                [":collection/add-namespace" "collection/add-namespace"]
                                                [":collection/edit" "collection/edit"]
                                                [":collection/edit-ns" "collection/edit-ns"]
+                                               [":collection/expand-ns" "collection/expand-ns"]
                                                [":collection/write" "collection/write-code"]
                                                [":collection/load" "collection/load-remote"]
                                                [":collection/remove-this" "collection/remove-this"]
@@ -2029,7 +2050,9 @@
                          :procs []},
          "updater.collection" {:ns ["ns"
                                     "stack-editor.updater.collection"
-                                    [":require" ["[]" "clojure.string" ":as" "string"]]],
+                                    [":require"
+                                     ["[]" "clojure.string" ":as" "string"]
+                                     ["[]" "stack-editor.util" ":refer" ["[]" "helper-notify" "helper-put-ns"]]]],
                                :defs {"rename" ["defn"
                                                 "rename"
                                                 ["store" "op-data" "op-id"]
@@ -2130,6 +2153,82 @@
                                                         ["fn"
                                                          ["pointer"]
                                                          ["if" ["pos?" "pointer"] ["dec" "pointer"] "pointer"]]]]]],
+                                      "expand-ns" ["defn"
+                                                   "expand-ns"
+                                                   ["store" "op-data" "op-id"]
+                                                   ["let"
+                                                    [["writer" [":writer" "store"]]
+                                                     ["file-path" ["get" [":stack" "writer"] [":pointer" "writer"]]]
+                                                     ["base-path" ["[]" ":collection" ":files"]]
+                                                     ["files" ["get-in" "store" "base-path"]]
+                                                     ["ns-name" ["first" "file-path"]]
+                                                     ["focus" [":focus" "writer"]]
+                                                     ["buffer" ["get-in" "files" ["concat" "file-path" "focus"]]]]
+                                                    ["if"
+                                                     ["and" ["string?" "buffer"] ["string/includes?" "buffer" "|/"]]
+                                                     ["let"
+                                                      [[["[]" "ns-x" "def-x"] ["string/split" "buffer" "|/"]]
+                                                       ["ns-ast" ["get-in" "files" ["[]" "ns-name" ":ns"]]]
+                                                       ["maybe-rule"
+                                                        ["first"
+                                                         ["filter"
+                                                          ["fn" ["rule"] ["=" "ns-x" ["get" "rule" "1"]]]
+                                                          ["rest" ["get" "ns-ast" "2"]]]]]]
+                                                      ["cond"
+                                                       [["nil?" "maybe-rule"]
+                                                        ["->"
+                                                         "store"
+                                                         ["assoc-in" ["concat" "base-path" "file-path" "focus"] "def-x"]
+                                                         ["update-in"
+                                                          ["[]" ":collection" ":files" "ns-name" ":ns" "2"]
+                                                          ["fn"
+                                                           ["require-rules"]
+                                                           ["conj"
+                                                            ["into" ["[]"] "require-rules"]
+                                                            ["[]" "|[]" "ns-x" "|:refer" ["[]" "|[]" "def-x"]]]]]
+                                                         ["update" ":writer" ["helper-put-ns" "ns-name"]]]]
+                                                       [["=" "|:refer" ["get" "maybe-rule" "2"]]
+                                                        ["->"
+                                                         "store"
+                                                         ["assoc-in" ["concat" "base-path" "file-path" "focus"] "def-x"]
+                                                         ["update-in"
+                                                          ["[]" ":collection" ":files" "ns-name" ":ns" "2"]
+                                                          ["fn"
+                                                           ["require-rules"]
+                                                           ["->>"
+                                                            "require-rules"
+                                                            ["map"
+                                                             ["fn"
+                                                              ["or-rule"]
+                                                              ["if"
+                                                               ["=" "or-rule" "|:require"]
+                                                               "|:require"
+                                                               ["if"
+                                                                ["=" "ns-x" ["get" "or-rule" "1"]]
+                                                                ["update"
+                                                                 "or-rule"
+                                                                 "3"
+                                                                 ["fn"
+                                                                  ["defs"]
+                                                                  ["if"
+                                                                   ["contains?" ["into" ["#{}"] "defs"] "def-x"]
+                                                                   "defs"
+                                                                   ["conj" "defs" "def-x"]]]]
+                                                                "or-rule"]]]]]]]
+                                                         ["update" ":writer" ["helper-put-ns" "ns-name"]]]]
+                                                       [["=" "|:as" ["get" "maybe-rule" "2"]]
+                                                        ["let"
+                                                         [["new-ns" ["last" "maybe-rule"]]]
+                                                         ["->"
+                                                          "store"
+                                                          ["assoc-in"
+                                                           ["concat" "base-path" "file-path" "focus"]
+                                                           ["str" "new-ns" "|/" "def-x"]]]]]
+                                                       [":else" ["println" "|Unkown rule:" "maybe-rule"] "store"]]]
+                                                     ["update"
+                                                      "store"
+                                                      ":notifications"
+                                                      ["helper-notify" "op-id" "|Not valid ns/def form!"]]]]],
                                       "write-code" ["defn"
                                                     "write-code"
                                                     ["store" "op-data"]
@@ -2237,22 +2336,7 @@
                                                       ["some?" "ns-name"]
                                                       ["some?"
                                                        ["get-in" "store" ["[]" ":collection" ":files" "ns-name"]]]]
-                                                     ["update"
-                                                      "store"
-                                                      ":writer"
-                                                      ["fn"
-                                                       ["writer"]
-                                                       ["->"
-                                                        "writer"
-                                                        ["update" ":pointer" "inc"]
-                                                        ["assoc" ":focus" ["[]"]]
-                                                        ["update"
-                                                         ":stack"
-                                                         ["fn"
-                                                          ["stack"]
-                                                          ["conj"
-                                                           ["subvec" "stack" "0" ["inc" "pointer"]]
-                                                           ["[]" "ns-name" ":ns"]]]]]]]
+                                                     ["update" "store" ":writer" ["helper-put-ns" "ns-name"]]
                                                      ["update"
                                                       "store"
                                                       ":notifications"
@@ -2265,22 +2349,7 @@
                                                          "notifications"]]]]]]
                                                    ["let"
                                                     [["ns-part" ["first" "code-path"]]]
-                                                    ["update"
-                                                     "store"
-                                                     ":writer"
-                                                     ["fn"
-                                                      ["writer"]
-                                                      ["->"
-                                                       "writer"
-                                                       ["update" ":pointer" "inc"]
-                                                       ["assoc" ":focus" ["[]"]]
-                                                       ["update"
-                                                        ":stack"
-                                                        ["fn"
-                                                         ["stack"]
-                                                         ["conj"
-                                                          ["subvec" "stack" "0" ["inc" "pointer"]]
-                                                          ["[]" "ns-part" ":ns"]]]]]]]]]]],
+                                                    ["update" "store" ":writer" ["helper-put-ns" "ns-part"]]]]]],
                                       "load-remote" ["defn"
                                                      "load-remote"
                                                      ["store" "op-data"]
