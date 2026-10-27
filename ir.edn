@@ -16,15 +16,19 @@
                                ["[]" "respo.alias" ":refer" ["[]" "create-comp" "div"]]
                                ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
                                ["[]" "respo-ui.style" ":as" "ui"]]],
-                         :defs {"render" ["defn"
-                                          "render"
-                                          ["store"]
-                                          ["fn"
-                                           ["cursor"]
-                                           ["div"
-                                            ["{}" [":style" ["merge" "ui/fullscreen" "ui/row-center" "style-loading"]]]
-                                            ["comp-text" "|Loading..." "nil"]]]],
-                                "comp-loading" ["def" "comp-loading" ["create-comp" ":loading" "render"]],
+                         :defs {"comp-loading" ["def"
+                                                "comp-loading"
+                                                ["create-comp"
+                                                 ":loading"
+                                                 ["fn"
+                                                  []
+                                                  ["fn"
+                                                   ["cursor"]
+                                                   ["div"
+                                                    ["{}"
+                                                     [":style"
+                                                      ["merge" "ui/fullscreen" "ui/row-center" "style-loading"]]]
+                                                    ["comp-text" "|Loading..." "nil"]]]]]],
                                 "style-loading" ["def"
                                                  "style-loading"
                                                  ["{}"
@@ -42,20 +46,7 @@
                                ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
                                ["[]" "respo.alias" ":refer" ["[]" "create-comp" "div"]]
                                ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]]],
-                         :defs {"render" ["defn"
-                                          "render"
-                                          ["command" "selected?" "on-select"]
-                                          ["fn"
-                                           ["cursor"]
-                                           ["div"
-                                            ["{}"
-                                             [":style"
-                                              ["merge"
-                                               "style-command"
-                                               ["if" "selected?" ["{}" [":background-color" ["hsl" "0" "0" "30"]]]]]]
-                                             [":event" ["{}" [":click" ["on-click" "on-select"]]]]]
-                                            ["comp-text" ["string/join" "| " "command"] "nil"]]]],
-                                "style-command" ["def"
+                         :defs {"style-command" ["def"
                                                  "style-command"
                                                  ["{}"
                                                   [":backgroud-color" ["hsl" "0" "0" "0"]]
@@ -67,7 +58,24 @@
                                             "on-click"
                                             ["on-select"]
                                             ["fn" ["e" "dispatch!"] ["on-select" "dispatch!"]]],
-                                "comp-command" ["def" "comp-command" ["create-comp" ":command" "render"]]},
+                                "comp-command" ["def"
+                                                "comp-command"
+                                                ["create-comp"
+                                                 ":command"
+                                                 ["fn"
+                                                  ["command" "selected?" "on-select"]
+                                                  ["fn"
+                                                   ["cursor"]
+                                                   ["div"
+                                                    ["{}"
+                                                     [":style"
+                                                      ["merge"
+                                                       "style-command"
+                                                       ["if"
+                                                        "selected?"
+                                                        ["{}" [":background-color" ["hsl" "0" "0" "30"]]]]]]
+                                                     [":event" ["{}" [":click" ["on-click" "on-select"]]]]]
+                                                    ["comp-text" ["string/join" "| " "command"] "nil"]]]]]]},
                          :procs []},
          "util.keycode" {:ns ["ns" "stack-editor.util.keycode"],
                          :defs {"key-esc" ["def" "key-esc" "27"],
@@ -803,8 +811,9 @@
                             [":require"
                              ["[]" "hsl.core" ":refer" ["[]" "hsl"]]
                              ["[]" "respo.alias" ":refer" ["[]" "create-comp" "div"]]]],
-                       :defs {"comp-graph" ["def" "comp-graph" ["create-comp" ":graph" "render"]],
-                              "render" ["defn" "render" ["store"] ["fn" ["cursor"] ["div" ["{}"]]]]},
+                       :defs {"comp-graph" ["def"
+                                            "comp-graph"
+                                            ["create-comp" ":graph" ["fn" ["store"] ["fn" ["cursor"] ["div" ["{}"]]]]]]},
                        :procs []},
          "schema" {:ns ["ns" "stack-editor.schema"],
                    :defs {"store" ["def"
@@ -922,34 +931,34 @@
                                                   [":hydrate"
                                                    ["with-cursor" ":hydrate" ["comp-hydrate" [":hydrate" "states"]]]]
                                                   ["comp-text" "title" "nil"]]]],
-                                    "render" ["defn"
-                                              "render"
-                                              ["states" "modal-stack"]
-                                              ["fn"
-                                               ["cursor"]
-                                               ["div"
-                                                ["{}"]
-                                                ["->>"
-                                                 "modal-stack"
-                                                 ["map-indexed"
-                                                  ["fn"
-                                                   ["idx" "modal"]
-                                                   ["let"
-                                                    [["kind" [":kind" "modal"]]
-                                                     ["title" [":title" "modal"]]
-                                                     ["data" [":data" "modal"]]]
-                                                    ["[]"
-                                                     "idx"
-                                                     ["div"
-                                                      ["{}"
-                                                       [":style" "style-modal"]
-                                                       [":event" ["{}" [":click" "on-recycle"]]]]
-                                                      ["div"
-                                                       ["{}" [":event" ["{}" [":click" "on-tip"]]]]
-                                                       ["renderer" "states" "kind" "title" "data"]]]]]]]]]]],
                                     "comp-modal-stack" ["def"
                                                         "comp-modal-stack"
-                                                        ["create-comp" ":modal-stack" "render"]]},
+                                                        ["create-comp"
+                                                         ":modal-stack"
+                                                         ["fn"
+                                                          ["states" "modal-stack"]
+                                                          ["fn"
+                                                           ["cursor"]
+                                                           ["div"
+                                                            ["{}"]
+                                                            ["->>"
+                                                             "modal-stack"
+                                                             ["map-indexed"
+                                                              ["fn"
+                                                               ["idx" "modal"]
+                                                               ["let"
+                                                                [["kind" [":kind" "modal"]]
+                                                                 ["title" [":title" "modal"]]
+                                                                 ["data" [":data" "modal"]]]
+                                                                ["[]"
+                                                                 "idx"
+                                                                 ["div"
+                                                                  ["{}"
+                                                                   [":style" "style-modal"]
+                                                                   [":event" ["{}" [":click" "on-recycle"]]]]
+                                                                  ["div"
+                                                                   ["{}" [":event" ["{}" [":click" "on-tip"]]]]
+                                                                   ["renderer" "states" "kind" "title" "data"]]]]]]]]]]]]]},
                              :procs []},
          "comp.rename-path" {:ns ["ns"
                                   "stack-editor.comp.rename-path"
@@ -1682,38 +1691,6 @@
                                            [":color" ["hsl" "0" "0" "50"]]
                                            [":font-family" "|Hind"]]],
                               "style-bright" ["def" "style-bright" ["{}" [":color" ["hsl" "0" "0" "90"]]]],
-                              "render" ["defn"
-                                        "render"
-                                        ["stack" "pointer"]
-                                        ["fn"
-                                         ["cursor"]
-                                         ["div"
-                                          ["{}" [":style" ["merge" "ui/flex" "style-container"]]]
-                                          ["->>"
-                                           "stack"
-                                           ["map-indexed"
-                                            ["fn"
-                                             ["idx" "item"]
-                                             ["[]"
-                                              "idx"
-                                              ["let"
-                                               [[["[]" "ns-part" "kind" "extra-name"] "item"]]
-                                               ["if"
-                                                ["=" "kind" ":defs"]
-                                                ["div"
-                                                 ["{}"
-                                                  [":style" "style-bar"]
-                                                  [":event" ["{}" [":click" ["on-click" "idx"]]]]]
-                                                 ["div"
-                                                  ["{}" [":style" ["if" ["=" "idx" "pointer"] "style-bright"]]]
-                                                  ["comp-text" "extra-name" "nil"]]
-                                                 ["div" ["{}" [":style" "style-ns"]] ["comp-text" "ns-part" "nil"]]]
-                                                ["div"
-                                                 ["{}"
-                                                  [":style"
-                                                   ["merge" "style-ns-main" ["if" ["=" "idx" "pointer"] "style-bright"]]]
-                                                  [":event" ["{}" [":click" ["on-click" "idx"]]]]]
-                                                 ["comp-text" "ns-part" "nil"]]]]]]]]]]],
                               "style-ns-main" ["def"
                                                "style-ns-main"
                                                ["{}"
@@ -1754,7 +1731,45 @@
                                             [":font-size" "13"]
                                             [":line-height" "1.4"]
                                             [":white-space" "|nowrap"]]],
-                              "comp-stack" ["def" "comp-stack" ["create-comp" ":stack" "render"]]},
+                              "comp-stack" ["def"
+                                            "comp-stack"
+                                            ["create-comp"
+                                             ":stack"
+                                             ["fn"
+                                              ["stack" "pointer"]
+                                              ["fn"
+                                               ["cursor"]
+                                               ["div"
+                                                ["{}" [":style" ["merge" "ui/flex" "style-container"]]]
+                                                ["->>"
+                                                 "stack"
+                                                 ["map-indexed"
+                                                  ["fn"
+                                                   ["idx" "item"]
+                                                   ["[]"
+                                                    "idx"
+                                                    ["let"
+                                                     [[["[]" "ns-part" "kind" "extra-name"] "item"]]
+                                                     ["if"
+                                                      ["=" "kind" ":defs"]
+                                                      ["div"
+                                                       ["{}"
+                                                        [":style" "style-bar"]
+                                                        [":event" ["{}" [":click" ["on-click" "idx"]]]]]
+                                                       ["div"
+                                                        ["{}" [":style" ["if" ["=" "idx" "pointer"] "style-bright"]]]
+                                                        ["comp-text" "extra-name" "nil"]]
+                                                       ["div"
+                                                        ["{}" [":style" "style-ns"]]
+                                                        ["comp-text" "ns-part" "nil"]]]
+                                                      ["div"
+                                                       ["{}"
+                                                        [":style"
+                                                         ["merge"
+                                                          "style-ns-main"
+                                                          ["if" ["=" "idx" "pointer"] "style-bright"]]]
+                                                        [":event" ["{}" [":click" ["on-click" "idx"]]]]]
+                                                       ["comp-text" "ns-part" "nil"]]]]]]]]]]]]]},
                        :procs []},
          "comp.notifications" {:ns ["ns"
                                     "stack-editor.comp.notifications"
@@ -1765,29 +1780,31 @@
                                      ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]]],
                                :defs {"comp-notifications" ["def"
                                                             "comp-notifications"
-                                                            ["create-comp" ":notifications" "render"]],
-                                      "render" ["defn"
-                                                "render"
-                                                ["notifications"]
-                                                ["fn"
-                                                 ["cursor"]
-                                                 ["div"
-                                                  ["{}"]
-                                                  ["->>"
-                                                   "notifications"
-                                                   ["map-indexed"
-                                                    ["fn"
-                                                     ["idx" "entry"]
-                                                     ["[]"
-                                                      ["first" "entry"]
-                                                      ["div"
-                                                       ["{}"
-                                                        [":style"
-                                                         ["merge"
-                                                          "style-notification"
-                                                          ["{}" [":top" ["str" ["+" "8" ["*" "40" "idx"]] "|px"]]]]]
-                                                        [":event" ["{}" [":click" ["on-click" "idx"]]]]]
-                                                       ["comp-text" ["last" "entry"] "nil"]]]]]]]]],
+                                                            ["create-comp"
+                                                             ":notifications"
+                                                             ["fn"
+                                                              ["notifications"]
+                                                              ["fn"
+                                                               ["cursor"]
+                                                               ["div"
+                                                                ["{}"]
+                                                                ["->>"
+                                                                 "notifications"
+                                                                 ["map-indexed"
+                                                                  ["fn"
+                                                                   ["idx" "entry"]
+                                                                   ["[]"
+                                                                    ["first" "entry"]
+                                                                    ["div"
+                                                                     ["{}"
+                                                                      [":style"
+                                                                       ["merge"
+                                                                        "style-notification"
+                                                                        ["{}"
+                                                                         [":top"
+                                                                          ["str" ["+" "8" ["*" "40" "idx"]] "|px"]]]]]
+                                                                      [":event" ["{}" [":click" ["on-click" "idx"]]]]]
+                                                                     ["comp-text" ["last" "entry"] "nil"]]]]]]]]]]],
                                       "on-click" ["defn"
                                                   "on-click"
                                                   ["idx"]
@@ -2387,7 +2404,26 @@
                                   ["[]" "respo.comp.text" ":refer" ["[]" "comp-text"]]
                                   ["[]" "respo.comp.space" ":refer" ["[]" "comp-space"]]
                                   ["[]" "respo-ui.style" ":as" "ui"]]],
-                            :defs {"comp-hot-corner" ["def" "comp-hot-corner" ["create-comp" ":hot-corner" "render"]],
+                            :defs {"comp-hot-corner" ["def"
+                                                      "comp-hot-corner"
+                                                      ["create-comp"
+                                                       ":hot-corner"
+                                                       ["fn"
+                                                        ["router" "writer"]
+                                                        ["fn"
+                                                         ["cursor"]
+                                                         ["div"
+                                                          ["{}"
+                                                           [":style"
+                                                            ["{}"
+                                                             [":font-size" "|24px"]
+                                                             [":font-weight" "|300"]
+                                                             [":text-align" "|center"]
+                                                             [":cursor" "|pointer"]]]
+                                                           [":event" ["{}" [":click" ["on-switch" "router" "writer"]]]]]
+                                                          ["comp-text"
+                                                           "|Stack Editor"
+                                                           ["{}" [":font-family" "|Josefin Sans"]]]]]]]],
                                    "on-switch" ["defn"
                                                 "on-switch"
                                                 ["router" "writer"]
@@ -2402,22 +2438,7 @@
                                                    ["not" ["empty?" [":stack" "writer"]]]
                                                    ["dispatch!"
                                                     ":router/route"
-                                                    ["{}" [":name" ":workspace"] [":data" "nil"]]]]]]],
-                                   "render" ["defn"
-                                             "render"
-                                             ["router" "writer"]
-                                             ["fn"
-                                              ["cursor"]
-                                              ["div"
-                                               ["{}"
-                                                [":style"
-                                                 ["{}"
-                                                  [":font-size" "|24px"]
-                                                  [":font-weight" "|300"]
-                                                  [":text-align" "|center"]
-                                                  [":cursor" "|pointer"]]]
-                                                [":event" ["{}" [":click" ["on-switch" "router" "writer"]]]]]
-                                               ["comp-text" "|Stack Editor" ["{}" [":font-family" "|Josefin Sans"]]]]]]},
+                                                    ["{}" [":name" ":workspace"] [":data" "nil"]]]]]]]},
                             :procs []},
          "actions" {:ns ["ns"
                          "stack-editor.actions"

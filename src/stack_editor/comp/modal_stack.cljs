@@ -33,17 +33,18 @@
      :hydrate (with-cursor :hydrate (comp-hydrate (:hydrate states)))
      (comp-text title nil))))
 
-(defn render [states modal-stack]
-  (fn [cursor]
-    (div
-     {}
-     (->> modal-stack
-          (map-indexed
-           (fn [idx modal]
-             (let [kind (:kind modal), title (:title modal), data (:data modal)]
-               [idx
-                (div
-                 {:style style-modal, :event {:click on-recycle}}
-                 (div {:event {:click on-tip}} (renderer states kind title data)))])))))))
-
-(def comp-modal-stack (create-comp :modal-stack render))
+(def comp-modal-stack
+  (create-comp
+   :modal-stack
+   (fn [states modal-stack]
+     (fn [cursor]
+       (div
+        {}
+        (->> modal-stack
+             (map-indexed
+              (fn [idx modal]
+                (let [kind (:kind modal), title (:title modal), data (:data modal)]
+                  [idx
+                   (div
+                    {:style style-modal, :event {:click on-recycle}}
+                    (div {:event {:click on-tip}} (renderer states kind title data)))])))))))))

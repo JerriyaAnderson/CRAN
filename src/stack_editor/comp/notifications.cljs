@@ -22,17 +22,18 @@
    :cursor "pointer",
    :border-radius "2px"})
 
-(defn render [notifications]
-  (fn [cursor]
-    (div
-     {}
-     (->> notifications
-          (map-indexed
-           (fn [idx entry]
-             [(first entry)
-              (div
-               {:style (merge style-notification {:top (str (+ 8 (* 40 idx)) "px")}),
-                :event {:click (on-click idx)}}
-               (comp-text (last entry) nil))]))))))
-
-(def comp-notifications (create-comp :notifications render))
+(def comp-notifications
+  (create-comp
+   :notifications
+   (fn [notifications]
+     (fn [cursor]
+       (div
+        {}
+        (->> notifications
+             (map-indexed
+              (fn [idx entry]
+                [(first entry)
+                 (div
+                  {:style (merge style-notification {:top (str (+ 8 (* 40 idx)) "px")}),
+                   :event {:click (on-click idx)}}
+                  (comp-text (last entry) nil))]))))))))

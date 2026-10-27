@@ -13,14 +13,15 @@
       (if (not (empty? (:stack writer)))
         (dispatch! :router/route {:name :workspace, :data nil})))))
 
-(defn render [router writer]
-  (fn [cursor]
-    (div
-     {:style {:font-size "24px",
-              :font-weight "300",
-              :text-align "center",
-              :cursor "pointer"},
-      :event {:click (on-switch router writer)}}
-     (comp-text "Stack Editor" {:font-family "Josefin Sans"}))))
-
-(def comp-hot-corner (create-comp :hot-corner render))
+(def comp-hot-corner
+  (create-comp
+   :hot-corner
+   (fn [router writer]
+     (fn [cursor]
+       (div
+        {:style {:font-size "24px",
+                 :font-weight "300",
+                 :text-align "center",
+                 :cursor "pointer"},
+         :event {:click (on-switch router writer)}}
+        (comp-text "Stack Editor" {:font-family "Josefin Sans"}))))))

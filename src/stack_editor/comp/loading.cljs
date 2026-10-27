@@ -13,10 +13,11 @@
    :font-weight "100",
    :font-family "Josefin Sans"})
 
-(defn render [store]
-  (fn [cursor]
-    (div
-     {:style (merge ui/fullscreen ui/row-center style-loading)}
-     (comp-text "Loading..." nil))))
-
-(def comp-loading (create-comp :loading render))
+(def comp-loading
+  (create-comp
+   :loading
+   (fn []
+     (fn [cursor]
+       (div
+        {:style (merge ui/fullscreen ui/row-center style-loading)}
+        (comp-text "Loading..." nil))))))
