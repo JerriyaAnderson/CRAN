@@ -2,6 +2,7 @@
 (ns stack-editor.actions
   (:require [cljs.reader :refer [read-string]]
             [ajax.core :refer [GET POST PATCH json-request-format]]
+            [stack-editor.util :refer [make-path]]
             [stack-editor.util.querystring :refer [parse-query]]
             [shallow-diff.diff :refer [diff]]))
 
@@ -59,7 +60,7 @@
 (defn display-code! [store]
   (let [writer (:writer store)
         collection (:collection store)
-        path (concat (get (:stack writer) (:pointer writer)) (:focus writer))
-        tree (get-in collection path)]
+        path-info (get (:stack writer) (:pointer writer))
+        tree (get-in store (make-path path-info))]
     (if (some? tree)
       (-> js/window (.open) (.-document) (.write "<pre><code>" (pr-str tree) "</code></pre>")))))

@@ -28,3 +28,6 @@
       false
       (let [cursor (first tree), at-head? (tree-contains? cursor x)]
         (if at-head? true (recur (rest tree) x))))))
+
+(defn =path? [x y]
+  (and (= (:ns x) (:ns y)) (= (:kind x) (:kind y)) (= (:extra x) (:extra y))))

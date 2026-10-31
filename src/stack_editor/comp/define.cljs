@@ -16,9 +16,13 @@
 
 (def style-namespace {:display "inline-block", :cursor "pointer"})
 
-(defn on-click [ns-text] (fn [e dispatch!] (dispatch! :collection/edit [ns-text :ns])))
+(defn on-click [ns-text]
+  (fn [e dispatch!]
+    (dispatch! :collection/edit {:ns ns-text, :kind :ns, :extra nil, :focus []})))
 
-(defn on-proc [ns-name] (fn [e dispatch!] (dispatch! :collection/edit [ns-name :procs])))
+(defn on-proc [ns-name]
+  (fn [e dispatch!]
+    (dispatch! :collection/edit {:ns ns-name, :kind :procs, :extra nil, :focus []})))
 
 (def style-ns {:font-family "Source Code Pro,Menlo,monospace", :white-space :nowrap})
 

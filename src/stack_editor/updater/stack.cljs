@@ -4,8 +4,10 @@
             [stack-editor.util.analyze
              :refer
              [locate-ns compute-ns list-dependent-ns pick-rule]]
-            [stack-editor.util.detect :refer [strip-atom contains-def? tree-contains?]]
-            [stack-editor.util :refer [remove-idx helper-notify]]))
+            [stack-editor.util.detect :refer [strip-atom tree-contains? contains-def?]]
+            [stack-editor.util
+             :refer
+             [remove-idx helper-notify helper-create-def helper-put-path make-path]]))
 
 (defn collapse [store op-data op-id]
   (let [cursor op-data]
@@ -15,49 +17,19 @@
      (fn [writer]
        (-> writer (assoc :pointer 0) (update :stack (fn [stack] (subvec stack cursor))))))))
 
-(defn helper-put-path [ns-part name-part]
-  (fn [writer]
-    (-> writer
-        (update
-         :stack
-         (fn [stack]
-           (let [next-pointer (inc (:pointer writer)), code-path [ns-part :defs name-part]]
-             (if (< (dec (count stack)) next-pointer)
-               (conj stack code-path)
-               (if (= code-path (get stack next-pointer))
-                 stack
-                 (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
-        (update :pointer inc)
-        (assoc :focus []))))
-
-(defn helper-create-def [ns-part name-part code-path focus]
-  (fn [files]
-    (if (contains-def? files ns-part name-part)
-      files
-      (assoc-in
-       files
-       [ns-part :defs name-part]
-       (let [as-fn? (and (not (empty? focus)) (zero? (last focus)))]
-         (if as-fn?
-           (let [expression (get-in files (concat code-path (butlast focus)))]
-             (if (> (count expression) 1)
-               ["defn" name-part (subvec expression 1)]
-               ["defn" name-part []]))
-           ["def" name-part []]))))))
-
 (defn goto-definition [store op-data op-id]
   (let [forced? op-data
         writer (:writer store)
         pointer (:pointer writer)
-        focus (:focus writer)
         stack (:stack writer)
         pointer (:pointer writer)
         pkg (get-in store [:collection :package])
         files (get-in store [:collection :files])
         code-path (get stack pointer)
-        [current-ns kind extra-name] code-path
+        focus (:focus code-path)
+        {current-ns :ns, kind :kind, extra-name :extra} code-path
         drop-pkg (fn [x] (if (string? x) (string/replace x (str pkg ".") "") x))]
-    (let [target (get-in store (concat [:collection :files] code-path focus))]
+    (let [target (get-in store (concat (make-path code-path) focus))]
       (if (string? target)
         (let [stripped-target (strip-atom target)]
           (if forced?
@@ -93,7 +65,7 @@
                   var-part (last (string/split stripped-target "/"))]
               (println "Search result:" that-ns var-part current-ns)
               (if (contains-def? files that-ns var-part)
-                (if (= [that-ns :defs var-part] code-path)
+                (if (= code-path {:ns that-ns, :kind :defs, :extra var-part})
                   store
                   (update store :writer (helper-put-path that-ns var-part)))
                 (-> store
@@ -117,7 +89,7 @@
         stack (:stack writer)
         pointer (:pointer writer)
         code-path (get stack pointer)
-        [ns-part kind extra-name] code-path
+        {ns-part :ns, kind :kind, extra-name :extra} code-path
         sepal-ir (:collection store)
         former-stack (subvec stack 0 (inc pointer))
         pkg (:package sepal-ir)]
@@ -162,7 +134,10 @@
                                                                   extra-name))))
                                                             (map
                                                              (fn [entry]
-                                                               [ns-name :defs (first entry)])))
+                                                               {:ns ns-name,
+                                                                :kind :defs,
+                                                                :extra (first entry),
+                                                                :focus []})))
                                           proc-matching? (tree-contains?
                                                           (:procs file)
                                                           extra-name)]
@@ -178,8 +153,7 @@
            (fn [writer]
              (-> writer
                  (assoc :stack (into [] (concat former-stack new-paths)))
-                 (assoc :pointer (if (empty? new-paths) pointer (inc pointer)))
-                 (assoc :focus [])))))
+                 (assoc :pointer (if (empty? new-paths) pointer (inc pointer)))))))
       :ns
         (let [ns-list (list-dependent-ns ns-part (:files sepal-ir) (:package sepal-ir))
               new-paths (map (fn [x] [x :ns]) ns-list)]

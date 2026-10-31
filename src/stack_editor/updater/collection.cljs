@@ -1,11 +1,12 @@
 
 (ns stack-editor.updater.collection
   (:require [clojure.string :as string]
-            [stack-editor.util :refer [helper-notify helper-put-ns]]))
+            [stack-editor.util :refer [helper-notify helper-put-ns make-path]]
+            [stack-editor.util.detect :refer [=path?]]))
 
 (defn rename [store op-data op-id]
   (let [[code-path new-form] op-data
-        [ns-part kind extra-name] code-path
+        {ns-part :ns, kind :kind, extra-name :extra, focus :focus} code-path
         pointer (get-in store [:writer :pointer])]
     (case kind
       :ns
@@ -13,9 +14,11 @@
             (update-in
              [:collection :files]
              (fn [files] (-> files (dissoc ns-part) (assoc new-form (get files ns-part)))))
-            (assoc-in [:writer :stack pointer] [new-form kind]))
+            (assoc-in
+             [:writer :stack pointer]
+             {:ns new-form, :kind :ns, :extra nil, :focus focus}))
       :defs
-        (let [[new-ns new-name] (string/split new-form "/"), new-path [new-ns :defs new-name]]
+        (let [[new-ns new-name] (string/split new-form "/")]
           (-> store
               (update-in
                [:collection :files]
@@ -28,8 +31,14 @@
                       (-> dict (dissoc extra-name) (assoc new-name (get dict extra-name)))))
                    (-> files
                        (update-in [ns-part :defs] (fn [dict] (dissoc dict extra-name)))
-                       (assoc-in [new-ns :defs new-name] (get-in files code-path))))))
-              (assoc-in [:writer :stack pointer] new-path)))
+                       (assoc-in
+                        [new-ns :defs new-name]
+                        (get-in
+                         files
+                         (if (= :defs kind) [ns-part :defs extra-name] [ns-part kind])))))))
+              (assoc-in
+               [:writer :stack pointer]
+               {:ns new-ns, :kind :defs, :extra new-name, :focus focus})))
       (do (println "Cannot rename:" code-path new-form) store))))
 
 (defn remove-this [store op-data op-id]
@@ -114,18 +123,19 @@
         writer (:writer store)
         stack (:stack writer)
         pointer (:pointer writer)
-        clipboard (:clipboard op-data)]
+        clipboard (:clipboard op-data)
+        path-info (get stack pointer)]
     (-> store
-        (assoc-in [:writer :focus] focus)
+        (assoc-in [:writer :stack pointer :focus] focus)
         (assoc-in [:writer :clipboard] clipboard)
-        (assoc-in (cons :collection (cons :files (get stack pointer))) tree))))
+        (assoc-in (make-path path-info) tree))))
 
 (defn hydrate [store op-data op-id]
   (let [writer (:writer store)
         collection (:collection store)
-        path (concat [:collection] (get (:stack writer) (:pointer writer)) (:focus writer))]
-    (println path)
-    (assoc-in store path op-data)))
+        code-path (get (:stack writer) (:pointer writer))]
+    (println code-path)
+    (assoc-in store (concat (make-path code-path) (:focus code-path)) op-data)))
 
 (defn edit [store op-data]
   (let [path op-data]
@@ -133,7 +143,13 @@
         (update
          :writer
          (fn [writer]
-           (let [stack (:stack writer), pos (.indexOf stack path)]
+           (let [stack (:stack writer)
+                 pos (loop [xs stack, x 0]
+                       (if (empty? xs)
+                         -1
+                         (do
+                          (println path (first xs))
+                          (if (=path? path (first xs)) x (recur (rest xs) (inc x))))))]
              (if (neg? pos)
                (-> writer
                    (assoc :focus [])
@@ -144,7 +160,7 @@
                       (if (empty? stack)
                         [path]
                         (conj (subvec stack 0 (inc (:pointer writer))) path)))))
-               (-> writer (assoc :focus []) (assoc :pointer pos))))))
+               (-> writer (assoc :pointer pos))))))
         (assoc :router {:name :workspace, :data nil}))))
 
 (defn add-definition [store op-data]

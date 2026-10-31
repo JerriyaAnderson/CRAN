@@ -103,8 +103,11 @@
                                 ["[]"
                                  "stack-editor.util.detect"
                                  ":refer"
-                                 ["[]" "strip-atom" "contains-def?" "tree-contains?"]]
-                                ["[]" "stack-editor.util" ":refer" ["[]" "remove-idx" "helper-notify"]]]],
+                                 ["[]" "strip-atom" "tree-contains?" "contains-def?"]]
+                                ["[]"
+                                 "stack-editor.util"
+                                 ":refer"
+                                 ["[]" "remove-idx" "helper-notify" "helper-create-def" "helper-put-path" "make-path"]]]],
                           :defs {"collapse" ["defn"
                                              "collapse"
                                              ["store" "op-data" "op-id"]
@@ -126,13 +129,17 @@
                                                      [["forced?" "op-data"]
                                                       ["writer" [":writer" "store"]]
                                                       ["pointer" [":pointer" "writer"]]
-                                                      ["focus" [":focus" "writer"]]
                                                       ["stack" [":stack" "writer"]]
                                                       ["pointer" [":pointer" "writer"]]
                                                       ["pkg" ["get-in" "store" ["[]" ":collection" ":package"]]]
                                                       ["files" ["get-in" "store" ["[]" ":collection" ":files"]]]
                                                       ["code-path" ["get" "stack" "pointer"]]
-                                                      [["[]" "current-ns" "kind" "extra-name"] "code-path"]
+                                                      ["focus" [":focus" "code-path"]]
+                                                      [["{}"
+                                                        ["current-ns" ":ns"]
+                                                        ["kind" ":kind"]
+                                                        ["extra-name" ":extra"]]
+                                                       "code-path"]
                                                       ["drop-pkg"
                                                        ["fn"
                                                         ["x"]
@@ -142,9 +149,7 @@
                                                          "x"]]]]
                                                      ["let"
                                                       [["target"
-                                                        ["get-in"
-                                                         "store"
-                                                         ["concat" ["[]" ":collection" ":files"] "code-path" "focus"]]]]
+                                                        ["get-in" "store" ["concat" ["make-path" "code-path"] "focus"]]]]
                                                       ["if"
                                                        ["string?" "target"]
                                                        ["let"
@@ -228,7 +233,12 @@
                                                           ["if"
                                                            ["contains-def?" "files" "that-ns" "var-part"]
                                                            ["if"
-                                                            ["=" ["[]" "that-ns" ":defs" "var-part"] "code-path"]
+                                                            ["="
+                                                             "code-path"
+                                                             ["{}"
+                                                              [":ns" "that-ns"]
+                                                              [":kind" ":defs"]
+                                                              [":extra" "var-part"]]]
                                                             "store"
                                                             ["update"
                                                              "store"
@@ -242,31 +252,6 @@
                                                               "op-id"
                                                               ["str" "|no namespace for: " "stripped-target"]]]]]]]]
                                                        "store"]]]],
-                                 "helper-put-path" ["defn"
-                                                    "helper-put-path"
-                                                    ["ns-part" "name-part"]
-                                                    ["fn"
-                                                     ["writer"]
-                                                     ["->"
-                                                      "writer"
-                                                      ["update"
-                                                       ":stack"
-                                                       ["fn"
-                                                        ["stack"]
-                                                        ["let"
-                                                         [["next-pointer" ["inc" [":pointer" "writer"]]]
-                                                          ["code-path" ["[]" "ns-part" ":defs" "name-part"]]]
-                                                         ["if"
-                                                          ["<" ["dec" ["count" "stack"]] "next-pointer"]
-                                                          ["conj" "stack" "code-path"]
-                                                          ["if"
-                                                           ["=" "code-path" ["get" "stack" "next-pointer"]]
-                                                           "stack"
-                                                           ["conj"
-                                                            ["into" ["[]"] ["subvec" "stack" "0" "next-pointer"]]
-                                                            "code-path"]]]]]]
-                                                      ["update" ":pointer" "inc"]
-                                                      ["assoc" ":focus" ["[]"]]]]],
                                  "go-next" ["defn"
                                             "go-next"
                                             ["store" "op-data"]
@@ -289,7 +274,8 @@
                                                  ["stack" [":stack" "writer"]]
                                                  ["pointer" [":pointer" "writer"]]
                                                  ["code-path" ["get" "stack" "pointer"]]
-                                                 [["[]" "ns-part" "kind" "extra-name"] "code-path"]
+                                                 [["{}" ["ns-part" ":ns"] ["kind" ":kind"] ["extra-name" ":extra"]]
+                                                  "code-path"]
                                                  ["sepal-ir" [":collection" "store"]]
                                                  ["former-stack" ["subvec" "stack" "0" ["inc" "pointer"]]]
                                                  ["pkg" [":package" "sepal-ir"]]]
@@ -344,7 +330,11 @@
                                                               ["map"
                                                                ["fn"
                                                                 ["entry"]
-                                                                ["[]" "ns-name" ":defs" ["first" "entry"]]]]]]
+                                                                ["{}"
+                                                                 [":ns" "ns-name"]
+                                                                 [":kind" ":defs"]
+                                                                 [":extra" ["first" "entry"]]
+                                                                 [":focus" ["[]"]]]]]]]
                                                             ["proc-matching?"
                                                              ["tree-contains?" [":procs" "file"] "extra-name"]]]
                                                            ["if"
@@ -366,8 +356,7 @@
                                                        ["into" ["[]"] ["concat" "former-stack" "new-paths"]]]
                                                       ["assoc"
                                                        ":pointer"
-                                                       ["if" ["empty?" "new-paths"] "pointer" ["inc" "pointer"]]]
-                                                      ["assoc" ":focus" ["[]"]]]]]]]
+                                                       ["if" ["empty?" "new-paths"] "pointer" ["inc" "pointer"]]]]]]]]
                                                  [":ns"
                                                   ["let"
                                                    [["ns-list"
@@ -392,34 +381,6 @@
                                                        ["if" ["empty?" "ns-list"] "pointer" ["inc" "pointer"]]]
                                                       ["assoc" ":focus" ["[]"]]]]]]]
                                                  "store"]]],
-                                 "helper-create-def" ["defn"
-                                                      "helper-create-def"
-                                                      ["ns-part" "name-part" "code-path" "focus"]
-                                                      ["fn"
-                                                       ["files"]
-                                                       ["if"
-                                                        ["contains-def?" "files" "ns-part" "name-part"]
-                                                        "files"
-                                                        ["assoc-in"
-                                                         "files"
-                                                         ["[]" "ns-part" ":defs" "name-part"]
-                                                         ["let"
-                                                          [["as-fn?"
-                                                            ["and"
-                                                             ["not" ["empty?" "focus"]]
-                                                             ["zero?" ["last" "focus"]]]]]
-                                                          ["if"
-                                                           "as-fn?"
-                                                           ["let"
-                                                            [["expression"
-                                                              ["get-in"
-                                                               "files"
-                                                               ["concat" "code-path" ["butlast" "focus"]]]]]
-                                                            ["if"
-                                                             [">" ["count" "expression"] "1"]
-                                                             ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
-                                                             ["[]" "|defn" "name-part" ["[]"]]]]
-                                                           ["[]" "|def" "name-part" ["[]"]]]]]]]],
                                  "point-to" ["defn"
                                              "point-to"
                                              ["store" "op-data" "op-id"]
@@ -593,7 +554,9 @@
                                                   "cursor"
                                                   ["recur" ["rest" "left-rules"]]]]]]]]},
                          :procs []},
-         "util" {:ns ["ns" "stack-editor.util"],
+         "util" {:ns ["ns"
+                      "stack-editor.util"
+                      [":require" ["[]" "stack-editor.util.detect" ":refer" ["[]" "contains-def?" "=path?"]]]],
                  :defs {"remove-idx" ["defn"
                                       "remove-idx"
                                       ["xs" "idx"]
@@ -623,14 +586,90 @@
                                           ["->"
                                            "writer"
                                            ["update" ":pointer" "inc"]
-                                           ["assoc" ":focus" ["[]"]]
                                            ["update"
                                             ":stack"
                                             ["fn"
                                              ["stack"]
                                              ["conj"
                                               ["subvec" "stack" "0" ["inc" [":pointer" "writer"]]]
-                                              ["[]" "ns-name" ":ns"]]]]]]]},
+                                              ["{}"
+                                               [":ns" "ns-name"]
+                                               [":kind" ":ns"]
+                                               [":extra" "nil"]
+                                               [":focus" ["[]"]]]]]]]]],
+                        "make-path" ["defn"
+                                     "make-path"
+                                     ["info"]
+                                     ["let"
+                                      [["kind" [":kind" "info"]]]
+                                      ["if"
+                                       ["=" "kind" ":defs"]
+                                       ["[]" ":collection" ":files" [":ns" "info"] ":defs" [":extra" "info"]]
+                                       ["[]" ":collection" ":files" [":ns" "info"] "kind"]]]],
+                        "helper-create-def" ["defn"
+                                             "helper-create-def"
+                                             ["ns-part" "name-part" "code-path" "focus"]
+                                             ["fn"
+                                              ["files"]
+                                              ["if"
+                                               ["contains-def?" "files" "ns-part" "name-part"]
+                                               "files"
+                                               ["assoc-in"
+                                                "files"
+                                                ["[]" "ns-part" ":defs" "name-part"]
+                                                ["let"
+                                                 [["as-fn?"
+                                                   ["and" ["not" ["empty?" "focus"]] ["zero?" ["last" "focus"]]]]]
+                                                 ["if"
+                                                  "as-fn?"
+                                                  ["let"
+                                                   [["expression"
+                                                     ["get-in"
+                                                      "files"
+                                                      ["concat" ["make-short-path" "code-path"] ["butlast" "focus"]]]]]
+                                                   ["if"
+                                                    [">" ["count" "expression"] "1"]
+                                                    ["[]" "|defn" "name-part" ["subvec" "expression" "1"]]
+                                                    ["[]" "|defn" "name-part" ["[]"]]]]
+                                                  ["[]" "|def" "name-part" ["[]"]]]]]]]],
+                        "helper-put-path" ["defn"
+                                           "helper-put-path"
+                                           ["ns-part" "name-part"]
+                                           ["fn"
+                                            ["writer"]
+                                            ["->"
+                                             "writer"
+                                             ["update"
+                                              ":stack"
+                                              ["fn"
+                                               ["stack"]
+                                               ["let"
+                                                [["next-pointer" ["inc" [":pointer" "writer"]]]
+                                                 ["code-path"
+                                                  ["{}"
+                                                   [":ns" "ns-part"]
+                                                   [":kind" ":defs"]
+                                                   [":extra" "name-part"]
+                                                   [":focus" ["[]"]]]]]
+                                                ["if"
+                                                 ["<" ["dec" ["count" "stack"]] "next-pointer"]
+                                                 ["conj" "stack" "code-path"]
+                                                 ["if"
+                                                  ["=path?" "code-path" ["get" "stack" "next-pointer"]]
+                                                  "stack"
+                                                  ["conj"
+                                                   ["into" ["[]"] ["subvec" "stack" "0" "next-pointer"]]
+                                                   "code-path"]]]]]]
+                                             ["update" ":pointer" "inc"]]]],
+                        "make-short-path" ["defn"
+                                           "make-short-path"
+                                           ["info"]
+                                           ["let"
+                                            [["kind" [":kind" "info"]]]
+                                            ["if"
+                                             ["=" "kind" ":defs"]
+                                             ["[]" [":ns" "info"] ":defs" [":extra" "info"]]
+                                             ["[]" [":ns" "info"] "kind"]]]]},
                  :procs []},
          "comp.workspace" {:ns ["ns"
                                 "stack-editor.comp.workspace"
@@ -647,6 +686,7 @@
                                  ["[]" "cirru-editor.comp.editor" ":refer" ["[]" "comp-editor"]]
                                  ["[]" "stack-editor.util.keycode" ":as" "keycode"]
                                  ["[]" "stack-editor.util.dom" ":as" "dom"]
+                                 ["[]" "stack-editor.util" ":refer" ["[]" "make-path"]]
                                  ["[]" "stack-editor.style.widget" ":as" "widget"]]],
                            :defs {"on-command" ["defn"
                                                 "on-command"
@@ -712,9 +752,7 @@
                                                          ["tree"
                                                           ["if"
                                                            ["some?" "code-path"]
-                                                           ["get-in"
-                                                            "store"
-                                                            ["cons" ":collection" ["cons" ":files" "code-path"]]]
+                                                           ["get-in" "store" ["make-path" "code-path"]]
                                                            "nil"]]]
                                                         ["div"
                                                          ["{}"
@@ -735,7 +773,7 @@
                                                              [":editor" "states"]
                                                              ["{}"
                                                               [":tree" "tree"]
-                                                              [":focus" [":focus" "writer"]]
+                                                              [":focus" [":focus" "code-path"]]
                                                               [":clipboard" [":clipboard" "writer"]]]
                                                              "on-update"
                                                              ["on-command" "store"]]]
@@ -822,8 +860,7 @@
                                     [":router"
                                      ["{}" [":name" ":loading"] [":data" ":definitions"] [":show-palette?" "false"]]]
                                     [":collection" ["{}" [":package" "nil"] [":files" ["{}"]]]]
-                                    [":writer"
-                                     ["{}" [":stack" ["[]"]] [":pointer" "0"] [":focus" ["[]"]] [":clipboard" ["[]"]]]]
+                                    [":writer" ["{}" [":stack" ["[]"]] [":pointer" "0"] [":clipboard" ["[]"]]]]
                                     [":notifications" ["[]"]]
                                     [":modal-stack" ["[]"]]
                                     [":states" ["{}"]]]]},
@@ -972,7 +1009,8 @@
                                                   "init-state"
                                                   ["code-path"]
                                                   ["let"
-                                                   [[["[]" "ns-part" "kind" "extra-name"] "code-path"]]
+                                                   [[["{}" ["ns-part" ":ns"] ["kind" ":kind"] ["extra-name" ":extra"]]
+                                                     "code-path"]]
                                                    ["if"
                                                     ["=" "kind" ":defs"]
                                                     ["str" "ns-part" "|/" "extra-name"]
@@ -1290,13 +1328,21 @@
                                            ["ns-text"]
                                            ["fn"
                                             ["e" "dispatch!"]
-                                            ["dispatch!" ":collection/edit" ["[]" "ns-text" ":ns"]]]],
+                                            ["dispatch!"
+                                             ":collection/edit"
+                                             ["{}" [":ns" "ns-text"] [":kind" ":ns"] [":extra" "nil"] [":focus" ["[]"]]]]]],
                                "on-proc" ["defn"
                                           "on-proc"
                                           ["ns-name"]
                                           ["fn"
                                            ["e" "dispatch!"]
-                                           ["dispatch!" ":collection/edit" ["[]" "ns-name" ":procs"]]]],
+                                           ["dispatch!"
+                                            ":collection/edit"
+                                            ["{}"
+                                             [":ns" "ns-name"]
+                                             [":kind" ":procs"]
+                                             [":extra" "nil"]
+                                             [":focus" ["[]"]]]]]],
                                "style-ns" ["def"
                                            "style-ns"
                                            ["{}"
@@ -1404,15 +1450,29 @@
                                                      ["do"
                                                       ["dispatch!"
                                                        ":collection/edit"
-                                                       ["[]" ["get" "command" "1"] ":defs" ["last" "command"]]]]]
+                                                       ["{}"
+                                                        [":ns" ["get" "command" "1"]]
+                                                        [":kind" ":defs"]
+                                                        [":extra" ["last" "command"]]
+                                                        [":focus" ["[]"]]]]]]
                                                     [":ns"
                                                      ["do"
-                                                      ["dispatch!" ":collection/edit" ["[]" ["last" "command"] ":ns"]]]]
+                                                      ["dispatch!"
+                                                       ":collection/edit"
+                                                       ["{}"
+                                                        [":ns" ["get" "command" "1"]]
+                                                        [":kind" ":ns"]
+                                                        [":extra" "nil"]
+                                                        [":focus" ["[]"]]]]]]
                                                     [":procs"
                                                      ["do"
                                                       ["dispatch!"
                                                        ":collection/edit"
-                                                       ["[]" ["last" "command"] ":procs"]]]]
+                                                       ["{}"
+                                                        [":ns" ["get" "command" "1"]]
+                                                        [":kind" ":procs"]
+                                                        [":extra" "nil"]
+                                                        [":focus" ["[]"]]]]]]
                                                     "nil"]]],
                                 "comp-palette" ["def"
                                                 "comp-palette"
@@ -1749,7 +1809,8 @@
                                                    ["[]"
                                                     "idx"
                                                     ["let"
-                                                     [[["[]" "ns-part" "kind" "extra-name"] "item"]]
+                                                     [[["{}" ["ns-part" ":ns"] ["kind" ":kind"] ["extra-name" ":extra"]]
+                                                       "item"]]
                                                      ["if"
                                                       ["=" "kind" ":defs"]
                                                       ["div"
@@ -1889,7 +1950,11 @@
                                                     ["e" "dispatch!"]
                                                     ["dispatch!"
                                                      ":collection/edit"
-                                                     ["[]" "ns-name" ":defs" "definition-path"]]
+                                                     ["{}"
+                                                      [":ns" "ns-name"]
+                                                      [":kind" ":defs"]
+                                                      [":extra" "definition-path"]
+                                                      [":focus" ["[]"]]]]
                                                     ["focus!"]]],
                              "by-var-part" ["defn"
                                             "by-var-part"
@@ -1972,7 +2037,14 @@
                                                    ["let"
                                                     [["cursor" ["first" "tree"]]
                                                      ["at-head?" ["tree-contains?" "cursor" "x"]]]
-                                                    ["if" "at-head?" "true" ["recur" ["rest" "tree"] "x"]]]]]]},
+                                                    ["if" "at-head?" "true" ["recur" ["rest" "tree"] "x"]]]]]],
+                               "=path?" ["defn"
+                                         "=path?"
+                                         ["x" "y"]
+                                         ["and"
+                                          ["=" [":ns" "x"] [":ns" "y"]]
+                                          ["=" [":kind" "x"] [":kind" "y"]]
+                                          ["=" [":extra" "x"] [":extra" "y"]]]]},
                         :procs []},
          "updater.modal" {:ns ["ns" "stack-editor.updater.modal"],
                           :defs {"mould" ["defn"
@@ -2069,13 +2141,22 @@
                                     "stack-editor.updater.collection"
                                     [":require"
                                      ["[]" "clojure.string" ":as" "string"]
-                                     ["[]" "stack-editor.util" ":refer" ["[]" "helper-notify" "helper-put-ns"]]]],
+                                     ["[]"
+                                      "stack-editor.util"
+                                      ":refer"
+                                      ["[]" "helper-notify" "helper-put-ns" "make-path"]]
+                                     ["[]" "stack-editor.util.detect" ":refer" ["[]" "=path?"]]]],
                                :defs {"rename" ["defn"
                                                 "rename"
                                                 ["store" "op-data" "op-id"]
                                                 ["let"
                                                  [[["[]" "code-path" "new-form"] "op-data"]
-                                                  [["[]" "ns-part" "kind" "extra-name"] "code-path"]
+                                                  [["{}"
+                                                    ["ns-part" ":ns"]
+                                                    ["kind" ":kind"]
+                                                    ["extra-name" ":extra"]
+                                                    ["focus" ":focus"]]
+                                                   "code-path"]
                                                   ["pointer" ["get-in" "store" ["[]" ":writer" ":pointer"]]]]
                                                  ["case"
                                                   "kind"
@@ -2092,11 +2173,14 @@
                                                        ["assoc" "new-form" ["get" "files" "ns-part"]]]]]
                                                     ["assoc-in"
                                                      ["[]" ":writer" ":stack" "pointer"]
-                                                     ["[]" "new-form" "kind"]]]]
+                                                     ["{}"
+                                                      [":ns" "new-form"]
+                                                      [":kind" ":ns"]
+                                                      [":extra" "nil"]
+                                                      [":focus" "focus"]]]]]
                                                   [":defs"
                                                    ["let"
-                                                    [[["[]" "new-ns" "new-name"] ["string/split" "new-form" "|/"]]
-                                                     ["new-path" ["[]" "new-ns" ":defs" "new-name"]]]
+                                                    [[["[]" "new-ns" "new-name"] ["string/split" "new-form" "|/"]]]
                                                     ["->"
                                                      "store"
                                                      ["update-in"
@@ -2121,8 +2205,19 @@
                                                           ["fn" ["dict"] ["dissoc" "dict" "extra-name"]]]
                                                          ["assoc-in"
                                                           ["[]" "new-ns" ":defs" "new-name"]
-                                                          ["get-in" "files" "code-path"]]]]]]
-                                                     ["assoc-in" ["[]" ":writer" ":stack" "pointer"] "new-path"]]]]
+                                                          ["get-in"
+                                                           "files"
+                                                           ["if"
+                                                            ["=" ":defs" "kind"]
+                                                            ["[]" "ns-part" ":defs" "extra-name"]
+                                                            ["[]" "ns-part" "kind"]]]]]]]]
+                                                     ["assoc-in"
+                                                      ["[]" ":writer" ":stack" "pointer"]
+                                                      ["{}"
+                                                       [":ns" "new-ns"]
+                                                       [":kind" ":defs"]
+                                                       [":extra" "new-name"]
+                                                       [":focus" "focus"]]]]]]
                                                   ["do" ["println" "|Cannot rename:" "code-path" "new-form"] "store"]]]],
                                       "remove-this" ["defn"
                                                      "remove-this"
@@ -2255,29 +2350,25 @@
                                                       ["writer" [":writer" "store"]]
                                                       ["stack" [":stack" "writer"]]
                                                       ["pointer" [":pointer" "writer"]]
-                                                      ["clipboard" [":clipboard" "op-data"]]]
+                                                      ["clipboard" [":clipboard" "op-data"]]
+                                                      ["path-info" ["get" "stack" "pointer"]]]
                                                      ["->"
                                                       "store"
-                                                      ["assoc-in" ["[]" ":writer" ":focus"] "focus"]
+                                                      ["assoc-in" ["[]" ":writer" ":stack" "pointer" ":focus"] "focus"]
                                                       ["assoc-in" ["[]" ":writer" ":clipboard"] "clipboard"]
-                                                      ["assoc-in"
-                                                       ["cons"
-                                                        ":collection"
-                                                        ["cons" ":files" ["get" "stack" "pointer"]]]
-                                                       "tree"]]]],
+                                                      ["assoc-in" ["make-path" "path-info"] "tree"]]]],
                                       "hydrate" ["defn"
                                                  "hydrate"
                                                  ["store" "op-data" "op-id"]
                                                  ["let"
                                                   [["writer" [":writer" "store"]]
                                                    ["collection" [":collection" "store"]]
-                                                   ["path"
-                                                    ["concat"
-                                                     ["[]" ":collection"]
-                                                     ["get" [":stack" "writer"] [":pointer" "writer"]]
-                                                     [":focus" "writer"]]]]
-                                                  ["println" "path"]
-                                                  ["assoc-in" "store" "path" "op-data"]]],
+                                                   ["code-path" ["get" [":stack" "writer"] [":pointer" "writer"]]]]
+                                                  ["println" "code-path"]
+                                                  ["assoc-in"
+                                                   "store"
+                                                   ["concat" ["make-path" "code-path"] [":focus" "code-path"]]
+                                                   "op-data"]]],
                                       "edit" ["defn"
                                               "edit"
                                               ["store" "op-data"]
@@ -2290,7 +2381,19 @@
                                                  ["fn"
                                                   ["writer"]
                                                   ["let"
-                                                   [["stack" [":stack" "writer"]] ["pos" [".indexOf" "stack" "path"]]]
+                                                   [["stack" [":stack" "writer"]]
+                                                    ["pos"
+                                                     ["loop"
+                                                      ["[]" "xs" "stack" "x" "0"]
+                                                      ["if"
+                                                       ["empty?" "xs"]
+                                                       "-1"
+                                                       ["do"
+                                                        ["println" "path" ["first" "xs"]]
+                                                        ["if"
+                                                         ["=path?" "path" ["first" "xs"]]
+                                                         "x"
+                                                         ["recur" ["rest" "xs"] ["inc" "x"]]]]]]]]
                                                    ["if"
                                                     ["neg?" "pos"]
                                                     ["->"
@@ -2309,7 +2412,7 @@
                                                         ["conj"
                                                          ["subvec" "stack" "0" ["inc" [":pointer" "writer"]]]
                                                          "path"]]]]]
-                                                    ["->" "writer" ["assoc" ":focus" ["[]"]] ["assoc" ":pointer" "pos"]]]]]]
+                                                    ["->" "writer" ["assoc" ":pointer" "pos"]]]]]]
                                                 ["assoc" ":router" ["{}" [":name" ":workspace"] [":data" "nil"]]]]]],
                                       "add-definition" ["defn"
                                                         "add-definition"
@@ -2445,6 +2548,7 @@
                          [":require"
                           ["[]" "cljs.reader" ":refer" ["[]" "read-string"]]
                           ["[]" "ajax.core" ":refer" ["[]" "GET" "POST" "PATCH" "json-request-format"]]
+                          ["[]" "stack-editor.util" ":refer" ["[]" "make-path"]]
                           ["[]" "stack-editor.util.querystring" ":refer" ["[]" "parse-query"]]
                           ["[]" "shallow-diff.diff" ":refer" ["[]" "diff"]]]],
                     :defs {"load-collection!" ["defn"
@@ -2546,11 +2650,8 @@
                                             ["let"
                                              [["writer" [":writer" "store"]]
                                               ["collection" [":collection" "store"]]
-                                              ["path"
-                                               ["concat"
-                                                ["get" [":stack" "writer"] [":pointer" "writer"]]
-                                                [":focus" "writer"]]]
-                                              ["tree" ["get-in" "collection" "path"]]]
+                                              ["path-info" ["get" [":stack" "writer"] [":pointer" "writer"]]]
+                                              ["tree" ["get-in" "store" ["make-path" "path-info"]]]]
                                              ["if"
                                               ["some?" "tree"]
                                               ["->"

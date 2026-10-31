@@ -16,7 +16,9 @@
 (def style-list {:max-height 240, :overflow "auto"})
 
 (defn on-edit-definition [ns-name definition-path]
-  (fn [e dispatch!] (dispatch! :collection/edit [ns-name :defs definition-path]) (focus!)))
+  (fn [e dispatch!]
+    (dispatch! :collection/edit {:ns ns-name, :kind :defs, :extra definition-path, :focus []})
+    (focus!)))
 
 (defn by-var-part [code-entry]
   (let [path (first code-entry)] (last (string/split path "/"))))

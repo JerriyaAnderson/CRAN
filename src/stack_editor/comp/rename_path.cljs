@@ -7,7 +7,7 @@
             [stack-editor.style.widget :as widget]))
 
 (defn init-state [code-path]
-  (let [[ns-part kind extra-name] code-path]
+  (let [{ns-part :ns, kind :kind, extra-name :extra} code-path]
     (if (= kind :defs) (str ns-part "/" extra-name) ns-part)))
 
 (defn on-input [cursor] (fn [e dispatch!] (dispatch! :states [cursor (:value e)])))

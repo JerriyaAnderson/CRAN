@@ -23,9 +23,21 @@
       :patch (dispatch! :effect/submit true)
       :dehydrate (dispatch! :effect/dehydrate nil)
       :hydrate (dispatch! :modal/mould {:title :hydrate, :data nil})
-      :defs (do (dispatch! :collection/edit [(get command 1) :defs (last command)]))
-      :ns (do (dispatch! :collection/edit [(last command) :ns]))
-      :procs (do (dispatch! :collection/edit [(last command) :procs]))
+      :defs
+        (do
+         (dispatch!
+          :collection/edit
+          {:ns (get command 1), :kind :defs, :extra (last command), :focus []}))
+      :ns
+        (do
+         (dispatch!
+          :collection/edit
+          {:ns (get command 1), :kind :ns, :extra nil, :focus []}))
+      :procs
+        (do
+         (dispatch!
+          :collection/edit
+          {:ns (get command 1), :kind :procs, :extra nil, :focus []}))
       nil)))
 
 (def style-container

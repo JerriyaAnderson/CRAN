@@ -55,7 +55,7 @@
              (map-indexed
               (fn [idx item]
                 [idx
-                 (let [[ns-part kind extra-name] item]
+                 (let [{ns-part :ns, kind :kind, extra-name :extra} item]
                    (if (= kind :defs)
                      (div
                       {:style style-bar, :event {:click (on-click idx)}}

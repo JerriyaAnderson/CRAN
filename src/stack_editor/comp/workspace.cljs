@@ -12,6 +12,7 @@
             [cirru-editor.comp.editor :refer [comp-editor]]
             [stack-editor.util.keycode :as keycode]
             [stack-editor.util.dom :as dom]
+            [stack-editor.util :refer [make-path]]
             [stack-editor.style.widget :as widget]))
 
 (defn on-command [store]
@@ -79,9 +80,7 @@
              stack (get-in store [:writer :stack])
              pointer (get-in store [:writer :pointer])
              code-path (get stack pointer)
-             tree (if (some? code-path)
-                    (get-in store (cons :collection (cons :files code-path)))
-                    nil)]
+             tree (if (some? code-path) (get-in store (make-path code-path)) nil)]
          (div
           {:style (merge ui/fullscreen ui/row style-container)}
           (div
@@ -96,7 +95,7 @@
               :editor
               (comp-editor
                (:editor states)
-               {:tree tree, :focus (:focus writer), :clipboard (:clipboard writer)}
+               {:tree tree, :focus (:focus code-path), :clipboard (:clipboard writer)}
                on-update
                (on-command store)))
              (div

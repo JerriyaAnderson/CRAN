@@ -1,5 +1,5 @@
 
-(ns stack-editor.util )
+(ns stack-editor.util (:require [stack-editor.util.detect :refer [contains-def? =path?]]))
 
 (defn remove-idx [xs idx]
   (let [xs-size (count xs)]
@@ -19,7 +19,51 @@
   (fn [writer]
     (-> writer
         (update :pointer inc)
-        (assoc :focus [])
         (update
          :stack
-         (fn [stack] (conj (subvec stack 0 (inc (:pointer writer))) [ns-name :ns]))))))
+         (fn [stack]
+           (conj
+            (subvec stack 0 (inc (:pointer writer)))
+            {:ns ns-name, :kind :ns, :extra nil, :focus []}))))))
+
+(defn make-path [info]
+  (let [kind (:kind info)]
+    (if (= kind :defs)
+      [:collection :files (:ns info) :defs (:extra info)]
+      [:collection :files (:ns info) kind])))
+
+(defn make-short-path [info]
+  (let [kind (:kind info)]
+    (if (= kind :defs) [(:ns info) :defs (:extra info)] [(:ns info) kind])))
+
+(defn helper-create-def [ns-part name-part code-path focus]
+  (fn [files]
+    (if (contains-def? files ns-part name-part)
+      files
+      (assoc-in
+       files
+       [ns-part :defs name-part]
+       (let [as-fn? (and (not (empty? focus)) (zero? (last focus)))]
+         (if as-fn?
+           (let [expression (get-in
+                             files
+                             (concat (make-short-path code-path) (butlast focus)))]
+             (if (> (count expression) 1)
+               ["defn" name-part (subvec expression 1)]
+               ["defn" name-part []]))
+           ["def" name-part []]))))))
+
+(defn helper-put-path [ns-part name-part]
+  (fn [writer]
+    (-> writer
+        (update
+         :stack
+         (fn [stack]
+           (let [next-pointer (inc (:pointer writer))
+                 code-path {:ns ns-part, :kind :defs, :extra name-part, :focus []}]
+             (if (< (dec (count stack)) next-pointer)
+               (conj stack code-path)
+               (if (=path? code-path (get stack next-pointer))
+                 stack
+                 (conj (into [] (subvec stack 0 next-pointer)) code-path))))))
+        (update :pointer inc))))
