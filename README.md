@@ -51,7 +51,7 @@ op=watch port=7010 extension=.cljs out=src/ stack-editor ir.edn
 
 Project template https://github.com/mvc-works/stack-workflow
 
-Read [developer.md](./docs/develop.md) for more.
+Read [developer.md](https://github.com/Cirru/stack-editor/wiki/Develop) for more.
 
 ### License
 
