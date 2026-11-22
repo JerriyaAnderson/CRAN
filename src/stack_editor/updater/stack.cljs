@@ -38,12 +38,12 @@
                     that-ns (drop-pkg (locate-ns ns-part current-ns files))]
                 (if (contains? files that-ns)
                   (if (contains-def? files that-ns var-part)
-                    (update store :writer (helper-put-path that-ns var-part))
+                    (update store :writer (helper-put-path that-ns var-part [2]))
                     (-> store
                         (update-in
                          [:collection :files]
                          (helper-create-def that-ns var-part code-path focus))
-                        (update :writer (helper-put-path that-ns var-part))))
+                        (update :writer (helper-put-path that-ns var-part [2]))))
                   (-> store
                       (update
                        :notifications
@@ -56,7 +56,7 @@
                       (update-in
                        [:collection :files]
                        (helper-create-def that-ns stripped-target code-path focus))
-                      (update :writer (helper-put-path that-ns stripped-target)))
+                      (update :writer (helper-put-path that-ns stripped-target [2])))
                   (-> store
                       (update
                        :notifications
@@ -67,7 +67,7 @@
               (if (contains-def? files that-ns var-part)
                 (if (= code-path {:ns that-ns, :kind :defs, :extra var-part})
                   store
-                  (update store :writer (helper-put-path that-ns var-part)))
+                  (update store :writer (helper-put-path that-ns var-part [])))
                 (-> store
                     (update
                      :notifications

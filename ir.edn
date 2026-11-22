@@ -170,7 +170,7 @@
                                                              ["update"
                                                               "store"
                                                               ":writer"
-                                                              ["helper-put-path" "that-ns" "var-part"]]
+                                                              ["helper-put-path" "that-ns" "var-part" ["[]" "2"]]]
                                                              ["->"
                                                               "store"
                                                               ["update-in"
@@ -182,7 +182,7 @@
                                                                 "focus"]]
                                                               ["update"
                                                                ":writer"
-                                                               ["helper-put-path" "that-ns" "var-part"]]]]
+                                                               ["helper-put-path" "that-ns" "var-part" ["[]" "2"]]]]]
                                                             ["->"
                                                              "store"
                                                              ["update"
@@ -212,7 +212,7 @@
                                                                "focus"]]
                                                              ["update"
                                                               ":writer"
-                                                              ["helper-put-path" "that-ns" "stripped-target"]]]
+                                                              ["helper-put-path" "that-ns" "stripped-target" ["[]" "2"]]]]
                                                             ["->"
                                                              "store"
                                                              ["update"
@@ -243,7 +243,7 @@
                                                             ["update"
                                                              "store"
                                                              ":writer"
-                                                             ["helper-put-path" "that-ns" "var-part"]]]
+                                                             ["helper-put-path" "that-ns" "var-part" ["[]"]]]]
                                                            ["->"
                                                             "store"
                                                             ["update"
@@ -634,7 +634,7 @@
                                                   ["[]" "|def" "name-part" ["[]"]]]]]]]],
                         "helper-put-path" ["defn"
                                            "helper-put-path"
-                                           ["ns-part" "name-part"]
+                                           ["ns-part" "name-part" "focus"]
                                            ["fn"
                                             ["writer"]
                                             ["->"
@@ -650,7 +650,7 @@
                                                    [":ns" "ns-part"]
                                                    [":kind" ":defs"]
                                                    [":extra" "name-part"]
-                                                   [":focus" ["[]"]]]]]
+                                                   [":focus" "focus"]]]]
                                                 ["if"
                                                  ["<" ["dec" ["count" "stack"]] "next-pointer"]
                                                  ["conj" "stack" "code-path"]

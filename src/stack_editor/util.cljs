@@ -53,14 +53,14 @@
                ["defn" name-part []]))
            ["def" name-part []]))))))
 
-(defn helper-put-path [ns-part name-part]
+(defn helper-put-path [ns-part name-part focus]
   (fn [writer]
     (-> writer
         (update
          :stack
          (fn [stack]
            (let [next-pointer (inc (:pointer writer))
-                 code-path {:ns ns-part, :kind :defs, :extra name-part, :focus []}]
+                 code-path {:ns ns-part, :kind :defs, :extra name-part, :focus focus}]
              (if (< (dec (count stack)) next-pointer)
                (conj stack code-path)
                (if (=path? code-path (get stack next-pointer))
