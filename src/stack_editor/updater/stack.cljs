@@ -142,7 +142,9 @@
                                                           (:procs file)
                                                           extra-name)]
                                       (if proc-matching?
-                                        (cons [ns-name :procs] matched-defs)
+                                        (cons
+                                         {:ns ns-name, :kind :procs, :extra nil}
+                                         matched-defs)
                                         matched-defs))))))
                              (filter (fn [xs] (not (empty? xs))))
                              (apply concat))]
